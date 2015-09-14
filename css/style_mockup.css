@@ -1,0 +1,155 @@
+@charset "utf-8";
+/*
+html {
+	background: url(../img/bg-texture.png) repeat;	
+}
+
+body {
+	font: 100%/1.4 Verdana, Arial, Helvetica, sans-serif;
+	margin: 0;
+	padding: 0;
+	color: #000;
+	background: url(../img/headerW.png) repeat-x ;
+}
+
+ul, ol, dl { 
+	padding: 0;
+	margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6, p, li {
+	margin-top: 0;	 
+	padding-right: 15px;
+	padding-left: 15px; 
+}
+
+a img { 
+	border: none;
+}
+
+a:hover, a:active, a:focus { 
+	text-decoration: none;
+}
+
+header, section, footer, aside, nav, article, figure {
+	display: block;
+}
+
+.container {
+	width: 960px;
+	
+	margin: 0 auto;
+ 	min-height: 100%;
+}
+
+header {	
+	height:175px;
+	width:960px;
+	margin: 0 auto;
+}
+
+.content { visibility:hidden; }
+*/
+.logo {
+	margin: 20px;	
+	margin-top:0px;
+	padding-top: 15px;
+}
+
+.logoCP  {
+	float:left;
+	height:90px;
+	width:170px;
+}
+
+.logoFAO {
+	float:right;
+}
+/*
+.content {
+	padding: 10px 0;
+}
+
+nav {
+	padding-top: 128px;	
+}
+
+nav ul {
+	float:left;
+	text-align: center;
+	list-style: none outside none; 
+	margin-bottom: 15px;
+}
+nav ul li {
+	display:inline;
+	
+}
+
+a, a:visited, a:active, a:hover {
+	color: #399BCC;
+	text-decoration:none;	
+}
+a:hover { text-decoration:underline; }
+*/
+#map-cluster {
+	height:400px;
+}
+
+#commodity, #countries {
+	width:100%;	
+}
+
+.content-item {
+	margin-top: 6px; 
+	border: 1px solid #bbbbbb;	
+}
+
+footer {
+	color: #00aeef;
+	margin-top:20px;
+	border-top: 1px solid #bbbbbb;	
+	padding: 10px 0;
+	background: #FFF;
+	position: relative;
+	clear: both;
+	text-align:center;
+}
+
+.slider_tooltip {
+	display: block;
+	position: absolute;
+	border: 1px solid #D9D9D9;
+	font: 400 12px/12px Arial;
+	border-radius: 3px;
+	background: #fff;
+	top: 28px;
+	padding: 5px;
+	left: -22px;
+	text-align: center;
+	width: 80px;
+}
+.slider_tooltip strong {
+	display: block;
+	padding: 2px;
+}
+.noUi-connect { background: #399BCC !important; }	
+.leaflet-draw-actions li { padding: 0px; }
+
+.webix_pager_item {
+	background:#D9D9D9 !important;
+	color: #399BCC !important;
+}
+	
+.webix_pager_item_selected {	
+	background: #399BCC !important;
+	border-color: #D9D9D9 !important;
+}	
+
+#table-pager {
+	margin: 0 auto;	
+}
+
+.wx-font {
+	font-size: 13px;
+	font-family: "Roboto Condensed";
+}
