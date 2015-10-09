@@ -8,9 +8,16 @@ $( document ).ready(function() {
 	var allAddressPoints = [];
 	
 	var controlSearch  = null;
+	var addressSearch = null; 
 	
 	var globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/"
 	//var globalURI = "http://168.202.28.127:8080/restsql-0.8.8/res/"
+	
+	// WDS
+	var WDSURI =  "http://fenixapps2.fao.org/wds-5.2.1/rest/crud/";
+	var DATASOURCE = "CROWD";
+	//var WDSURI =  "http://168.202.28.127:8080/wds/rest/crud/";
+	//var DATASOURCE = "DEV";
 
 	var initLatLon = [-6.816330, 39.276638];
 	var initGaul = 257
@@ -159,8 +166,34 @@ $( document ).ready(function() {
 			});
 			
 			/* Map */			
-			initMap();			
+			initMap();	
 		
+	}
+	
+	function getFromWDS(query) {
+		$.ajax({
+		  type: 'GET',
+		  url: WDSURI,
+		  data: {
+			  payload: '{"query": "'+query+'"}',
+			  datasource: DATASOURCE,
+				  outputType: 'array'
+			  },
+			  success: function (response) {
+				
+				  var json = response;
+				  if (typeof json == 'string')
+					  json = $.parseJSON(response);
+				  
+				  
+				  console.log("OK:"+JSON.stringify(json));
+				  return(response);
+			  },
+			  error: function (a) {
+				  console.log("KO:"+a.responseText);
+				  return null;                            
+			  }
+		  });
 	}
 		
 	
@@ -264,7 +297,7 @@ $( document ).ready(function() {
 				var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&commoditycode=";
 			}			
 			var baseURI2 = globalURI+"auto.market?_output=json";
-			//console.log(baseURI1);
+			console.log(baseURI1);
 			// baseURI+commodityItem[i]+"&_output=json"
 			$.each(names, function (i, name) {				
 				$.getJSON( baseURI1+commodityItem[i]+"&_output=json" , function (data) {
@@ -334,7 +367,7 @@ $( document ).ready(function() {
 						*/
 						//console.log("fine1");
 					} else {
-						alert("New Data Found - Please reload");
+						/*alert*/console.log("New Data Found - Please reload");
 						getMarkers(null);
 					}
 				});
@@ -609,6 +642,9 @@ $( document ).ready(function() {
 		
 		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&_output=json';
 		var URI2 = globalURI+'auto.data?vendorcode=';
+		// "auto.dataweb?gaul0code=("+nations+ ')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
+		
+		
 		if (markers != null) { 
 			map.removeLayer(markers);
 			markers = L.markerClusterGroup();
@@ -623,7 +659,15 @@ $( document ).ready(function() {
 			var addressPoints = [];	
 			address = 0;
 			
-			$.each(data.vendors, function (f,k) {				
+			$.each(data.vendors, function (f,k) {	
+				var qString = "SELECT AVG(price), COUNT(price) FROM data WHERE vendorcode='"+k.code+"'";
+				if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
+				var avg = getFromWDS(qString);
+				//console.log(qString);
+				//console.log("danni veri ["+avg+"]");
+				var avgS = ""
+				if (avg !== undefined) avgS = " - " +( avg[1][0] / avg[1][1] ) + munit +"\/"+ currency;
+
 				vendors.push(k.name);
 				vendorcode.push(k.code);
 				lats.push(k.lat);
@@ -631,7 +675,7 @@ $( document ).ready(function() {
 					var temp = [];	
 					temp.push(k.lat);
 					temp.push(k.lon);
-					temp.push(k.name+" %");
+					temp.push(k.name+avgS);
 					addressPoints.push(temp);		
 					address++ ;
 					//console.log(data.vendors.length+" > "+address);
@@ -759,6 +803,13 @@ $( document ).ready(function() {
 				if (controlSearch != null) map.removeControl (controlSearch);
 				controlSearch = new L.Control.Search({layer: markers, initial: false, position:'topright'});
 				map.addControl( controlSearch );
+				
+				if (addressSearch != null) map.removeControl (addressSearch);
+				addressSearch = new L.Control.GeoSearch({
+        		    provider: new L.GeoSearch.Provider.Google(),
+					showMarker: false,
+		        })
+				map.addControl( addressSearch );
 				 
 			}	
 			
