@@ -4,7 +4,7 @@ $( document ).ready(function() {
 	var map = null;
 	var markers = null;
 	var munit = "Kg";
-	var currency = "USD";
+	var currency = "CFA";
 	var allAddressPoints = [];
 	
 	var controlSearch  = null;
@@ -18,11 +18,19 @@ $( document ).ready(function() {
 	var DATASOURCE = "CROWD";
 	//var WDSURI =  "http://168.202.28.127:8080/wds/rest/crud/";
 	//var DATASOURCE = "DEV";
-
-	var initLatLon = [-6.816330, 39.276638];
+	
+	/*
+	var initLatLon = [-6.816330, 39.276638];	
 	var initGaul = 257
 	var nations = [257];
+	*/
+	var initLatLon = [3.866667, 11.516667];
+	var initGaul = 45
+	var nations = [45];
 	
+	console.log("UPD");
+
+
 	var allDatas = [];
 	var allCity = [];
 	var allMarket = [];
@@ -93,7 +101,7 @@ $( document ).ready(function() {
 			nations = countries;
 			// TODO: Metterle Dinamiche
 			munit = "Kg"
-			currency = "USD";
+			currency = "CFA";
 			/*
 			if (countries) {
 				var tempCountries = [];				
@@ -180,14 +188,15 @@ $( document ).ready(function() {
 				  outputType: 'array'
 			  },
 			  success: function (response) {
-				
+				  //console.log(response[1]);
+				  return response[1];				  
 				  var json = response;
 				  if (typeof json == 'string')
 					  json = $.parseJSON(response);
 				  
 				  
-				  console.log("OK:"+JSON.stringify(json));
-				  return(response);
+				  //console.log("OK:"+JSON.stringify(json));
+				  
 			  },
 			  error: function (a) {
 				  console.log("KO:"+a.responseText);
@@ -297,7 +306,7 @@ $( document ).ready(function() {
 				var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&commoditycode=";
 			}			
 			var baseURI2 = globalURI+"auto.market?_output=json";
-			console.log(baseURI1);
+			//console.log(baseURI1);
 			// baseURI+commodityItem[i]+"&_output=json"
 			$.each(names, function (i, name) {				
 				$.getJSON( baseURI1+commodityItem[i]+"&_output=json" , function (data) {
@@ -411,29 +420,133 @@ $( document ).ready(function() {
 	}	
 	
 	function reloadTable () {
-		//console.log("RELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOADRELOAD");
+		console.log("RELOAD");
 	}
 	
-	function createTable() {
+	function createTable() {	
+		/*
+		if (tableIsInit) {				
+			console.log("!webix");
+			tableObj.clearAll()							
+		}	
+		*/
+		var allDatas = [];
+		console.log("createTable");
+		if (tableIsInit) {
+			console.log("!createTable");
+			return;
+		}
+		
+		var qString = "SELECT data.gaul0code, commodity.code as commocode, city.name as citycode, market.name as marketcode, data.vendorname, commodity.name as commoditycode, data.price, data.quantity, data.fulldate FROM data, city, vendor, market, commodity WHERE data.citycode = city.code AND CAST(data.marketcode AS INT) = market.code AND data.gaul0code='45' AND commodity.code = ANY('{"+commodityItem.toString()+"}') ORDER BY fulldate ";
+		//if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
+		qString = qString + "limit 100";
+		
+		$.ajax({
+		  type: 'GET',
+		  url: WDSURI,
+		  data: {
+			  payload: '{"query": "'+qString+'"}',
+			  datasource: DATASOURCE,
+				  outputType: 'object'
+			  },
+			  success: function (response) {
+				console.log(response);
+				allDatas = response;
+				allDatas.shift();
+				tableObj = webix.ui({
+				container:"table",
+				view:"datatable",
+				scrollY:true,
+				sizeToContent:true,
+				
+				on:{
+					onBeforeLoad:function(){
+						this.showOverlay("Loading...");
+					},
+					onAfterLoad:function(){
+						this.hideOverlay();
+						reloadTable();
+						if (!this.count()) this.showOverlay("Sorry, there is no data");	
+						tableIsInit = true;						
+					},
+					onDataRequest:function() {
+						reloadTable();
+					},
+					onDataUpdate:function() {
+						reloadTable();
+					}
+				},
+					
+				pager:{
+					container:"table-pager",
+					size:30, 
+					group:5,
+					template:" {common.prev()} {common.pages()} {common.next()}" 
+				},
+												 /*width:176,*/ /*width:210,*/ /*width:210,*/ /*width:210,*/ /*width:130,*/ /*width:200,*/
+				columns:[
+		{ id:"citycode", minWidth:170, css: "wx-font" , header:[ "City",{content:"textFilter"}]	},
+		{ id:"marketcode",  minWidth:170, css: "wx-font" , header:[ "Market",{content:"textFilter"}] },
+		{ id:"vendorname",  minWidth:170, css: "wx-font" , header:[ "Vendor",{content:"textFilter"}] },
+		{ id:"commoditycode",  minWidth:170, css: "wx-font" , header:[ "Commodity",{content:"textFilter"}] },
+		{ id:"price",  minWidth:170, css: "wx-font" , header:"Price (CFA)", format:webix.Number.numToStr({ 
+																											groupDelimiter:",", 
+																											groupSize:3, 
+																											decimalDelimiter:".", 
+																											decimalSize:2})},
+		{ id:"quantity",  css: "wx-font" , header:"Quantity (KG)", format:webix.Number.numToStr({ 
+																											groupDelimiter:",", 
+																											groupSize:3, 
+																											decimalDelimiter:".", 
+																											decimalSize:2})},																											
+		{ id:"fulldate",  css: "wx-font" , header:"Date", format:webix.i18n.fullDateFormatStr, sort: "date"}																											
+				],
+				autoheight:true,
+				
+				
+				data: allDatas
+			});
+			  },
+			  error: function (a) {
+				  console.log("KO:"+a.responseText);						               
+			  }
+		  });
+		  
+		  
+				
+			
+	}
+	
+	function createTable2() {
+		console.log("createTable2");
 		
 		if (tableIsInit) {
 			console.log("!createTable");
 			return;
 		}
-		console.log("createTable");
+		
 		allDatas = [];
+		allCity = [];
+		allMarket = [];
+		allCommodity = [];
 		
 		$.getJSON(globalURI+"auto.city?_output=json", function (data) { allCity = data.citys; });
 		$.getJSON(globalURI+"auto.market?_output=json", function (data) { allMarket = data.markets; });
 		$.getJSON(globalURI+"auto.commodity?_output=json", function (data) { allCommodity = data.commoditys; });
-		if (nations == null) nations = 257;
-		$.getJSON(globalURI+"auto.data?gaul0code=("+nations.toString()+ ")&_output=json&_limit=100&_offset=0", function (data) {
+		
+		if (nations == null) nations = 45;
+		console.log(nations.toString());
+		$.getJSON(globalURI+"auto.dataweb?commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0", function (data) {
+				console.log(globalURI+"auto.dataweb?commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0");
+				console.log(data.datas);
 				data.datas = data.datas.sort(function(a, b) {
 					//return (a['fulldate'] > b['fulldate']);
 					return new Date(b['fulldate']) - new Date(a['fulldate']);
 				});	
+							
 				allDatas = data.datas;
-				
+				console.log(data.datas);
+			
 		});
 		
 		function mergeArrays(start) {
@@ -451,14 +564,14 @@ $( document ).ready(function() {
 				findAndReplace(start, "commoditycode", value.code, value.name);
 			});
 			allDatas = start;
-			//console.log("merged",allDatas);
+			console.log("merged",allDatas);
 		}
 		
 		//
 		
 		$(document).ajaxStop(function () { 				
 			console.log("webix: "+tableIsInit);
-			var uri = globalURI+"auto.data?gaul0code=("+nations.toString()+ ")&_output=json&_limit=100&_offset=0";
+			var uri = globalURI+"auto.dataweb?commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0";
 			/*
 			console.log("allDatas [B]");
 			console.log(allDatas);
@@ -469,18 +582,11 @@ $( document ).ready(function() {
 			
 			mergeArrays(allDatas);
 			
-			if (tableIsInit) {				
-				console.log("!webix");
-				tableObj.clearAll()				
-				tableObj.load(uri,function(text, data, http_request){					
-					var obj = JSON.parse(text);					
-					mergeArrays(obj.datas);
-					tableObj.parse(obj.datas);
-				});
-				return;
-			}			
 			
-			//tableObj = $("#table").webix_datatable({			
+					
+			
+			//tableObj = $("#table").webix_datatable({	
+					
 			tableObj = webix.ui({
 				container:"table",
 				view:"datatable",
@@ -517,7 +623,7 @@ $( document ).ready(function() {
 		{ id:"marketcode",  minWidth:170, css: "wx-font" , header:[ "Market",{content:"textFilter"}] },
 		{ id:"vendorname",  minWidth:170, css: "wx-font" , header:[ "Vendor",{content:"textFilter"}] },
 		{ id:"commoditycode",  minWidth:170, css: "wx-font" , header:[ "Commodity",{content:"textFilter"}] },
-		{ id:"price",  minWidth:170, css: "wx-font" , header:"Price (USD)", format:webix.Number.numToStr({ 
+		{ id:"price",  minWidth:170, css: "wx-font" , header:"Price (CFA)", format:webix.Number.numToStr({ 
 																											groupDelimiter:",", 
 																											groupSize:3, 
 																											decimalDelimiter:".", 
@@ -547,7 +653,7 @@ $( document ).ready(function() {
 	function initSlider() {
 		if ((startDate !== undefined) && (endDate !== undefined)){
 			isInit = true;
-			
+			console.log(startDate,endDate);
 			$("#slider").noUiSlider({
 			// Create two timestamps to define a range.
 				range: {
@@ -662,24 +768,49 @@ $( document ).ready(function() {
 			$.each(data.vendors, function (f,k) {	
 				var qString = "SELECT AVG(price), COUNT(price) FROM data WHERE vendorcode='"+k.code+"'";
 				if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
-				var avg = getFromWDS(qString);
+				var avg = [];
+				var avgS = "";
+				/*
+				avg = getFromWDS(qString);
+				console.log(avg);
 				//console.log(qString);
 				//console.log("danni veri ["+avg+"]");
 				var avgS = ""
-				if (avg !== undefined) avgS = " - " +( avg[1][0] / avg[1][1] ) + munit +"\/"+ currency;
-
-				vendors.push(k.name);
-				vendorcode.push(k.code);
-				lats.push(k.lat);
-				lons.push(k.lon);
-					var temp = [];	
-					temp.push(k.lat);
-					temp.push(k.lon);
-					temp.push(k.name+avgS);
-					addressPoints.push(temp);		
-					address++ ;
-					//console.log(data.vendors.length+" > "+address);
-					if ( address >= data.vendors.length ) refreshCluster();						
+				if (avg !== undefined) avgS = " - " +( parseInt(avg[1][0]) / parseInt(avg[1][1]) ) + munit +"\/"+ currency;
+				*/
+				$.ajax({
+				  type: 'GET',
+				  url: WDSURI,
+				  data: {
+					  payload: '{"query": "'+qString+'"}',
+					  datasource: DATASOURCE,
+						  outputType: 'array'
+					  },
+					  success: function (response) {
+						//console.log(response);						
+						if (response[1] !== undefined) 
+							avgS = " - " +( parseFloat(response[1][0]).toFixed(2) ) + currency +"\/"+ munit;
+						vendors.push(k.name);
+						vendorcode.push(k.code);
+						lats.push(k.lat);
+						lons.push(k.lon);
+							var temp = [];	
+							temp.push(k.lat);
+							temp.push(k.lon);
+							temp.push(k.name+avgS);
+							addressPoints.push(temp);		
+							address++ ;
+							//console.log(data.vendors.length+" > "+address);
+							if ( address >= data.vendors.length ) refreshCluster();						
+						
+						  
+						  
+					  },
+					  error: function (a) {
+						  console.log("KO:"+a.responseText);						               
+					  }
+				  });				
+				
 			});	
 			/*
 			
@@ -758,6 +889,7 @@ $( document ).ready(function() {
 					  //console.log ("pop!");
 					  var a = addressPoints[i];
 					  var title = a[2];
+					  //console.log(a.toString());
 					  var cIcon = desatIcon;
 					  var position = new L.LatLng(a[0], a[1]);
 					  var temp = [];
@@ -1005,7 +1137,7 @@ $( document ).ready(function() {
 			map = L.map('map-cluster', {
 			 	center: initLatLon, 
 				attributionControl: false, 
-				zoom: 7, 
+				zoom: 5, 
 				markerZoomAnimation: true,
 				layers: [tiles]
 			});
@@ -1071,7 +1203,7 @@ $( document ).ready(function() {
 		// reload graphs	
 		updateChart();	
 		// reload table
-		createTable();
+		//createTable();
 
 	}
 	
