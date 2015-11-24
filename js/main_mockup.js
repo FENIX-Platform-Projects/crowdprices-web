@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-	var itemToInit = 2;
+	var itemToInit = 3;
 	var counterUI = 0;
 	var map = null;
 	var markers = null;
@@ -25,11 +25,10 @@ $( document ).ready(function() {
 	var nations = [257];
 	*/
 	var initLatLon = [3.866667, 11.516667];
-	var initGaul = 45
+	var initGaul = 45;
 	var nations = [45];
 	
 	console.log("UPD");
-
 
 	var allDatas = [];
 	var allCity = [];
@@ -39,6 +38,8 @@ $( document ).ready(function() {
 	var commodityMaps = "";
 	var commodityItem = [];
 	var commodityName = [];
+
+	var checkedMarkets = [];
 	
 	var startDate;
 	var endDate;
@@ -62,8 +63,8 @@ $( document ).ready(function() {
 	}
 	
 	function startUI() {
-		//console.log("startUI");
-		$(".content").css('visibility', 'visible');
+		console.log("startUI");
+		//$(".content").css('visibility', 'visible');
 	}
 	
 	function timestamp(str){
@@ -91,17 +92,31 @@ $( document ).ready(function() {
 		$(this).html(formatDate(new Date(+value)));   
 	}
 
+	function updateNations() {
+		var countries = $("#countries").chosen().val();
+		nations = countries;
+		getMarkets(true);
+
+		//populateUI();
+		//updateValues();
+	}
+
 	function updateValues() {					
-			var items = $("#commodity").chosen().val();	
+			var items = $("#commodity").chosen().val();
 			var countries = $("#countries").chosen().val();
+
+			munit = "Kg"
+			currency = "CFA";
+			nations = countries;
+
+			var markets = $("#markets").chosen().val();
 			var checkedNames = [];
             var checkedMaps  = "";
 			var checkedItems = [];
 			//
-			nations = countries;
+
+			checkedMarkets = markets;
 			// TODO: Metterle Dinamiche
-			munit = "Kg"
-			currency = "CFA";
 			/*
 			if (countries) {
 				var tempCountries = [];				
@@ -140,7 +155,7 @@ $( document ).ready(function() {
 				});
 				$('#commodity').chosen('.chosen-select');				
 				
-				updateValues();
+				//updateValues();
 				$('#commodity').on('change', function(evt, params) {
 					//console.log("udadas");
 					updateValues();
@@ -161,21 +176,55 @@ $( document ).ready(function() {
 						sel.append($("<option "+first+" />").val(this.code).text(this.name));
 						first = "";
 				});
-				updateValues();
+				//updateValues();
+
 				$('#countries').chosen('.chosen-select-countries');
 				$('#countries').on('change', function(evt, params) {
-					updateValues();
+					updateNations();
   				}).trigger('chosen:updated');
 				$('#countries');
-				
+
 				counterUI++;				
 				if (  counterUI == itemToInit ) startUI();				
 				
 			});
-			
+
+			/* Market Selector */
+
+			getMarkets(false);
+
+
 			/* Map */			
 			initMap();	
 		
+	}
+
+	function getMarkets(clearall){
+		if (clearall) {
+			$("#markets").empty();
+			$('#markets').chosen("destroy");
+		}
+		$.getJSON( globalURI+'auto.market?_output=json&gaul0='+nations, function(data) {
+			var sel = $("#markets");
+			var first = "selected";
+			//	data.markets.reverse();
+			$.each(data.markets, function() {
+				sel.append($("<option selected />").val(this.code).text(this.name));
+				//		sel.append($("<option "+first+" />").val(this.code).text(this.name));
+				//		first = "";
+			});
+			updateValues();
+
+			$('#markets').chosen('.chosen-select-markets');
+			$('#markets').on('change', function(evt, params) {
+				updateValues();
+			}).trigger('chosen:updated');
+			$('#markets');
+
+			counterUI++;
+			if (  counterUI == itemToInit ) startUI();
+
+		});
 	}
 	
 	function getFromWDS(query) {
@@ -301,9 +350,9 @@ $( document ).ready(function() {
 			//console.log(startDate,endDate);
 
 			if ((startDate !== undefined)&&(endDate !== undefined)) {
-				var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+ ')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
+				var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+ ')&vendorcode=('+checkedMarkets.toString()+')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
 			} else {
-				var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&commoditycode=";
+				var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&vendorcode=("+checkedMarkets.toString()+")&commoditycode=";
 			}			
 			var baseURI2 = globalURI+"auto.market?_output=json";
 			//console.log(baseURI1);
@@ -746,11 +795,12 @@ $( document ).ready(function() {
 	
 	function updateMap2() {
 		
-		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&_output=json';
+		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&code=('+checkedMarkets.toString()+')&_output=json';
 		var URI2 = globalURI+'auto.data?vendorcode=';
 		// "auto.dataweb?gaul0code=("+nations+ ')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
 		
-		
+		console.log(URI);
+
 		if (markers != null) { 
 			map.removeLayer(markers);
 			markers = L.markerClusterGroup();

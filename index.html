@@ -101,27 +101,31 @@
       <div class="content">    
           
         <div id="nation-selector" class="fx-home-content-grid-top"> 
-			<h2>Countries<h2>
+			<h2>Countries</h2>
             <select id="countries"  data-placeholder="Select Countries..." class="chosen-select-countries"></select>
         </div>
-        <div id="commodity-selector" class="fx-home-content-grid-top"> 
-			<h2>Commodities<h2>
+        <div id="market-selector" class="fx-home-content-grid-top">
+            <h2>Markets</h2>
+            <select id="markets"  data-placeholder="Select Markets..." class="chosen-select-markets" multiple tabindex="4" ></select>
+        </div>
+        <div id="commodity-selector" class="fx-home-content-grid-top">
+			<h2>Commodities</h2>
             <select id="commodity"  data-placeholder="Select Commodity..." class="chosen-select" multiple  tabindex="4"></select>
         </div>
-        <h2>Date Range<h2>
+        <h2>Date Range</h2>
         <div id="slider"></div> 
 		<br>
         <h2>Markets<h2>
         <div id="map-cluster" class="content-item"></div>
-        <h2>Daily Prices<h2>
+        <h2>Daily Prices</h2>
         <div id="hi-stock1" class="content-item"></div>
-        <h2>Average Prices<h2>	
+        <h2>Average Prices</h2>
         <div id="hi-stock2" class="content-item"></div>
-        <!--
+
         <h2>Daily Data<h2>	
         <div id="table"  style='width:100%;'></div>
        	<div align="center" id="table-pager"></div>
-        -->
+
       </div>
     </div>
     <footer>   </footer> 
@@ -136,7 +140,8 @@ $(document).ready(function(){
 });
 
 function resizeChosen() {
-   $(".chosen-container").each(function() {
+    console.log("resizeChose");
+    $(".chosen-container").each(function() {
        $(this).attr('style', 'width: 100%');
    });      
     
