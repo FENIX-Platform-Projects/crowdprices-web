@@ -471,6 +471,82 @@ $( document ).ready(function() {
 	function reloadTable () {
 		console.log("RELOAD");
 	}
+
+	function createTable3() {
+		var allDatas = [];
+		console.log("createTable3");
+		if (tableIsInit) {
+			console.log("!createTable3");
+			return;
+		}
+		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND data.commoditycode = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND CAST(data.marketcode AS INT) = market.code ORDER BY data.fulldate DESC ";
+		//var qString = "SELECT data.gaul0code, commodity.code as commocode, city.name as citycode, market.name as marketcode, data.vendorname, commodity.name as commoditycode, data.price, data.quantity, data.fulldate FROM data, city, vendor, market, commodity WHERE data.citycode = city.code AND CAST(data.marketcode AS INT) = market.code AND data.gaul0code='45' AND commodity.code = ANY('{"+commodityItem.toString()+"}') ORDER BY fulldate ";
+		//if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
+		qString = qString + "limit 100";
+
+		console.log(qString);
+
+		$.ajax({
+			type: 'GET',
+			url: WDSURI,
+			data: {
+				payload: '{"query": "'+qString+'"}',
+				datasource: DATASOURCE,
+				outputType: 'object'
+			},
+			success: function (response) {
+				console.log("createTable3");
+				console.log(response);
+				allDatas = response;
+				allDatas.shift();
+				$('#table').bootstrapTable({
+					columns: [{
+						field: 'cityname',
+						title: 'City',
+						sortable: true,
+						searchable: true
+					}, {
+						field: 'marketname',
+						title: 'Market',
+						sortable: true,
+						searchable: true
+					}, {
+						field: 'vendorname',
+						title: 'Vendor',
+						sortable: true,
+						searchable: true
+					}, {
+						field: 'commodityname',
+						title: 'Commodity',
+						sortable: true,
+						searchable: true
+					}, {
+						field: 'price',
+						title: 'Price ('+currency+')',
+						sortable: true
+					}, {
+						field: 'quantity',
+						title: 'Quantity ('+munit+')',
+						sortable: true
+					}, {
+						field: 'fulldate',
+						title: 'Date',
+						sortable: true,
+						searchable: true
+					}],
+					data: allDatas,
+					pagination: true,
+					search: true,
+					sortable: true
+
+				});
+			},
+			error: function (a) {
+				console.log("KO:"+a.responseText);
+			}
+		});
+
+	}
 	
 	function createTable() {	
 		/*
@@ -485,8 +561,9 @@ $( document ).ready(function() {
 			console.log("!createTable");
 			return;
 		}
-		
-		var qString = "SELECT data.gaul0code, commodity.code as commocode, city.name as citycode, market.name as marketcode, data.vendorname, commodity.name as commoditycode, data.price, data.quantity, data.fulldate FROM data, city, vendor, market, commodity WHERE data.citycode = city.code AND CAST(data.marketcode AS INT) = market.code AND data.gaul0code='45' AND commodity.code = ANY('{"+commodityItem.toString()+"}') ORDER BY fulldate ";
+
+		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND data.commoditycode = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND CAST(data.marketcode AS INT) = market.code ORDER BY data.fulldate DESC ";
+		//var qString = "SELECT data.gaul0code, commodity.code as commocode, city.name as citycode, market.name as marketcode, data.vendorname, commodity.name as commoditycode, data.price, data.quantity, data.fulldate FROM data, city, vendor, market, commodity WHERE data.citycode = city.code AND CAST(data.marketcode AS INT) = market.code AND data.gaul0code='45' AND commodity.code = ANY('{"+commodityItem.toString()+"}') ORDER BY fulldate ";
 		//if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		qString = qString + "limit 100";
 		
@@ -799,7 +876,7 @@ $( document ).ready(function() {
 		var URI2 = globalURI+'auto.data?vendorcode=';
 		// "auto.dataweb?gaul0code=("+nations+ ')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
 		
-		console.log(URI);
+		//console.log(URI);
 
 		if (markers != null) { 
 			map.removeLayer(markers);
@@ -1253,7 +1330,7 @@ $( document ).ready(function() {
 		// reload graphs	
 		updateChart();	
 		// reload table
-		//createTable();
+		createTable3();
 
 	}
 	
