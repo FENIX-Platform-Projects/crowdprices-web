@@ -98,7 +98,7 @@ $( document ).ready(function() {
 		getMarkets(true);
 
 		//populateUI();
-		//updateValues();
+		updateValues();
 	}
 
 	function updateValues() {					
@@ -484,7 +484,7 @@ $( document ).ready(function() {
 		//if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		qString = qString + "limit 100";
 
-		console.log(qString);
+		//console.log(qString);
 
 		$.ajax({
 			type: 'GET',
@@ -871,8 +871,11 @@ $( document ).ready(function() {
 	}
 	
 	function updateMap2() {
-		
+		console.log("nations:"+nations);
+		console.log("checkedMarkets.toString():"+checkedMarkets.toString());
+
 		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&code=('+checkedMarkets.toString()+')&_output=json';
+		console.log(URI);
 		var URI2 = globalURI+'auto.data?vendorcode=';
 		// "auto.dataweb?gaul0code=("+nations+ ')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
 		
@@ -1252,9 +1255,10 @@ $( document ).ready(function() {
 	
 	function initMap() {
 		//console.log("initMap");
-		  var tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-			  maxZoom: 18,
-			  attributionControl: false
+		  var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+			  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+			  subdomains: 'abcd',
+			  maxZoom: 19
 		  });
 		  
 //		  var center = 
