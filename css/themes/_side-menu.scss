@@ -1,11 +1,72 @@
-/* Afg - Side Menu */
+/* Side Menu */
+
+
+/*!
+ * Start Bootstrap - Simple Sidebar HTML Template (http://startbootstrap.com)
+ * Code licensed under the Apache License v2.0.
+ * For details, see http://www.apache.org/licenses/LICENSE-2.0.
+ */
+
+/* Toggle Styles */
+
+#wrapper {
+  padding-left: 0;
+
+}
+
+#wrapper.toggled {
+  padding-left: 300px;
+}
+
+#sidebar-wrapper {
+  left: 300px;
+  margin-left: -300px;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  width: 300px;
+}
+
+
+
+#wrapper.toggled #page-content-wrapper {
+  margin-right: -300px;
+}
+
+/* Sidebar Styles */
+
+.sidebar-nav {
+  width: 300px;
+}
+
+
+@media(min-width:768px) {
+  #wrapper {
+    padding-left: 300px;
+  }
+
+  #wrapper.toggled {
+    padding-left: 0;
+  }
+
+  #sidebar-wrapper {
+    width: 300px;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    width: 0;
+  }
+
+
+}
+
 
 #sidebar-wrapper{
-  padding-top: 50px;
+  padding-top: 100px;
   background-color: $afg-custom-color1;
 
   .sidebar-nav{
-    top: 50px;
+    top: 100px;
 
     li{
       line-height: 50px;
@@ -62,7 +123,7 @@
 
 #page-content-wrapper{
   padding: 0;
-  padding-top: 50px;
+  padding-top: 100px;
 
   .container-fluid.main-content{
     padding-left: 0;
@@ -77,66 +138,53 @@
 
 #wrapper {
 
+
   .page-content-toolbar-btn{
-    left: 10px;
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    top: 2px;
+    border-color: transparent;
+    background-color: transparent;
+    @include fx-no-border;
+    color: $fenix-text;
+    font-size: 40px;
+    padding: 0;
+    right: 15px;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
   }
 
-  .page-content-toolbar-btn.pull-right{
-    right: 10px;
-    left: 0;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
 
-  }
 
 }
 
 #wrapper.toggled {
 
-  .page-content-toolbar-btn{
-    left: 260px;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
-
-  }
-
-  .page-content-toolbar-btn.pull-right{
-    right: 10px;
-    left: 0;
+  .page-content-toolbar {
+    margin-left: 0;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
   }
+
 
 }
 
 
-#wrapper #sidebar-wrapper {
+#wrapper  {
 
   .brand-logo{
     margin-left: 50px;
+    background-color: white;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
-    h4{
-      color: $fenix-text;
 
-    }
-
-    span{
-      color: $fenix-text;
-
-    }
 
   }
 
@@ -144,7 +192,7 @@
 
 }
 
-#wrapper.toggled #sidebar-wrapper {
+#wrapper.toggled  {
 
   .brand-logo{
     margin-left: 0px;
@@ -179,21 +227,15 @@
   .open-overlay.page-content-toolbar-btn{
     left: auto;
     position: absolute;
-    right: 250px;
+    right: 300px;
   }
 }
 
-#wrapper.toggled{
-  .open-overlay.page-content-toolbar-btn{
-    left: auto;
-    position: absolute;
-    right: 0;
-  }
-}
+
 
 @media(min-width:768px) {
 
-  #wrapper #sidebar-wrapper {
+  #wrapper {
 
     .brand-logo{
       margin-left: 0px;
@@ -202,7 +244,7 @@
 
   }
 
-  #wrapper.toggled #sidebar-wrapper {
+  #wrapper.toggled {
 
     .brand-logo{
       margin-left: 0;
@@ -229,15 +271,6 @@
 
   }
 
-  #wrapper #sidebar-wrapper {
-    .brand-logo{
-      h4{
-        color: white;
-      }
-      span{
-        color: white;
-      }
-    }
-  }
+
 }
 

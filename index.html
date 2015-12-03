@@ -11,23 +11,27 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-	<link rel="icon" href="img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
     <link href="css/style_mockup.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="css/chosen.css">
     <link rel="stylesheet" href="css/leaflet.css">
-    <link rel="stylesheet" href="css/MarkerCluster.css" />
-    <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="css/MarkerCluster.css"/>
+    <link rel="stylesheet" href="css/MarkerCluster.Default.css"/>
     <link rel="stylesheet" href="js/slider/jquery.nouislider.min.css">
     <link rel="stylesheet" href="js/draw/leaflet.draw.css">
-	<link rel="stylesheet" href="css/leaflet-search.css" />
+    <link rel="stylesheet" href="css/leaflet-search.css"/>
 
     <!-- Third Party CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
+
+    <!-- Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'>
+
     <!-- Fenix CSS -->
     <link href="css/host.css" rel="stylesheet">
-    
-    
+
+
     <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -35,136 +39,290 @@
     <script src="js/chosen.js" type="text/javascript"></script>
     <script src="js/leaflet.js" type="text/javascript"></script>
     <script src="js/leaflet.markercluster.js" type="text/javascript"></script>
-	<script src="js/high/highstock.js"></script>
+    <script src="js/high/highstock.js"></script>
     <script src="js/high/modules/exporting.js"></script>
     <script src="js/slider/jquery.nouislider.all.min.js"></script>
     <script src="js/draw/leaflet.draw.js"></script>
     <script src="js/leaflet.search.js"></script>
-    
+
     <script src="js/l.control.geosearch.js"></script>
-	<script src="js/l.geosearch.provider.google.js"></script>
-	<link rel="stylesheet" href="css/l.geosearch.css" />
+    <script src="js/l.geosearch.provider.google.js"></script>
+    <link rel="stylesheet" href="css/l.geosearch.css"/>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
 
-	
-	<link rel="stylesheet" href="js/webix/webix.css" type="text/css" charset="utf-8">
-	<script src="js/webix/webix.js" type="text/javascript" charset="utf-8"></script>
+
 
     <!-- rangeslider -->
     <link rel="stylesheet" href="css/iThing-min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     <script src="js/slider/jQAllRangeSliders-min.js"></script>
 
-
-    <style>
-		.fx-background-image { background-image:  url(img/mockup/background-home.jpg); height:130px; }
-		.navbar-brand {
-			display: block;
-			width: 50px;
-			height: 50px;
-			background-image: url("http://fenix.fao.org/demo/fenix/scripts/components/fenix-ui-topmenu/css/img/fenix-ico.svg");
-			background-size: 44px 44px;
-			background-position: 0px 3px;
-			padding: 0px;
-			background-repeat: no-repeat;
-		}
-		 h1,h2 { margin-top: 10px; margin-bottom: 5px;}
-		.fx-home-header { margin-top:-5px; }
-	</style>
+    <link rel="stylesheet" href="js/webix/webix.css" type="text/css" charset="utf-8">
+    <script src="js/webix/webix.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
-    <!--
-    <header>
-      <div class="logo logoCP"><a href="#"><img src="img/cpLogo.png" width="168" height="89" /></a></div>
-      <div class="logo logoFAO"><a href="#"><img src="img/faoLogoW.png" width="77" height="75" /></a></div>  
-    -->
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-      <div class="container">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#fx-navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="index.html"></a>
-        </div>
-    
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="fx-navbar-collapse">
-          <ul class="nav navbar-nav fx-ul">
-          <li id="home"><a href="http://fenixapps2.fao.org/crowddata/"> PRICE MONITORING </a></li>
-          <li id="maps"><a href="http://fenix.fao.org/demo/fenix/">See more about FENIX platform</a></li>
-          <li id="analysis"><a href="http://fenixapps2.fao.org/repository/crowddata/CrowdPricesLatest.apk">Download App (APK)</a></li>
-          <li id="createdataset"><a href="http://fenixapps2.fao.org/repository/crowddata/changelog.txt">Latest Updates</a></li>
-    
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-        
-    <div class="fx-background-image"></div>
-    <div class="container fx-home-header">
-        <div class="row">
-            <div class="col-xs-12">
-				<h1><img alt="Visualization" src="http://fenix.fao.org/demo/fenix/css_backup/img/fenix-ico-white.svg" height="51px" width="51px"> FENIX <em>Platform</em></h1>
-                <h3>PRICE MONITORING</h3>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-      <div class="content">    
-          
-        <div id="nation-selector" class="fx-home-content-grid-top"> 
-			<h2>Countries</h2>
-            <select id="countries"  data-placeholder="Select Countries..." class="chosen-select-countries"></select>
-        </div>
-        <div id="market-selector" class="fx-home-content-grid-top">
-            <h2>Markets</h2>
-            <select id="markets"  data-placeholder="Select Markets..." class="chosen-select-markets" multiple tabindex="4" ></select>
-        </div>
-        <div id="commodity-selector" class="fx-home-content-grid-top">
-			<h2>Commodities</h2>
-            <select id="commodity"  data-placeholder="Select Commodity..." class="chosen-select" multiple  tabindex="4"></select>
-        </div>
-        <h2>Date Range</h2>
-        <div id="slider"></div> 
-		<br>
-        <h2>Markets<h2>
-        <div id="map-cluster" class="content-item"></div>
-        <h2>Daily Prices</h2>
-        <div id="hi-stock1" class="content-item"></div>
-        <h2>Average Prices</h2>
-        <div id="hi-stock2" class="content-item"></div>
 
-        <h2>Daily Data</h2>
-            <table id="table"></table>
-        <!--
-        <div id="table"  style='width:100%;'></div>
-       	<div align="center" id="table-pager"></div>
-        -->
-      </div>
+
+<div id="wrapper">
+    <!-- Logo -->
+    <div class="brand-logo">
+        <h4 class="title">CROWD PRICES</h4>
+        <span class="subtitle">Central Statistical Office of Zambia</span>
+
     </div>
-    <footer>   </footer> 
+
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+
+        <div class="fx-menu sidemenu">
+
+
+            <ul class="sidebar-nav fx-ul">
+                <li id="home"><a href="http://fenixapps2.fao.org/crowddata/"> PRICE MONITORING </a></li>
+                <li id="maps"><a href="http://fenix.fao.org/demo/fenix/">See more about FENIX platform</a></li>
+                <li id="analysis"><a href="http://fenixapps2.fao.org/repository/crowddata/CrowdPricesLatest.apk">Download
+                    App (APK)</a></li>
+                <li id="createdataset"><a href="http://fenixapps2.fao.org/repository/crowddata/changelog.txt">Latest
+                    Updates</a></li>
+            </ul>
+            <ul class="sidebar-nav fx-ul-right">
+                <li id="keys"><a href="keyindicators.html">Key indicators</a></li>
+                <li id="news"><a href="#">News</a></li>
+                <li id="documents"><a href="#">Documents</a></li>
+                <li id="links"><a href="#">Links</a></li>
+                <li id="login"><a>LOGIN</a></li>
+                <li class="lang_picker_holder">
+                    <ul class="lang_picker"></ul>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="home-content">
+
+        <div class="page-content-toolbar">
+
+
+            <a href="#menu-toggle" class="btn btn-default page-content-toolbar-btn" id="menu-toggle"> <span
+                    class="icojam_linen"></span></a>
+        </div>
+
+        <div class="container-fluid">
+
+
+            <div class="row">
+                <div class="row-same-height row-full-height">
+
+                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height country-welcome home-tile">
+                        <div>Welcome to the</div>
+
+                        <h2 class="home-tiles-title">Data Portal</h2>
+
+                        <div>of the</div>
+                        <div><b>Central Statistical Office of Zambia</b></div>
+                        <!--<div>Islamic Republic of Afghanistan</div>-->
+                        <br><br>
+
+                        <p>We use a statistical framework and applied information system for analysis and policy-making
+                            designed in order to organize, integrate and disseminate statistical data and metadata on
+                            food and agriculture coming from different sources.</p>
+
+
+                        <div class="home-detail-pointer">
+
+                            <h4 class="afg-title"> COUNTRY DETAILS</h4>
+
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-sm-height col-full-height country-details home-tile">
+                        <h1>Zambia</h1>
+
+                        <div class="home-stats-footer">
+
+                            <div class="row">
+                                <div class="col-xs-2 "><h3>Land (100ha)</h3>
+
+                                    <p class="subtitle"></p></div>
+                                <div class="col-xs-2"><h3>75,261</h3>
+
+                                    <p class="subtitle">TOTAL</p></div>
+                                <div class="col-xs-3 pie-holder">
+                                    <div id="percentage-one" class="afg-home-stats"></div>
+                                    <h3>23,385</h3>
+
+                                    <p class="subtitle">AGRICULTURAL</p></div>
+                                <div class="col-xs-3 pie-holder">
+                                    <div id="percentage-two" class="afg-home-stats"></div>
+                                    <h3>51,876</h3>
+
+                                    <p class="subtitle">NON-AGRICULTURAL</p></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 partners-holder">
+
+                    <h4>Main Partners</h4>
+
+                    <div class="partner-holder"><img src="css/img/partners/zam-logos.png" class="img-responsive"></div>
+
+
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="row-same-height row-full-height">
+
+                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile aims">
+                        <h4 class="afg-title">PRINCIPAL AIMS</h4>
+                        <ol class="uae-responsability">
+                            <li>Support country expertise by providing methodology, classification and coding system for
+                                collection, standardization and harmonization of data coming from various local sources.
+                            </li>
+                            <li>Promote partnerships between various statistical institutions within countries.
+                            </li>
+                            <li>Assist countries in integrating and organizing national data to make them comparable at
+                                international level.
+                            </li>
+                            <li>Establishing national statistical databases covering economic, social, demographic,
+                                environment,
+                                energy and other fields.
+                            </li>
+                            <li>Facilitate the analysis of data for supply utilization accounts and food balance sheets
+                            </li>
+                            <li>Implement a programme that facilitates electronic data collection from countries,
+                                reducing the burden on these countries in completing numerous questionnaires.
+                            </li>
+                        </ol>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile gray">
+                        <div class="news-content">
+                            <h4 class="afg-title">NEWS</h4>
+
+                            <h2 class="home-tiles-title">New CountrySTAT website</h2>
+
+                            <p>Statistical framework and applied information system</p>
+
+                            <div>
+                                <a class="btn btn-default more pull-right"> <span
+                                        class="icojam_button_new_1"></span></a>
+                            </div>
+                        </div>
+
+                        <div class="news-image"></div>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile map">
+                        <h4 class="afg-title">GEO-LOCATION</h4>
+
+                        <h3>15 00 S, 30 00 E</h3>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-xs-12 afg-footer">
+                    <div class="afg-footer-text">
+                        <p>2015 ® Central Statistic Organization</p>
+
+                        <p class="pull-right">POWERED BY FENIX <img src="css/img/fenix-logo.jpg"></p>
+                    </div>
+
+                </div>
+            </div>
+
+
+
+                <div class="content">
+
+                    <div id="nation-selector" class="fx-home-content-grid-top">
+                        <h2>Countries</h2>
+                        <select id="countries" data-placeholder="Select Countries..." class="chosen-select-countries"></select>
+                    </div>
+                    <div id="market-selector" class="fx-home-content-grid-top">
+                        <h2>Markets</h2>
+                        <select id="markets" data-placeholder="Select Markets..." class="chosen-select-markets" multiple
+                                tabindex="4"></select>
+                    </div>
+                    <div id="commodity-selector" class="fx-home-content-grid-top">
+                        <h2>Commodities</h2>
+                        <select id="commodity" data-placeholder="Select Commodity..." class="chosen-select" multiple
+                                tabindex="4"></select>
+                    </div>
+                    <h2>Date Range</h2>
+
+                    <div id="slider"></div>
+                    <br>
+
+                    <h2>Markets</h2>
+                    <div id="map-cluster" class="content-item"></div>
+                    <h2>Daily Prices</h2>
+
+                    <div id="hi-stock1" class="content-item"></div>
+                    <h2>Average Prices</h2>
+
+                    <div id="hi-stock2" class="content-item"></div>
+
+                    <h2>Daily Data</h2>
+                    <table id="table"></table>
+                    <!--
+                    <div id="table"  style='width:100%;'></div>
+                       <div align="center" id="table-pager"></div>
+                    -->
+                </div>
+
+
+            <br><br><br><br>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- /#page-content-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
 </body>
 <script src="js/main_mockup.js"></script>
 <script src="js/bootstrap.min.js"></script>
+<script src="js/sparkilne-charts.js"></script>
 <script type="text/javascript" charset="utf-8">
-// Test Purpose Only
-$(document).ready(function(){      
-   resizeChosen();
-   jQuery(window).on('resize', resizeChosen);
-});
+    // Test Purpose Only
+    $(document).ready(function () {
+        resizeChosen();
+        jQuery(window).on('resize', resizeChosen);
+    });
 
-function resizeChosen() {
-    console.log("resizeChose");
-    $(".chosen-container").each(function() {
-       $(this).attr('style', 'width: 100%');
-   });      
-    
-}
+    function resizeChosen() {
+        console.log("resizeChose");
+        $(".chosen-container").each(function () {
+            $(this).attr('style', 'width: 100%');
+        });
+
+    }
+
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+        resizeChosen();
+    });
 </script>
 </html>

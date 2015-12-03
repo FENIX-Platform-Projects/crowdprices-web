@@ -7,8 +7,6 @@ $fx-ui-common: '../submodules/fenix-ui-common/css/';
 @import '../submodules/fenix-ui-common/css/fenix-style-no-variables';
 
 /* Pages */
-@import 'pages/analysis';
-@import 'pages/datamanagement';
 @import 'pages/home';
 
 //
@@ -18,4 +16,3 @@ $fx-ui-common: '../submodules/fenix-ui-common/css/';
 /* Theme */
 @import "themes/side-menu";
 @import 'themes/theme';
-
