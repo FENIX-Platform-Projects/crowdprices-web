@@ -16,6 +16,23 @@
 
 #wrapper.toggled {
   padding-left: 300px;
+
+  .icon-bar {
+    width: 22px;
+    transition: all 0.2s;
+  }
+  .top-bar {
+    transform: rotate(45deg);
+    transform-origin: 10% 10%;
+  }
+  .middle-bar {
+    opacity: 0;
+  }
+  .bottom-bar {
+    transform: rotate(-45deg);
+    transform-origin: 10% 90%;
+  }
+
 }
 
 #sidebar-wrapper {
@@ -31,9 +48,49 @@
 
 #wrapper.toggled #page-content-wrapper {
   margin-right: -300px;
+
+
+
 }
 
 /* Sidebar Styles */
+
+
+.page-content-toolbar-btn {
+
+
+
+  .icon-bar {
+    background-color: #888;
+    display: block;
+    width: 22px;
+    height: 2px;
+    border-radius: 1px;
+    transition: all 0.2s;
+  }
+
+  .icon-bar+.icon-bar {
+    margin-top: 4px;
+  }
+
+
+
+
+  .top-bar {
+    transform: rotate(0);
+  }
+  .middle-bar {
+    opacity: 1;
+  }
+  .bottom-bar {
+    transform: rotate(0);
+  }
+
+}
+
+
+
+
 
 .sidebar-nav {
   width: 300px;
@@ -143,7 +200,7 @@
     height: 30px;
     width: 30px;
     position: absolute;
-    top: 2px;
+    top: 45px;
     border-color: transparent;
     background-color: transparent;
     @include fx-no-border;
@@ -178,7 +235,7 @@
 #wrapper  {
 
   .brand-logo{
-    margin-left: 50px;
+
     background-color: white;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
@@ -202,7 +259,6 @@
     transition: all 0.5s ease;
 
     h4{
-      color: white;
       -webkit-transition: all 0.5s ease;
       -moz-transition: all 0.5s ease;
       -o-transition: all 0.5s ease;
@@ -233,16 +289,45 @@
 
 
 
+.brand-logo {
+  width: 315px;
+  background-color: transparent;
+
+  .subtitle {
+
+    opacity: 0;
+  }
+}
+
+.page-content-toolbar {
+  margin-left: 0;
+}
+
+
 @media(min-width:768px) {
 
   #wrapper {
 
     .brand-logo{
+      width: 60%;
+      background-color: white;
       margin-left: 0px;
+
+      .subtitle {
+        opacity: 1;
+      }
 
     }
 
   }
+
+  .page-content-toolbar{
+    margin-left: -300px;
+  }
+
+
+
+
 
   #wrapper.toggled {
 
@@ -265,6 +350,10 @@
         transition: all 0.5s ease;
       }
 
+    }
+
+    .page-content-toolbar-btn{
+      right: 15px;
     }
 
 
