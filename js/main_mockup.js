@@ -775,8 +775,32 @@ $( document ).ready(function() {
 		});
 		//});
 	}
-	
+
 	function initSlider() {
+		if ((startDate !== undefined) && (endDate !== undefined)){
+			isInit = true;
+			console.log(startDate,endDate);
+			console.log(new Date(startDate),new Date(endDate));
+			$("#slider").dateRangeSlider({
+				bounds: {min: new Date(startDate), max: new Date(endDate)},
+				step: {days:1},
+				defaultValues: {min: new Date(startDate), max: new Date(endDate)}
+			});
+			$("#slider").on("valuesChanged", function(e, data){
+				console.log("Something moved. min: " + data.values.min + " max: " + data.values.max);
+				var d1 = formatDate(data.values.min);
+				var d2 = formatDate(data.values.max);
+				//console.log(startDate, endDate);
+				startDate =  d1;
+				endDate = d2;
+				updateValues();
+			});
+		} else {
+			alert("Dates undefined");
+		}
+	}
+
+	function initSliderOld() {
 		if ((startDate !== undefined) && (endDate !== undefined)){
 			isInit = true;
 			console.log(startDate,endDate);
@@ -883,7 +907,9 @@ $( document ).ready(function() {
 
 		if (markers != null) { 
 			map.removeLayer(markers);
-			markers = L.markerClusterGroup();
+			markers = L.markerClusterGroup({
+				showCoverageOnHover: false
+			});
 			markers.clearLayers()
 		}	
 		
@@ -1096,7 +1122,9 @@ $( document ).ready(function() {
 			map.remove();
 			*/
 			map.removeLayer(markers);
-			markers = L.markerClusterGroup();
+			markers = L.markerClusterGroup({
+				markerClusterGroup:false
+			});
 			//console.log(markers);
 			markers.clearLayers()
 			//markers = null;
