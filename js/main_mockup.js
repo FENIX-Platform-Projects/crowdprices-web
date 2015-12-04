@@ -1294,11 +1294,12 @@ $( document ).ready(function() {
 		//  if (markers == null) { 
 			markers = L.markerClusterGroup();
 			map = L.map('map-cluster', {
-			 	center: initLatLon, 
-				attributionControl: false, 
-				zoom: 5, 
+			 	center: initLatLon,
+				attributionControl: false,
+				zoom: 5,
 				markerZoomAnimation: true,
-				layers: [tiles]
+				layers: [tiles],
+				scrollWheelZoom: false
 			});
 			// Initialise the FeatureGroup to store editable layers
 			var drawnItems = new L.FeatureGroup();

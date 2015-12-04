@@ -22,10 +22,16 @@ hr{
 
 /* Typography */
 h1, h2, h3, h4{
-
+  font-family: 'Oswald', sans-serif;
 }
 
+h2{
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: 400;
+  color: $fx-cool-blue;
 
+}
 
 
 .brand-logo{
@@ -231,6 +237,7 @@ h1, h2, h3, h4{
 .afg-footer{
   height: 80px;
   background-color: white;
+  padding: 0 15px;
 
 
   .afg-footer-text{
@@ -261,4 +268,18 @@ h1, h2, h3, h4{
 
 
 
+.leaflet-tile-pane{
+  opacity: 0.5;
+}
 
+.chosen-container{
+  max-height: 150px;
+  min-height: 150px;
+
+  .chosen-choices{
+    max-height: 150px;
+    min-height: 150px;
+    overflow-y: scroll;
+  }
+
+}

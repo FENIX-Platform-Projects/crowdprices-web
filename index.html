@@ -21,12 +21,10 @@
     <link rel="stylesheet" href="js/draw/leaflet.draw.css">
     <link rel="stylesheet" href="css/leaflet-search.css"/>
 
-    <!-- Third Party CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
-
     <!-- Fonts -->
     <link href='https://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Fenix CSS -->
     <link href="css/host.css" rel="stylesheet">
@@ -54,7 +52,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
 
 
-
     <!-- rangeslider -->
     <link rel="stylesheet" href="css/iThing-min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
@@ -70,11 +67,12 @@
     <!-- Logo -->
     <div class="brand-logo">
         <h4 class="title">CROWD PRICES</h4>
+
         <div class="subtitle">
             <p>Real time</p>
+
             <p>Price monitoring system</p>
         </div>
-
 
 
     </div>
@@ -93,16 +91,21 @@
                 <li id="createdataset"><a href="http://fenixapps2.fao.org/repository/crowddata/changelog.txt">Latest
                     Updates</a></li>
             </ul>
+
+
             <ul class="sidebar-nav fx-ul-right">
-                <li id="keys"><a href="keyindicators.html">Key indicators</a></li>
-                <li id="news"><a href="#">News</a></li>
-                <li id="documents"><a href="#">Documents</a></li>
-                <li id="links"><a href="#">Links</a></li>
-                <li id="login"><a>LOGIN</a></li>
-                <li class="lang_picker_holder">
-                    <ul class="lang_picker"></ul>
-                </li>
+                <li><div class="sparkline" data-sparkline="87, 44, 74, 41 "></div></li>
+
             </ul>
+
+            <ul>
+                <li>
+
+
+                </li>
+
+            </ul>
+
         </div>
 
     </div>
@@ -123,163 +126,66 @@
         </div>
 
         <div class="container-fluid">
-
-
             <div class="row">
                 <div class="row-same-height row-full-height">
 
-                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height country-welcome home-tile">
-                        <div>Welcome to the</div>
-
-                        <h2 class="home-tiles-title">Data Portal</h2>
-
-                        <div>of the</div>
-                        <div><b>Central Statistical Office of Zambia</b></div>
-                        <!--<div>Islamic Republic of Afghanistan</div>-->
-                        <br><br>
-
-                        <p>We use a statistical framework and applied information system for analysis and policy-making
-                            designed in order to organize, integrate and disseminate statistical data and metadata on
-                            food and agriculture coming from different sources.</p>
-
-
-                        <div class="home-detail-pointer">
-
-                            <h4 class="afg-title"> COUNTRY DETAILS</h4>
-
+                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile aims">
+                        <div id="nation-selector" class="fx-home-content-grid-top">
+                            <h2>Countries</h2>
+                            <select id="countries" data-placeholder="Select Countries..."
+                                    class="chosen-select-countries"></select>
                         </div>
-
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-sm-height col-full-height country-details home-tile">
-                        <h1>Zambia</h1>
+                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile gray">
+                        <div id="market-selector" class="fx-home-content-grid-top">
+                            <h2>Markets</h2>
 
-                        <div class="home-stats-footer">
-
-                            <div class="row">
-                                <div class="col-xs-2 "><h3>Land (100ha)</h3>
-
-                                    <p class="subtitle"></p></div>
-                                <div class="col-xs-2"><h3>75,261</h3>
-
-                                    <p class="subtitle">TOTAL</p></div>
-                                <div class="col-xs-3 pie-holder">
-                                    <div id="percentage-one" class="afg-home-stats"></div>
-                                    <h3>23,385</h3>
-
-                                    <p class="subtitle">AGRICULTURAL</p></div>
-                                <div class="col-xs-3 pie-holder">
-                                    <div id="percentage-two" class="afg-home-stats"></div>
-                                    <h3>51,876</h3>
-
-                                    <p class="subtitle">NON-AGRICULTURAL</p></div>
-                            </div>
-
+                            <select id="markets" data-placeholder="Select Markets..." class="chosen-select-markets"
+                                    multiple
+                                    tabindex="4"></select>
                         </div>
-
                     </div>
+                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile map">
+                        <div id="commodity-selector" class="fx-home-content-grid-top">
+                            <h2>Commodities</h2>
+                            <select id="commodity" data-placeholder="Select Commodity..." class="chosen-select" multiple
+                                    tabindex="4"></select>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-xs-12 partners-holder">
 
-                    <h4>Main Partners</h4>
-
-                    <div class="partner-holder"><img src="css/img/partners/zam-logos.png" class="img-responsive"></div>
-
-
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="row-same-height row-full-height">
-
-                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile aims">
-                        <h4 class="afg-title">PRINCIPAL AIMS</h4>
-                        <ol class="uae-responsability">
-                            <li>Support country expertise by providing methodology, classification and coding system for
-                                collection, standardization and harmonization of data coming from various local sources.
-                            </li>
-                            <li>Promote partnerships between various statistical institutions within countries.
-                            </li>
-                            <li>Assist countries in integrating and organizing national data to make them comparable at
-                                international level.
-                            </li>
-                            <li>Establishing national statistical databases covering economic, social, demographic,
-                                environment,
-                                energy and other fields.
-                            </li>
-                            <li>Facilitate the analysis of data for supply utilization accounts and food balance sheets
-                            </li>
-                            <li>Implement a programme that facilitates electronic data collection from countries,
-                                reducing the burden on these countries in completing numerous questionnaires.
-                            </li>
-                        </ol>
-                    </div>
-                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile gray">
-                        <div class="news-content">
-                            <h4 class="afg-title">NEWS</h4>
-
-                            <h2 class="home-tiles-title">New CountrySTAT website</h2>
-
-                            <p>Statistical framework and applied information system</p>
-
-                            <div>
-                                <a class="btn btn-default more pull-right"> <span
-                                        class="icojam_button_new_1"></span></a>
-                            </div>
-                        </div>
-
-                        <div class="news-image"></div>
-                    </div>
-                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile map">
-                        <h4 class="afg-title">GEO-LOCATION</h4>
-
-                        <h3>15 00 S, 30 00 E</h3>
-                    </div>
-
-
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-xs-12 afg-footer">
-                    <div class="afg-footer-text">
-                        <p>2015 ® Central Statistic Organization</p>
-
-                        <p class="pull-right">POWERED BY FENIX <img src="css/img/fenix-logo.jpg"></p>
-                    </div>
-
-                </div>
-            </div>
-
-
-
-                <div class="content">
-
-                    <div id="nation-selector" class="fx-home-content-grid-top">
-                        <h2>Countries</h2>
-                        <select id="countries" data-placeholder="Select Countries..." class="chosen-select-countries"></select>
-                    </div>
-                    <div id="market-selector" class="fx-home-content-grid-top">
-                        <h2>Markets</h2>
-                        <select id="markets" data-placeholder="Select Markets..." class="chosen-select-markets" multiple
-                                tabindex="4"></select>
-                    </div>
-                    <div id="commodity-selector" class="fx-home-content-grid-top">
-                        <h2>Commodities</h2>
-                        <select id="commodity" data-placeholder="Select Commodity..." class="chosen-select" multiple
-                                tabindex="4"></select>
-                    </div>
                     <h2>Date Range</h2>
 
-                    <div id="slider"></div>
-                    <br>
+                    <div class="slider-holder">
+                        <div id="slider"></div>
 
-                    <h2>Markets</h2>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row">
+
+
+                <div id='country-details' class="col-xs-12 country-details home-tile">
+
                     <div id="map-cluster" class="content-item"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12 charts-holder">
+                <div class="content">
+
+
                     <h2>Daily Prices</h2>
 
                     <div id="hi-stock1" class="content-item"></div>
@@ -295,16 +201,31 @@
                     -->
                 </div>
 
-
-            <br><br><br><br>
-
+            </div>
         </div>
 
+
+        <div class="row">
+            <div class="col-xs-12 afg-footer">
+                <div class="afg-footer-text">
+                    <p>2015 ® Central Statistic Organization</p>
+
+                    <p class="pull-right">POWERED BY FENIX <img src="css/img/fenix-logo.jpg"></p>
+                </div>
+
+            </div>
+        </div>
+
+
+        <br><br><br><br>
 
     </div>
 
 
-    <!-- /#page-content-wrapper -->
+</div>
+
+
+<!-- /#page-content-wrapper -->
 
 </div>
 <!-- /#wrapper -->
@@ -328,10 +249,29 @@
 
     }
 
-    $("#menu-toggle").click(function(e) {
+    $("#menu-toggle").click(function (e) {
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
         resizeChosen();
     });
+
+
+    $(window).on("resize", function () {
+        $("#map-cluster").height("#country-details").width($("#country-details"));
+
+    }).trigger("resize");
+
+    $(window).trigger("resize");
+
+
+    setTimeout(function () {
+        mapResize()
+    }, 500)
+
+    function mapResize() {
+        $(window).trigger("resize");
+        console.log('ahe');
+    }
+
 </script>
 </html>

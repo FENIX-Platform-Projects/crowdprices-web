@@ -61,11 +61,17 @@ $(function () {
                     return { x: point.plotX - w / 2, y: point.plotY - h };
                 }
             },
+            exporting: {
+                enabled: false
+            },
             plotOptions: {
                 series: {
                     animation: false,
                     lineWidth: 1,
                     shadow: false,
+                    lineColor: '#303030',
+                    fillOpacity: 0,
+                    
                     states: {
                         hover: {
                             lineWidth: 1

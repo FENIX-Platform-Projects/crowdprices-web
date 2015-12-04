@@ -6,11 +6,6 @@
 
 }
 
-.country-details{
-  background-image: url(img/zam-home.jpg);
-  background-size: cover;
-  background-position: 50% 50%;
-}
 
 
 
@@ -89,6 +84,12 @@ background-color: $afg-home-background;
   }
 
   .country-details{
+    padding: 0;
+
+
+    #map-cluster{
+      background-color: #003353;
+    }
 
     h1{
       font-size: 50px;
@@ -184,16 +185,14 @@ background-color: $afg-home-background;
 
 .partners-holder{
   background-color: #e0f1ee;
-  min-height: 100px;
+  min-height: 120px;
 
-  h4{
-    font-size: 14px;
-    color: $afg-light-blue-text;
+  .slider-holder{
+    padding: 0 15px;
   }
 
-  .partner-holder{
-    text-align: center;
-
+  h2{
+    margin-bottom: 35px;
   }
 
 
@@ -232,7 +231,8 @@ ol li:before {
 }
 
 .home-tile.gray{
-  background-color: $afg-blue-tile;
+  background-color: $center-color;
+
   position: relative;
 
   .news-content{
@@ -249,7 +249,6 @@ ol li:before {
   }
 
   h2, h4, p{
-    color: white !important;
     border-color: white;
   }
 
@@ -292,28 +291,8 @@ ol li:before {
 }
 
 .home-tile.map{
-  background-color: $afg-map-tile;
+  background-color: $superlight-gray;
   position: relative;
-  background-image: url("img/home-map-zambia.svg");
-  background-size: 570px 371px;
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
-  -webkit-transition: all 1s ease;
-  -moz-transition: all 1s ease;
-  -o-transition: all 1s ease;
-  transition: all 1s ease;
-
-
-
-  &:hover{
-    background-size: 1600px 1035px;
-    background-position: 50% 76%;
-    -webkit-transition: all 1s ease 0.2s;
-    -moz-transition: all 1s ease 0.2s;
-    -o-transition: all 1s ease 0.2s;
-    transition: all 1s ease 0.2s;
-  }
-
 
   .afg-title {
     position: absolute;
@@ -337,7 +316,13 @@ ol li:before {
 }
 
 .home-tile.aims{
-  background-color: white;
+  background-color: $superlight-gray;
+
+}
+
+.charts-holder{
+  background-color: whitesmoke;
+
 
 }
 

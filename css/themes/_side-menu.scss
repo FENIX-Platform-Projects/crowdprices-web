@@ -130,6 +130,7 @@
       background-color: $afg-custom-color2;
       margin-bottom: 1px;
       font-family: 'Roboto';
+
       font-size: 14px;
 
       &.active{
@@ -199,7 +200,7 @@
   .page-content-toolbar-btn{
     height: 30px;
     width: 30px;
-    position: absolute;
+    position: fixed;
     top: 45px;
     border-color: transparent;
     background-color: transparent;
@@ -282,7 +283,6 @@
 #wrapper{
   .open-overlay.page-content-toolbar-btn{
     left: auto;
-    position: absolute;
     right: 300px;
   }
 }
@@ -304,22 +304,9 @@
 }
 
 
-@media(min-width:768px) {
+/* Small devices (tablets, 768px and up) */
+@media (min-width: $screen-sm-min) {
 
-  #wrapper {
-
-    .brand-logo{
-      width: 60%;
-      background-color: white;
-      margin-left: 0px;
-
-      .subtitle {
-        opacity: 1;
-      }
-
-    }
-
-  }
 
   .page-content-toolbar{
     margin-left: -300px;
@@ -363,3 +350,29 @@
 
 }
 
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: $screen-md-min) {
+
+  #wrapper {
+
+    .brand-logo{
+      width: 70%;
+      background-color: white;
+      margin-left: 0px;
+
+      .subtitle {
+        opacity: 1;
+      }
+
+    }
+
+  }
+
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: $screen-lg-min) {
+
+
+}

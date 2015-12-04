@@ -675,12 +675,12 @@ $( document ).ready(function() {
 				//console.log(addressPoints.length);
 				var desatIcon = L.icon({
 					iconUrl: 'img/marker-icon-none.png',
-					shadowUrl: 'img/marker-shadow.png'
+					//shadowUrl: 'img/marker-shadow.png'
 				});
 				
 				var foundIcon = L.icon({
 					iconUrl: 'img/marker-icon.png',
-					shadowUrl: 'img/marker-shadow.png'
+					//shadowUrl: 'img/marker-shadow.png'
 				});
 				
 				var existingPoints = [];
@@ -748,16 +748,18 @@ $( document ).ready(function() {
 		//  if (markers == null) { 
 			markers = L.markerClusterGroup();
 			map = L.map('map-cluster', {
-			 	center: initLatLon, 
-				attributionControl: false, 
-				zoom: 7, 
+			 	center: initLatLon,
+				attributionControl: false,
+				zoom: 7,
 				markerZoomAnimation: true,
 				layers: [tiles]
+
 			});
 			// Initialise the FeatureGroup to store editable layers
 			var drawnItems = new L.FeatureGroup();
 			map.addLayer(drawnItems);
-			
+		map.dragging.disable();
+
 			var Doptions = {
 				position: 'topleft',
 				draw: {					

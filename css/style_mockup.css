@@ -92,7 +92,9 @@ a, a:visited, a:active, a:hover {
 a:hover { text-decoration:underline; }
 */
 #map-cluster {
-	height:400px;
+	height:100%;
+	width: 100%;
+	position: absolute;
 }
 
 #commodity, #countries, #markets {
@@ -100,8 +102,8 @@ a:hover { text-decoration:underline; }
 }
 
 .content-item {
-	margin-top: 6px; 
-	border: 1px solid #bbbbbb;	
+	/*margin-top: 6px; */
+	/*border: 1px solid #bbbbbb;	*/
 }
 
 footer {
