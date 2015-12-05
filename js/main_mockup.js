@@ -4,7 +4,7 @@ $( document ).ready(function() {
 	var map = null;
 	var markers = null;
 	var munit = "Kg";
-	var currency = "CFA";
+	var currency = "USD";
 	var allAddressPoints = [];
 	
 	var controlSearch  = null;
@@ -24,9 +24,10 @@ $( document ).ready(function() {
 	var initGaul = 257
 	var nations = [257];
 	*/
-	var initLatLon = [3.866667, 11.516667];
-	var initGaul = 45;
-	var nations = [45];
+
+	var initLatLon = [13.453 , -16.578];
+	var initGaul = 90;
+	var nations = [90];
 	
 	console.log("UPD");
 
@@ -99,6 +100,7 @@ $( document ).ready(function() {
 
 		//populateUI();
 		updateValues();
+		resizeChosen();
 	}
 
 	function updateValues() {					
@@ -106,26 +108,18 @@ $( document ).ready(function() {
 			var countries = $("#countries").chosen().val();
 
 			munit = "Kg"
-			currency = "CFA";
+			currency = "USD";
 			nations = countries;
 
 			var markets = $("#markets").chosen().val();
+			console.log(markets);
 			var checkedNames = [];
             var checkedMaps  = "";
 			var checkedItems = [];
 			//
 
 			checkedMarkets = markets;
-			// TODO: Metterle Dinamiche
-			/*
-			if (countries) {
-				var tempCountries = [];				
-				$.each(countries, function (index) {
-					tempCountries.push(parseInt(countries[index]));					
-				});
-				nations = tempCountries;
-			}			
-			*/
+
             if (items){
 				$.each(items, function (index) {
 					checkedMaps += items[index] + ",";
@@ -162,41 +156,49 @@ $( document ).ready(function() {
   				}).trigger('chosen:updated');
 				$('#commodity');
 				counterUI++;				
-				if (  counterUI == itemToInit ) startUI();				
+				if (  counterUI == itemToInit ) startUI();
+				getCountries(false);
 			});
 			
-			/* Countries Selector */	
-					
-			$.getJSON( globalURI+'auto.gaul0?_output=json', function(data) {
-				var sel = $("#countries");
-				var first = "selected";			
-				data.gaul0s.reverse();
-				$.each(data.gaul0s, function() {
-//						sel.append($("<option selected />").val(this.code).text(this.name));
-						sel.append($("<option "+first+" />").val(this.code).text(this.name));
-						first = "";
-				});
-				//updateValues();
-
-				$('#countries').chosen('.chosen-select-countries');
-				$('#countries').on('change', function(evt, params) {
-					updateNations();
-  				}).trigger('chosen:updated');
-				$('#countries');
-
-				counterUI++;				
-				if (  counterUI == itemToInit ) startUI();				
-				
-			});
+			/* Countries Selector */
+			//
 
 			/* Market Selector */
 
+			//getMarkets(false);
+
+			/* Map */
+			//initMap();
+		
+	}
+
+	function getCountries(clearall) {
+		$.getJSON( globalURI+'auto.gaul0?_output=json', function(data) {
+			var sel = $("#countries");
+			var count = 2;
+			data.gaul0s.reverse();
+			$.each(data.gaul0s, function() {
+//						sel.append($("<option selected />").val(this.code).text(this.name));
+				if (this.code == initGaul) var first = "selected";
+				sel.append($("<option "+first+" />").val(this.code).text(this.name));
+				first = "";
+				count--;
+				if(count<1) return false;
+			});
+			//updateValues();
+
+			$('#countries').chosen('.chosen-select-countries');
+			$('#countries').on('change', function(evt, params) {
+				updateNations();
+			}).trigger('chosen:updated');
+			$('#countries');
+
+			counterUI++;
+			if (  counterUI == itemToInit ) startUI();
 			getMarkets(false);
 
+		});
 
-			/* Map */			
-			initMap();	
-		
 	}
 
 	function getMarkets(clearall){
@@ -223,7 +225,7 @@ $( document ).ready(function() {
 
 			counterUI++;
 			if (  counterUI == itemToInit ) startUI();
-
+			initMap();
 		});
 	}
 	
@@ -355,7 +357,7 @@ $( document ).ready(function() {
 				var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&vendorcode=("+checkedMarkets.toString()+")&commoditycode=";
 			}			
 			var baseURI2 = globalURI+"auto.market?_output=json";
-			//console.log(baseURI1);
+			console.log(baseURI1);
 			// baseURI+commodityItem[i]+"&_output=json"
 			$.each(names, function (i, name) {				
 				$.getJSON( baseURI1+commodityItem[i]+"&_output=json" , function (data) {
@@ -660,7 +662,7 @@ $( document ).ready(function() {
 		$.getJSON(globalURI+"auto.market?_output=json", function (data) { allMarket = data.markets; });
 		$.getJSON(globalURI+"auto.commodity?_output=json", function (data) { allCommodity = data.commoditys; });
 		
-		if (nations == null) nations = 45;
+		if (nations == null) nations = initGaul;
 		console.log(nations.toString());
 		$.getJSON(globalURI+"auto.dataweb?commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0", function (data) {
 				console.log(globalURI+"auto.dataweb?commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0");
