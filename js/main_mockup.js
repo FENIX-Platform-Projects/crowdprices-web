@@ -34,7 +34,9 @@ $( document ).ready(function() {
 	var allDatas = [];
 	var allCity = [];
 	var allMarket = [];
-	var allCommodity = []; 
+	var allCommodity = [];
+
+	var allMarketName = [];
 
 	var commodityMaps = "";
 	var commodityItem = [];
@@ -117,11 +119,18 @@ $( document ).ready(function() {
 			var checkedNames = [];
             var checkedMaps  = "";
 			var checkedItems = [];
+			allMarketName = [];
 			//
 
 			checkedMarkets = markets;
 			checkedMarkets.push("0");
 
+			$.each(checkedMarkets, function(index){
+				if (checkedMarkets[index] == 0) allMarketName.push("Undefined Market");
+				if (checkedMarkets[index] != 0) allMarketName.push($("#markets option[value='"+checkedMarkets[index]+"']").text());
+			});
+			allMarketName.reverse();
+			console.log("*"+allMarketName.toString());
 
             if (items){
 				$.each(items, function (index) {
@@ -150,7 +159,7 @@ $( document ).ready(function() {
 						sel.append($("<option "+first+" />").val(this.code).text(this.name));
 						first = "";
 				});
-				$('#commodity').chosen('.chosen-select');				
+				$('#commodity').chosen({max_selected_options: 3});
 				
 				//updateValues();
 				$('#commodity').on('change', function(evt, params) {
@@ -190,7 +199,7 @@ $( document ).ready(function() {
 			});
 			//updateValues();
 
-			$('#countries').chosen('.chosen-select-countries');
+			$('#countries').chosen({max_selected_options: 3});
 			$('#countries').on('change', function(evt, params) {
 				updateNations();
 			}).trigger('chosen:updated');
@@ -214,17 +223,18 @@ $( document ).ready(function() {
 			var first = "selected";
 			//	data.markets.reverse();
 			$.each(data.markets, function() {
-				sel.append($("<option selected />").val(this.code).text(this.name));
-				//		sel.append($("<option "+first+" />").val(this.code).text(this.name));
-				//		first = "";
+				//sel.append($("<option selected />").val(this.code).text(this.name));
+						sel.append($("<option "+first+" />").val(this.code).text(this.name));
+						first = "";
 			});
-			updateValues();
 
-			$('#markets').chosen('.chosen-select-markets');
+
+			$('#markets').chosen({max_selected_options: 3});
 			$('#markets').on('change', function(evt, params) {
 				updateValues();
 			}).trigger('chosen:updated');
 			$('#markets');
+			updateValues();
 
 			counterUI++;
 			if (  counterUI == itemToInit ) startUI();
@@ -383,10 +393,12 @@ $( document ).ready(function() {
 
 			$.each(checkedMarkets, function(h,vendorcode){
 
+
+
 				if ((startDate !== undefined)&&(endDate !== undefined)) {
-					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+')&vendorcode=('+vendorcode.toString()+')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
+					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+')&vendorcode=('+vendorcode+')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
 				} else {
-					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&vendorcode=("+vendorcode.toString()+")&commoditycode=";
+					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&vendorcode=("+vendorcode+")&commoditycode=";
 				}
 				var baseURI2 = globalURI+"auto.market?_output=json";
 				//console.log(baseURI1);
@@ -438,17 +450,16 @@ $( document ).ready(function() {
 
 							getMarkers(data.datas);
 
-							console.log(index);
+
 							index++;
-
-
+							console.log(index);
 							seriesOptions1[index] = {
-								name: name + " @ " + tmpArray[2],
+								name: name + " @ " + allMarketName[index],
 								data: resultdata
 							};
 
 							seriesOptions2[index] = {
-								name: name +" (Avg)" + " @ " + tmpArray[2],
+								name: name +" (Avg)" + " @ " + allMarketName[index],
 								data: averagedata,
 								type: 'column'
 							};
@@ -705,9 +716,9 @@ $( document ).ready(function() {
 		$.getJSON(globalURI+"auto.commodity?_output=json", function (data) { allCommodity = data.commoditys; });
 		
 		if (nations == null) nations = initGaul;
-		//console.log(nations.toString());
-		$.getJSON(globalURI+"auto.dataweb?commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0", function (data) {
-				console.log(globalURI+"auto.dataweb?commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0");
+		console.log(checkedMarkets.toString());
+		$.getJSON(globalURI+"auto.dataweb?vendorcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0", function (data) {
+				console.log(globalURI+"auto.dataweb?vendorcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0");
 				console.log(data.datas);
 				data.datas = data.datas.sort(function(a, b) {
 					//return (a['fulldate'] > b['fulldate']);
