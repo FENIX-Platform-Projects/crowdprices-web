@@ -92,19 +92,38 @@
                     Updates</a></li>
             </ul>
 
+            <div class="spark-holder">
+                <h2>QUICK STATS</h2>
 
-            <ul class="sidebar-nav fx-ul-right">
-                <li><div class="sparkline" data-sparkline="87, 44, 74, 41 "></div></li>
+                <div class="spark-item">
+                    <h1 class="spark-number">20</h1>
 
-            </ul>
+                    <p> ACTIVE USERS </p>
 
-            <ul>
-                <li>
+                    <div class="sparkline" data-sparkline="0, 400, 10, 600, 12, 800,400,1000 "></div>
+                </div>
+                <div class="spark-item">
+                    <h1 class="spark-number">140.000</h1>
+
+                    <p> VISITS SO FAR </p>
+
+                    <div class="sparkline" data-sparkline="0, 100,  200, 12, 300,400,600"></div>
+                </div>
+
+                <br><br>
 
 
-                </li>
 
-            </ul>
+                <h2>DISCLAIMER</h2>
+
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tristique at velit ac accumsan.
+                    Duis vel orci sagittis, aliquet dui et, ultricies dui. Pellentesque imperdiet ligula nec
+                    pellentesque pharetra. Donec et sem justo. Pellentesque eget ipsum posuere, gravida neque sit amet,
+                    vehicula velit.
+                </p>
+            </div>
+
 
         </div>
 
@@ -252,6 +271,7 @@
     $("#menu-toggle").click(function (e) {
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
+        $(window).resize();
         resizeChosen();
     });
 

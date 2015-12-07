@@ -9,7 +9,7 @@ $(function () {
                 renderTo: (options.chart && options.chart.renderTo) || this,
                 backgroundColor: null,
                 borderWidth: 0,
-                type: 'area',
+                type: 'areaspline',
                 margin: [2, 0, 2, 0],
                 width: 120,
                 height: 20,
@@ -25,6 +25,7 @@ $(function () {
                 enabled: false
             },
             xAxis: {
+                lineColor: '#364048',
                 labels: {
                     enabled: false
                 },
@@ -66,11 +67,13 @@ $(function () {
             },
             plotOptions: {
                 series: {
-                    animation: false,
+                    //animation: false,
                     lineWidth: 1,
                     shadow: false,
-                    lineColor: '#303030',
+                    lineColor: '#3faaaa',
                     fillOpacity: 0,
+                    fillColor: '#364048',
+
                     
                     states: {
                         hover: {
@@ -81,12 +84,21 @@ $(function () {
                         radius: 1,
                         states: {
                             hover: {
-                                radius: 2
+                                enabled: false
                             }
                         }
                     },
                     fillOpacity: 0.25
                 },
+
+                areaspline:{
+
+                    marker:{
+                        enabled: false
+                    }
+
+                },
+
                 column: {
                     negativeColor: '#910000',
                     borderColor: 'silver'
@@ -132,8 +144,9 @@ $(function () {
                     pointStart: 1
                 }],
                 tooltip: {
-                    headerFormat: '<span style="font-size: 10px">' + $td.parent().find('th').html() + ', Q{point.x}:</span><br/>',
-                    pointFormat: '<b>{point.y}.000</b> USD'
+                    enabled: false,
+                    headerFormat: '<span style="font-size: 10px">VISITORS</span><br/>',
+                    pointFormat: '<b>{point.y}</b> users'
                 },
                 chart: chart
             });

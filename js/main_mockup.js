@@ -57,7 +57,8 @@ $( document ).ready(function() {
 		Highcharts.setOptions({
 			chart: {
 				style: {
-					fontFamily: "Roboto Condensed"
+					fontFamily: "Roboto",
+					fontSize: '10px'
 				}
 			}
 		});
@@ -271,7 +272,11 @@ $( document ).ready(function() {
 							selected: 4
 						},
 						title: {
-							text: 'Daily Prices'
+							text: 'Daily Prices',
+							style: {
+								fontFamily: "Roboto",
+								fontSize: '12px'
+							}
 						},
 						
 						credits: false,
@@ -279,8 +284,13 @@ $( document ).ready(function() {
 						yAxis: {
 							labels: {
 								formatter: function () {
-									return (this.value > 0 ? ' + ' : '') + this.value + '%';
+									return (this.value > 0 ? ' + ' : '') + this.value + '%'
+								},
+								style: {
+									fontFamily: "Roboto",
+									fontSize: '10px'
 								}
+
 							},
 							plotLines: [{
 								value: 0,
@@ -292,6 +302,9 @@ $( document ).ready(function() {
 						plotOptions: {
 							series: {
 								compare: 'percent'
+							},
+							series: {
+								color: '#3faaaa'
 							}
 						},
 		
@@ -310,7 +323,13 @@ $( document ).ready(function() {
 							type: 'column'
 						},						
 						title: {
-							text: 'Average Prices'
+							text: 'Average Prices',
+
+							style: {
+								fontFamily: "Roboto",
+								fontSize: '12px'
+							}
+
 						},
 						xAxis: {
 							title: {
@@ -327,6 +346,10 @@ $( document ).ready(function() {
 							labels: {
 								formatter: function () {
 									return this.value + ' ';
+								},
+								style: {
+									fontFamily: "Roboto",
+									fontSize: '10px'
 								}
 							},
 							plotLines: [{
@@ -342,7 +365,11 @@ $( document ).ready(function() {
 						plotOptions: {
 							column: {
 								pointPadding: 0.2,
-								borderWidth: 0
+								borderWidth: 0,
+
+							},
+							series: {
+								color: '#3faaaa'
 							}
 						},
 						

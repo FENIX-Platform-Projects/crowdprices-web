@@ -245,6 +245,7 @@ h2{
     width: 100%;
     bottom: 0px;
     height: 38px;
+    padding: 0 15px;
 
     p{
       font-weight: 500;
@@ -282,4 +283,58 @@ h2{
     overflow-y: scroll;
   }
 
+}
+
+.ui-rangeSlider-innerBar{
+  background-color: white !important;
+}
+
+.ui-rangeSlider-label.ui-rangeSlider-rightLabel{
+  background-image: url("img/label.png") !important;
+  margin-bottom: 5px !important;
+}
+
+.ui-rangeSlider-label.ui-rangeSlider-leftLabel{
+  background-image: url("img/label.png") !important;
+  margin-bottom: 5px !important;
+}
+
+.ui-rangeSlider-label{
+  padding: 6px !important;
+  padding-bottom: 12px !important;
+}
+
+.ui-rangeSlider-label-value{
+  font-weight: 300;
+}
+
+.chosen-container-multi .chosen-choices li.search-choice span{
+  font-size: 11px;
+}
+
+.chosen-container-single .chosen-single span{
+  font-size: 11px;
+}
+.chosen-container .chosen-drop{
+  top: 25px;
+}
+
+
+.bootstrap-table{
+  background-color: white;
+  padding: 0 15px;
+
+}
+
+.charts-holder{
+  padding: 0 30px;
+}
+
+.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus{
+  background-color: $fx-cool-blue;
+  border-color: $fx-cool-blue;
+}
+
+.pagination>li>a, .pagination>li>span{
+  color: $fx-cool-blue;
 }

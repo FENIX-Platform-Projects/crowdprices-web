@@ -192,7 +192,7 @@ background-color: $afg-home-background;
   }
 
   h2{
-    margin-bottom: 35px;
+    margin-bottom: 45px;
   }
 
 
@@ -359,4 +359,52 @@ thead th {
   border-radius: 3px;
   box-shadow: 1px 1px 2px #888;
   padding: 8px;
+}
+
+.spark-holder{
+  margin-top: 250px;
+  //border-top: 1px dashed whitesmoke;
+  position: absolute;
+  width: 300px;
+
+  h2{
+    padding: 0 15px;
+  }
+
+  p{
+    padding: 0 15px;
+    color: whitesmoke;
+    font-size: 10px;
+
+  }
+
+}
+
+
+.spark-number{
+  color: whitesmoke;
+  font-size: 32px;
+  margin-bottom: 0;
+}
+
+.spark-item{
+  padding: 0 15px;
+  display: inline-block;
+  height: 100px;
+  width: 45%;
+
+  //small{
+  //  color: white;
+  //  font-size: 16px;
+  //  font-weight: 300;
+  //  font-family: 'Oswald', sans-serif;
+  //}
+
+  p{
+    font-weight: 500;
+    color: white;
+    font-size: 8px;
+    padding: 0;
+  }
+
 }
