@@ -261,20 +261,21 @@
     });
 
     function resizeChosen() {
-        console.log("resizeChose");
+        //console.log("resizeChose");
         $(".chosen-container").each(function () {
             $(this).attr('style', 'width: 100%');
         });
 
     }
-
+/*
     $("#menu-toggle").click(function (e) {
         e.preventDefault();
+        $("#slider").dateRangeSlider("resize")
         $("#wrapper").toggleClass("toggled");
         $(window).resize();
         resizeChosen();
     });
-
+*/
 
     $(window).on("resize", function () {
         $("#map-cluster").height("#country-details").width($("#country-details"));
@@ -290,7 +291,7 @@
 
     function mapResize() {
         $(window).trigger("resize");
-        console.log('ahe');
+     //   console.log('ahe');
     }
 
 </script>
