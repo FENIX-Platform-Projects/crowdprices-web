@@ -130,7 +130,7 @@ $( document ).ready(function() {
 				if (checkedMarkets[index] != 0) allMarketName.push($("#markets option[value='"+checkedMarkets[index]+"']").text());
 			});
 			allMarketName.reverse();
-			console.log("*"+allMarketName.toString());
+			//console.log("*"+allMarketName.toString());
 
             if (items){
 				$.each(items, function (index) {
@@ -461,8 +461,6 @@ $( document ).ready(function() {
 							startDate = data.datas[0].date;
 							endDate =  data.datas[j-1].date;
 
-
-
 							temArray = new Array(1);
 							//temArray[0] = new Date().getTime();
 							temArray[1] = ( aggregated / j );
@@ -551,7 +549,7 @@ $( document ).ready(function() {
 		var allDatas = [];
 		//console.log("createTable3");
 		if (tableIsInit) {
-			console.log("!createTable3");
+			//console.log("!createTable3");
 			//return;
 		}
 		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND data.commoditycode = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND data.marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST(data.marketcode AS INT) = market.code ORDER BY data.fulldate DESC ";
@@ -559,7 +557,7 @@ $( document ).ready(function() {
 		//if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		//qString = qString + "limit 100";
 
-		console.log(qString);
+		//console.log(qString);
 
 		$.ajax({
 			type: 'GET',
@@ -578,6 +576,7 @@ $( document ).ready(function() {
 					console.log("!createTable3");
 					$('#table').bootstrapTable('removeAll');
 					$('#table').bootstrapTable('append', allDatas);
+					updateDates();
 				} else {
 					$('#table').bootstrapTable({
 						columns: [{
@@ -858,29 +857,82 @@ $( document ).ready(function() {
 		//});
 	}
 
-	function initSlider() {
+	function updateDates() {
+		var squery = "select min(fulldate) as startDate, max(fulldate) as endDate from data";
+		$.ajax({
+			type: 'GET',
+			url: WDSURI,
+			data: {
+				payload: '{"query": "'+squery+'"}',
+				datasource: DATASOURCE,
+				outputType: 'array'
+			},
+			success: function (response) {
+				console.log("Dates defined");
+				//console.log(startDate,endDate);
+				//console.log(response[0],response[1]);
+				//console.log(new Date(response[0]),new Date(response[1]));
+				var s1 = response[1][0];
+				var s2 = response[1][1];
+				var d1 = (s1.substring(0,10));
+				var d2 = (s2.substring(0,10));
 
-		if ((startDate !== undefined) && (endDate !== undefined)){
-			isInit = true;
-			//console.log(startDate,endDate);
-			//console.log(new Date(startDate),new Date(endDate));
-			$("#slider").dateRangeSlider({
-				bounds: {min: new Date(startDate), max: new Date(endDate)},
-				step: {days:1},
-				defaultValues: {min: new Date(startDate), max: new Date(endDate)}
-			});
 
-			$("#slider").on("valuesChanged", function(e, data){
-				//console.log("Something moved. min: " + data.values.min + " max: " + data.values.max);
-				var d1 = formatDate(data.values.min);
-				var d2 = formatDate(data.values.max);
-				//console.log(startDate, endDate);
-				startDate =  d1;
+				startDate = d1;
 				endDate = d2;
-				updateValues();
-			});
+				console.log(startDate,endDate);
+				updateSlider();
+			},
+			error: function (a) {
+				console.log("Dates undefined");
+				console.log("KO:"+a.responseText);
+				return null;
+			}
+		});
+
+	}
+
+	function updateSlider() {
+
+		console.log("Dates added");
+		$("#slider").dateRangeSlider("destroy");
+		console.log(startDate,endDate);
+		createSlider();
+
+	}
+
+	function createSlider() {
+		$("#slider").dateRangeSlider({
+			bounds: {min: new Date(startDate), max: new Date(endDate)},
+			step: {days:1},
+			defaultValues: {min: new Date(startDate), max: new Date(endDate)}
+		});
+		$("#slider").on("valuesChanged", function(e, data){
+			//console.log("Something moved. min: " + data.values.min + " max: " + data.values.max);
+			var d1 = formatDate(data.values.min);
+			var d2 = formatDate(data.values.max);
+			//console.log(startDate, endDate);
+			startDate =  d1;
+			endDate = d2;
+			updateValues();
+		});
+	}
+
+	function initSlider() {
+		console.log("initSlider")
+		if (!isInit) {
+			console.log("!initSlider")
+			if ((startDate !== undefined) && (endDate !== undefined)){
+				isInit = true;
+				//console.log(startDate,endDate);
+				//console.log(new Date(startDate),new Date(endDate));
+				createSlider();
+			} else {
+				console.log("Dates undefined");
+			}
 		} else {
-			alert("Dates undefined");
+			//$("#slider").dateRangeSlider("destroy");
+			console.log("Dates added");
 		}
 	}
 
@@ -1441,7 +1493,6 @@ $( document ).ready(function() {
 	
 
 	function updateView() {
-
 		//console.log("UpdView");
 		// reload map
 		//updateMap();
