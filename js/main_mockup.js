@@ -159,7 +159,7 @@ $( document ).ready(function() {
 						sel.append($("<option "+first+" />").val(this.code).text(this.name));
 						first = "";
 				});
-				$('#commodity').chosen({max_selected_options: 3});
+				$('#commodity').chosen({max_selected_options: 10});
 				
 				//updateValues();
 				$('#commodity').on('change', function(evt, params) {
@@ -192,15 +192,18 @@ $( document ).ready(function() {
 			data.gaul0s.reverse();
 			$.each(data.gaul0s, function() {
 //						sel.append($("<option selected />").val(this.code).text(this.name));
+				if (this.code == initGaul) sel.append($("<option />").val(this.code).text(this.name));
+/*
 				if (this.code == initGaul) var first = "selected";
 				sel.append($("<option "+first+" />").val(this.code).text(this.name));
 				first = "";
 				count--;
 				if(count<1) return false;
+*/
 			});
 			//updateValues();
 
-			$('#countries').chosen({max_selected_options: 3});
+			$('#countries').chosen({max_selected_options: 1});
 			$('#countries').on('change', function(evt, params) {
 				updateNations();
 			}).trigger('chosen:updated');
@@ -230,7 +233,7 @@ $( document ).ready(function() {
 			});
 
 
-			$('#markets').chosen({max_selected_options: 3});
+			$('#markets').chosen({max_selected_options: 5});
 			$('#markets').on('change', function(evt, params) {
 				updateDates();
 				updateValues();
@@ -455,6 +458,8 @@ $( document ).ready(function() {
 								tmpArray[0] = dateObject.getTime();
 								tmpArray[1] = this.price/this.quantity;
 								tmpArray[2] = this.vendorname;
+								tmpArray[3] = this.commoditys[0].name;
+
 								resultdata.push(tmpArray);
 								j++;
 								aggregated = aggregated + this.price;
@@ -998,14 +1003,17 @@ $( document ).ready(function() {
 			var uniqueVendors = [];
 			var uniqueLat = [];
 			var uniqueLon = [];
+			var uniqueCommody = [];
 			
 			allAddressPoints = [];
 			
-			$.each(allData, function(f,k){			
+			$.each(allData, function(f,k){
+				//console.log(k.commoditys[0].name);
 				var temp = [];	
 				temp.push(k.lat);
 				temp.push(k.lon);
 				temp.push(k.vendorname);
+				temp.push(k.commoditys[0].name)
 				allMarkers.push(temp);		
 			});
 			$.each(allMarkers, function(i, el){	
@@ -1014,6 +1022,7 @@ $( document ).ready(function() {
 					uniqueLat.push(el[0]);
 					uniqueLon.push(el[1]);
 					uniqueVendors.push(el[2]);
+					uniqueCommody.push(el[3]);
 				}
 			});
 			
@@ -1021,6 +1030,7 @@ $( document ).ready(function() {
 				var temp = [];	
 				temp.push(new L.LatLng(uniqueLat[f], uniqueLon[f]));
 				temp.push(k);
+				temp.push(uniqueCommody[f]);
 				allAddressPoints.push(temp);
 			});
 			
@@ -1192,7 +1202,7 @@ $( document ).ready(function() {
 					  temp.push(title);
 					  existingPoints.push(temp);
 					  var marker = L.marker(position, { title: title, icon: foundIcon });
-					  marker.bindPopup(title);
+					  //marker.bindPopup(title);
 					  markers.addLayer(marker);
 				  }
 				  
@@ -1205,7 +1215,7 @@ $( document ).ready(function() {
 				  for (var k = 0; k < allAddressPoints.length; k++) {
 				  	a1Lat.push(allAddressPoints[k][0]['lat']);				  	
 				  	a1Lon.push(allAddressPoints[k][0]['lng']);
-				  }				  		  	
+				  }
 				  for (var k = 0; k < existingPoints.length; k++) {
 					a2Lat.push(existingPoints[k][0]['lat']);
 				  	a2Lon.push(existingPoints[k][0]['lng']);
@@ -1276,7 +1286,8 @@ $( document ).ready(function() {
 			var lats = []; 
 			var lons =[];
 			var vendorcode = [];
-			var addressPoints = [];	
+			var addressPoints = [];
+			var comm = [];
 				
 			$.each(data.datas, function (f,k) {
 				dates.push(k.date);
@@ -1284,6 +1295,7 @@ $( document ).ready(function() {
 				vendorcode.push(k.vendorcode);
 				lats.push(k.lat);
 				lons.push(k.lon);
+				comm.pus(k.commoditys[0].name);
 			});
 			// delete duplicates			
 			var uDates = [];
@@ -1291,6 +1303,7 @@ $( document ).ready(function() {
 			var uLats = []; 
 			var uLons = [];
 			var uVcode = [];
+			var uComm = [];
 			
 			$.each(dates, function(i, el){
 				if($.inArray(el, uDates) === -1) uDates.push(el);
@@ -1307,7 +1320,10 @@ $( document ).ready(function() {
 			$.each(vendorcode, function(i, el){
 				if($.inArray(el, uVcode) === -1) uVcode.push(el);
 			});
-			
+			$.each(comm, function(i, el){
+				if($.inArray(el, uComm) === -1) uComm.push(el);
+			});
+
 			//console.log (uVcode, vendorcode);
 			/*
 			console.log(uDates);
@@ -1327,6 +1343,7 @@ $( document ).ready(function() {
 					var fDate = uDates[f];
 					var fVend = uVendor[f];
 					var fVcod = uVcode[f];
+					var fVcom = uComm[f];
 					var fPrice = 0; 
 					$.each(data.datas, function (f,k) {
 						//var temp = [];	
@@ -1422,7 +1439,7 @@ $( document ).ready(function() {
 	
 	function initMap() {
 		//console.log("initMap");
-		  var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+		  var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
 			  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
 			  subdomains: 'abcd',
 			  maxZoom: 19
