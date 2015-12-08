@@ -283,6 +283,16 @@ $( document ).ready(function() {
 						rangeSelector: {
 							selected: 4
 						},
+						colors: [ //Colori delle charts
+							'#3faaaa',
+							'#76BE94',
+							'#744490',
+							'#E10079',
+							'#2D1706',
+							'#F1E300',
+							'#F7AE3C',
+							'#DF3328'
+						],
 						title: {
 							text: 'Daily Prices',
 							style: {
@@ -316,7 +326,7 @@ $( document ).ready(function() {
 								compare: 'percent'
 							},
 							series: {
-								color: '#3faaaa'
+
 							}
 						},
 		
@@ -333,7 +343,17 @@ $( document ).ready(function() {
 					item.highcharts({
 						chart: {
 							type: 'column'
-						},						
+						},
+						colors: [ //Colori delle charts
+							'#3faaaa',
+							'#76BE94',
+							'#744490',
+							'#E10079',
+							'#2D1706',
+							'#F1E300',
+							'#F7AE3C',
+							'#DF3328'
+						],
 						title: {
 							text: 'Average Prices',
 
@@ -381,7 +401,7 @@ $( document ).ready(function() {
 
 							},
 							series: {
-								color: '#3faaaa'
+
 							}
 						},
 						
