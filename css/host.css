@@ -7350,7 +7350,7 @@ input[type="checkbox"]:checked + label {
     margin-top: 10px; }
   .home-content .home-tile.map {
     position: relative;
-    min-height: 400px; }
+    min-height: 500px; }
   .home-content .country-welcome {
     padding-bottom: 100px; }
   .home-content .home-detail-pointer {
@@ -7381,7 +7381,7 @@ input[type="checkbox"]:checked + label {
   .home-content .country-details {
     padding: 0; }
     .home-content .country-details #map-cluster {
-      background-color: #003353; }
+      background-color: #00a2ff; }
     .home-content .country-details h1 {
       font-size: 50px;
       color: white;
@@ -7985,7 +7985,7 @@ div[data-plugin="filter"] .fx-catalog-modular-form-content {
         margin-left: 5px; }
 
 .leaflet-tile-pane {
-  opacity: 0.5; }
+  opacity: 0.80; }
 
 .chosen-container {
   max-height: 150px;
