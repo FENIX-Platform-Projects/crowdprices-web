@@ -7664,7 +7664,8 @@ thead th {
     width: 0; } }
 #sidebar-wrapper {
   padding-top: 100px;
-  background-color: #364048; }
+  background-color: #364048;
+  overflow: hidden; }
   #sidebar-wrapper .sidebar-nav {
     top: 100px; }
     #sidebar-wrapper .sidebar-nav li {
