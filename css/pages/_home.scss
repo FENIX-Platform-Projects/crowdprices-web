@@ -33,17 +33,27 @@
 background-color: $afg-home-background;
 
 
+
+
   .home-tile{
     padding: 20px 15px;
     position: relative;
     min-height: 200px;
   }
 
+
   .home-tiles-title{
     font-size: 33px;
     color: $fenix-text;
     margin-top: 10px;
 
+
+  }
+
+
+  .home-tile.map{
+    position: relative;
+    min-height: 400px;
 
   }
 

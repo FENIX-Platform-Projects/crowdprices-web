@@ -7348,6 +7348,9 @@ input[type="checkbox"]:checked + label {
     font-size: 33px;
     color: #333;
     margin-top: 10px; }
+  .home-content .home-tile.map {
+    position: relative;
+    min-height: 400px; }
   .home-content .country-welcome {
     padding-bottom: 100px; }
   .home-content .home-detail-pointer {
