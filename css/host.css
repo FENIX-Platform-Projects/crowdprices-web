@@ -7380,8 +7380,6 @@ input[type="checkbox"]:checked + label {
       transform: translateY(-100%); }
   .home-content .country-details {
     padding: 0; }
-    .home-content .country-details #map-cluster {
-      background-color: #00a2ff; }
     .home-content .country-details h1 {
       font-size: 50px;
       color: white;
@@ -7984,9 +7982,6 @@ div[data-plugin="filter"] .fx-catalog-modular-form-content {
       right: 26px; }
       .afg-footer .afg-footer-text p.pull-right img {
         margin-left: 5px; }
-
-.leaflet-tile-pane {
-  opacity: 0.80; }
 
 .chosen-container {
   max-height: 150px;
