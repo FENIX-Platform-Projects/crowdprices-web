@@ -164,6 +164,7 @@ $( document ).ready(function() {
 				//updateValues();
 				$('#commodity').on('change', function(evt, params) {
 					//console.log("udadas");
+					updateDates();
 					updateValues();
   				}).trigger('chosen:updated');
 				$('#commodity');
@@ -231,6 +232,7 @@ $( document ).ready(function() {
 
 			$('#markets').chosen({max_selected_options: 3});
 			$('#markets').on('change', function(evt, params) {
+				updateDates();
 				updateValues();
 			}).trigger('chosen:updated');
 			$('#markets');
@@ -576,7 +578,6 @@ $( document ).ready(function() {
 					console.log("!createTable3");
 					$('#table').bootstrapTable('removeAll');
 					$('#table').bootstrapTable('append', allDatas);
-					updateDates();
 				} else {
 					$('#table').bootstrapTable({
 						columns: [{
@@ -858,6 +859,7 @@ $( document ).ready(function() {
 	}
 
 	function updateDates() {
+		console.log(" updateDates "+isInit);
 		var squery = "select min(fulldate) as startDate, max(fulldate) as endDate from data";
 		$.ajax({
 			type: 'GET',
@@ -881,7 +883,7 @@ $( document ).ready(function() {
 				startDate = d1;
 				endDate = d2;
 				console.log(startDate,endDate);
-				updateSlider();
+				if (isInit) updateSlider();
 			},
 			error: function (a) {
 				console.log("Dates undefined");
@@ -916,6 +918,7 @@ $( document ).ready(function() {
 			endDate = d2;
 			updateValues();
 		});
+		isInit = true;
 	}
 
 	function initSlider() {
@@ -923,7 +926,7 @@ $( document ).ready(function() {
 		if (!isInit) {
 			console.log("!initSlider")
 			if ((startDate !== undefined) && (endDate !== undefined)){
-				isInit = true;
+				//isInit = true;
 				//console.log(startDate,endDate);
 				//console.log(new Date(startDate),new Date(endDate));
 				createSlider();
