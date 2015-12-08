@@ -145,17 +145,17 @@
         </div>
 
         <div class="container-fluid">
-            <div class="row">
-                <div class="row-same-height row-full-height">
+            <div class="row row-same-height row-full-height">
 
-                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile aims">
+
+                    <div class="col-sm-4  col-full-height home-tile aims">
                         <div id="nation-selector" class="fx-home-content-grid-top">
                             <h2>Countries</h2>
                             <select id="countries" data-placeholder="Select Countries..."
                                     class="chosen-select-countries"></select>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile gray">
+                    <div class="col-sm-4  col-full-height home-tile gray">
                         <div id="market-selector" class="fx-home-content-grid-top">
                             <h2>Markets</h2>
 
@@ -164,7 +164,7 @@
                                     tabindex="4"></select>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-3 col-sm-height col-full-height home-tile map">
+                    <div class="col-sm-4 col-full-height home-tile map">
                         <div id="commodity-selector" class="fx-home-content-grid-top">
                             <h2>Commodities</h2>
                             <select id="commodity" data-placeholder="Select Commodity..." class="chosen-select" multiple
@@ -173,7 +173,7 @@
                     </div>
 
 
-                </div>
+
             </div>
 
             <div class="row">
@@ -254,45 +254,68 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="js/sparkilne-charts.js"></script>
 <script type="text/javascript" charset="utf-8">
+
     // Test Purpose Only
     $(document).ready(function () {
-        resizeChosen();
-        jQuery(window).on('resize', resizeChosen);
+
+        onResize();
+
+        //$(window).on('resize', onResize);
+
+
+        $("#menu-toggle").click(function (e) {
+
+            e.preventDefault();
+
+            $("#slider").dateRangeSlider("resize");
+
+
+            $("#wrapper").toggleClass("toggled");
+
+            onResize();
+
+            setTimeout(function () {
+                onResize()
+            }, 500);
+
+        });
+
+
     });
 
+    function onResize() {
+
+        window.dispatchEvent(new Event('resize'));
+
+        $(window).trigger("resize");
+
+        resizeChosen();
+
+        resizeMap();
+
+        resizeCharts();
+
+    }
+
     function resizeChosen() {
+
         //console.log("resizeChose");
+
         $(".chosen-container").each(function () {
             $(this).attr('style', 'width: 100%');
         });
 
-    }
-/*
-    $("#menu-toggle").click(function (e) {
-        e.preventDefault();
-        $("#slider").dateRangeSlider("resize")
-        $("#wrapper").toggleClass("toggled");
-        $(window).resize();
-        resizeChosen();
-    });
-*/
 
-    $(window).on("resize", function () {
+    }
+
+    function resizeMap () {
         $("#map-cluster").height("#country-details").width($("#country-details"));
-
-    }).trigger("resize");
-
-    $(window).trigger("resize");
-
-
-    setTimeout(function () {
-        mapResize()
-    }, 500)
-
-    function mapResize() {
-        $(window).trigger("resize");
-     //   console.log('ahe');
     }
+
+    function resizeCharts() {
+
+    }
+
 
 </script>
 </html>
