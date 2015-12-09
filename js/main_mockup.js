@@ -28,7 +28,7 @@ $( document ).ready(function() {
 	var initLatLon = [13.453 , -16.578];
 	var initGaul = 90;
 	var nations = [90];
-	
+
 	//console.log("UPD");
 
 	var allDatas = [];
@@ -46,6 +46,7 @@ $( document ).ready(function() {
 	
 	var startDate;
 	var endDate;
+	var WDSClient;
 	
 	var tableIsInit = false;	
 	var isInit = false;
@@ -54,6 +55,8 @@ $( document ).ready(function() {
 	var addressed = 0;
 		
 	function initUI() {
+
+
 		// console.log("initUI");		
 		populateUI();
 		Highcharts.setOptions({
@@ -154,8 +157,9 @@ $( document ).ready(function() {
 			/* Commodity Selector */			
 			$.getJSON( globalURI+'auto.commodity?_output=json', function(data) {
 				var sel = $("#commodity");
-				var first = "selected";
+				var first = "";
 				$.each(data.commoditys, function() {
+					if(this.code == 38) first = "selected";
 						sel.append($("<option "+first+" />").val(this.code).text(this.name));
 						first = "";
 				});
@@ -342,6 +346,7 @@ $( document ).ready(function() {
 						
 						series: seriesOptions1
 					});
+					console.log(seriesOptions1)
 				},
 				createChart2 = function (item) {
 		
@@ -415,20 +420,121 @@ $( document ).ready(function() {
 				}
 			//console.log(startDate,endDate);
 			var index = -1;
+			var indexName = allMarketName.length;
+			console.log("prev "+indexName)
+			console.log("prev "+allMarketName.toString())
 
-			$.each(checkedMarkets, function(h,vendorcode){
-
-
+			$.each(checkedMarkets, function(h,marketcode){
+				indexName--;
+				console.log("allMarketName: "+allMarketName[indexName]);
 
 				if ((startDate !== undefined)&&(endDate !== undefined)) {
-					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+')&vendorcode=('+vendorcode+')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
+					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+')&marketcode=('+marketcode+')&date=>'+startDate+'&date=<'+endDate+"&commoditycode=";
 				} else {
-					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&vendorcode=("+vendorcode+")&commoditycode=";
+					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&marketcode=("+marketcode+")&commoditycode=";
 				}
 				var baseURI2 = globalURI+"auto.market?_output=json";
 				//console.log(baseURI1);
 				// baseURI+commodityItem[i]+"&_output=json"
 				$.each(names, function (i, name) {
+					var sQuery = "SELECT data.id, data.gaul0code, data.citycode, data.marketcode, data.munitcode, data.currencycode, data.commoditycode, data.varietycode, data.price, data.quantity, data.untouchedprice, data.fulldate, data.note, data.userid, data.vendorname, data.vendorcode, data.lat, data.lon, data.geo FROM data WHERE gaul0code=ANY('{"+nations+"}') and marketcode=ANY('{"+marketcode+"}') and commoditycode='"+commodityItem[i]+"' ";
+					sQuery = sQuery + " ORDER BY fulldate";
+					console.log("sQuery "+sQuery);
+					$.ajax({
+						url: 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
+						type: 'POST',
+						data: {
+							datasource: 'CROWD',
+							query: sQuery,
+							outputType: 'array'
+						},
+						success: function (response) {
+							//console.log(response);
+							var data = JSON.parse(response);
+							var resultdata = [];
+							var averagedata = [];
+							var j = 0;
+							var aggregated = 0;
+
+							var output = {datas:[]};
+							$.each(data, function(index,element){
+
+								output.datas.push({
+									"id": element[0],
+									"gaul0code": element[1],
+									"citycode": element[2],
+									"marketcode": element[3],
+									"munitcode": element[4],
+									"currencycode": element[5],
+									"commoditycode": element[6],
+									"varietycode": element[7],
+									"price": element[8],
+									"untouchedprice": element[9],
+									"fulldate": element[10],
+									"note": element[11],
+									"userid": element[12],
+									"vendorname": element[13],
+									"vendorcode": element[14],
+									"lat": element[15],
+									"lon": element[16],
+									"geo": element[17]
+								});
+								//console.log(element)
+							});
+
+
+
+							 $.each(data, function() {
+								 tmpArray = new Array(2)
+								 //tmpArray[0] = new Date(this.fulldate).getTime();
+								 var str = this[11];
+								 str = str.substring(0, str.length - 2);
+								 str = str.replace(/-/g,"/");
+								 var dateObject = new Date(str);
+								 tmpArray[0] = dateObject.getTime();
+								 tmpArray[1] = parseFloat(this[8])/parseFloat(this[9]);
+								 tmpArray[2] = this[14];
+
+
+								 resultdata.push(tmpArray);
+								 j++;
+								 aggregated = aggregated + parseFloat(this[8]);
+							 });
+
+							 startDate = data[0][11];
+							 endDate =  data[j-1][11];
+
+							 temArray = new Array(1);
+							 //temArray[0] = new Date().getTime();
+							 temArray[1] = ( aggregated / j );
+							 if (temArray[1] >1) averagedata.push(temArray);
+
+							console.log(data);
+							 getMarkers(data);
+
+
+							//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
+							index++;
+
+							seriesOptions1[index] = {
+								name: name + " @ " + allMarketName[h],
+								data: resultdata
+							};
+
+							seriesOptions2[index] = {
+								name: name +" (Avg)" + " @ " + allMarketName[h],
+								data: averagedata,
+								type: 'column'
+							};
+
+
+						},
+						error: function (a) {
+							console.log("KO:"+a.responseText);
+							return null;
+						}
+					});
+/*
 					$.getJSON( baseURI1+commodityItem[i]+"&_output=json" , function (data) {
 						console.log(baseURI1+commodityItem[i]+"&_output=json")
 						if (data.datas.length > 0) {
@@ -450,13 +556,14 @@ $( document ).ready(function() {
 							var aggregated = 0;
 							$.each(data.datas, function() {
 								tmpArray = new Array(2)
+								console.log(this.quantity);
 								//tmpArray[0] = new Date(this.fulldate).getTime();
 								var str = this.fulldate;
 								str = str.substring(0, str.length - 2);
 								str = str.replace(/-/g,"/");
 								var dateObject = new Date(str);
 								tmpArray[0] = dateObject.getTime();
-								tmpArray[1] = this.price/this.quantity;
+								tmpArray[1] = this.price/parseFloat(this.quantity);
 								tmpArray[2] = this.vendorname;
 								tmpArray[3] = this.commoditys[0].name;
 
@@ -475,22 +582,24 @@ $( document ).ready(function() {
 
 							getMarkers(data.datas);
 
-
+							console.log("h:"+h+" - "+allMarketName[indexName],indexName);
 							index++;
-							console.log(index);
+
+							console.log(resultdata);
+
 							seriesOptions1[index] = {
-								name: name + " @ " + allMarketName[index],
+								name: name + " @ " + allMarketName[h],
 								data: resultdata
 							};
 
 							seriesOptions2[index] = {
-								name: name +" (Avg)" + " @ " + allMarketName[index],
+								name: name +" (Avg)" + " @ " + allMarketName[h],
 								data: averagedata,
 								type: 'column'
 							};
 
 							//console.log("i+1["+i+1+"]*h["+h+"]= "+(i*h));
-							/*
+							/ *
 							 seriesCounter += 1;
 
 							 if (seriesCounter === names.length) {
@@ -498,14 +607,14 @@ $( document ).ready(function() {
 							 //createChart2($('#hi-stock2'));
 							 //createChart($('#hi-stock3'));
 							 }
-							 */
+							 * /
 							//console.log("fine1");
 						} else {
-							/*alert*/console.log("New Data Found - Please reload");
+							/ *alert* /console.log("New Data Found - Please reload");
 							getMarkers(null);
 						}
 					});
-
+*/
 				});
 
 			});
@@ -559,24 +668,138 @@ $( document ).ready(function() {
 			//console.log("!createTable3");
 			//return;
 		}
-		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND data.commoditycode = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND data.marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST(data.marketcode AS INT) = market.code ORDER BY data.fulldate DESC ";
+		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity, data.userid FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND data.commoditycode = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND data.marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST(data.marketcode AS INT) = market.code";
 		//var qString = "SELECT data.gaul0code, commodity.code as commocode, city.name as citycode, market.name as marketcode, data.vendorname, commodity.name as commoditycode, data.price, data.quantity, data.fulldate FROM data, city, vendor, market, commodity WHERE data.citycode = city.code AND CAST(data.marketcode AS INT) = market.code AND data.gaul0code='45' AND commodity.code = ANY('{"+commodityItem.toString()+"}') ORDER BY fulldate ";
-		//if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
+		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		//qString = qString + "limit 100";
+		qString = qString + " ORDER BY data.fulldate DESC ";
 
-		//console.log(qString);
+		console.log(qString);
 
 		$.ajax({
-			type: 'GET',
+
+			url: 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
+			type: 'POST',
+			data: {
+				datasource: 'CROWD',
+				query: qString,
+				outputType: 'array'
+			},
+
+			success: function (response) {
+				//console.log("createTable3");
+				allDatas = JSON.parse(response);
+				var output = {table:[]};
+				$.each(allDatas, function(index,element){
+
+					output.table.push({
+						"gaul0code": element[0],
+						"vendorname": element[1],
+						"citycode": element[2],
+						"code": parseInt(element[3]),
+						"price": parseFloat(element[4]),
+						"fulldate": element[5],
+						"cityname": element[6],
+					//	"code": element[7],
+						"commodityname": element[8],
+						"commoditycode": element[9],
+						"code": element[10],
+						"marketname": element[11],
+						"marketcode": element[12],
+						"quantity": parseFloat(element[13]),
+						"userid": element[14]
+					});
+				});
+
+				if (tableIsInit) {
+					console.log("!createTable3");
+					$('#table').bootstrapTable('removeAll');
+					$('#table').bootstrapTable('append', output.table);
+				} else {
+					$('#table').bootstrapTable({
+						columns: [{
+							field: 'cityname',
+							title: 'City',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'marketname',
+							title: 'Market',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'vendorname',
+							title: 'Vendor',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'commodityname',
+							title: 'Commodity',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'price',
+							title: 'Price ('+currency+')',
+							sortable: true
+						}, {
+							field: 'quantity',
+							title: 'Quantity ('+munit+')',
+							sortable: true
+						}, {
+							field: 'fulldate',
+							title: 'Date',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'userid',
+							title: 'User',
+							sortable: true,
+							searchable: true
+						}],
+						data: output.table,
+						pagination: true,
+						search: true,
+						sortable: true
+
+					});
+					tableIsInit = true;
+					$("#tblExportCSV").on("click", function(){
+						$('#table').bootstrapTable('togglePagination');
+						$('#table').tableExport({type:'csv'});
+						$('#table').bootstrapTable('togglePagination');
+					});
+					$("#tblExportXLS").on("click", function(){
+						$('#table').bootstrapTable('togglePagination');
+						$('#table').tableExport({type:'xls'});
+						$('#table').bootstrapTable('togglePagination');
+					});
+					$("#tblExportJSON").on("click", function(){
+						$('#table').bootstrapTable('togglePagination');
+						$('#table').tableExport({type:'json'});
+						$('#table').bootstrapTable('togglePagination');
+					});
+				}
+			},
+			error: function (a) {
+				console.log("KO:"+a.responseText);
+			}
+
+
+		});
+		/*
+
+		$.ajax({
+			type: 'POST',
+			contentType:'application/x-www-form-urlencoded; charset=UTF-8',
 			url: WDSURI,
 			data: {
 				payload: '{"query": "'+qString+'"}',
-				datasource: DATASOURCE,
+				datasource: 'faostatdata',
 				outputType: 'object'
 			},
 			success: function (response) {
 				//console.log("createTable3");
-				//console.log(response);
+				console.log(response);
 				allDatas = response;
 				allDatas.shift();
 				if (tableIsInit) {
@@ -632,9 +855,9 @@ $( document ).ready(function() {
 				console.log("KO:"+a.responseText);
 			}
 		});
-
+		*/
 	}
-	
+
 	function createTable() {	
 		/*
 		if (tableIsInit) {				
@@ -749,8 +972,8 @@ $( document ).ready(function() {
 		
 		if (nations == null) nations = initGaul;
 		console.log(checkedMarkets.toString());
-		$.getJSON(globalURI+"auto.dataweb?vendorcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0", function (data) {
-				console.log(globalURI+"auto.dataweb?vendorcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0");
+		$.getJSON(globalURI+"auto.dataweb?marketcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0", function (data) {
+				console.log(globalURI+"auto.dataweb?marketcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0");
 				console.log(data.datas);
 				data.datas = data.datas.sort(function(a, b) {
 					//return (a['fulldate'] > b['fulldate']);
@@ -865,7 +1088,7 @@ $( document ).ready(function() {
 
 	function updateDates() {
 		console.log(" updateDates "+isInit);
-		var squery = "select min(fulldate) as startDate, max(fulldate) as endDate from data";
+		var squery = "select min(fulldate) as startDate, max(fulldate) as endDate from data WHERE marketcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")";
 		$.ajax({
 			type: 'GET',
 			url: WDSURI,
@@ -995,11 +1218,15 @@ $( document ).ready(function() {
 		var uniqueMarkers = [];
 		
 		if (dataarray != null) {
-			
+			/*
 			var allData = dataarray.sort(function(a, b) {
 				return parseInt(a['marketcode']) - parseInt(b['marketcode']);
 			});
-						
+			*/
+			var allData = dataarray;
+
+			//console.log(allData);
+
 			var uniqueVendors = [];
 			var uniqueLat = [];
 			var uniqueLon = [];
@@ -1010,11 +1237,12 @@ $( document ).ready(function() {
 			$.each(allData, function(f,k){
 				//console.log(k.commoditys[0].name);
 				var temp = [];	
-				temp.push(k.lat);
-				temp.push(k.lon);
-				temp.push(k.vendorname);
-				temp.push(k.commoditys[0].name)
-				allMarkers.push(temp);		
+				temp.push(k[16]);
+				temp.push(k[17]);
+				temp.push(k[14]);
+				//temp.push(k.commoditys[0].name)
+				allMarkers.push(temp);
+				//console.log(temp);
 			});
 			$.each(allMarkers, function(i, el){	
 				//if($.inArray(el, uniqueVendors) === -1) uniqueVendors.push(el);
@@ -1049,7 +1277,7 @@ $( document ).ready(function() {
 
 		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&code=('+checkedMarkets.toString()+')&_output=json';
 	//	console.log(URI);
-		var URI2 = globalURI+'auto.data?vendorcode=';
+		var URI2 = globalURI+'auto.data?marketcode=';
 		// "auto.dataweb?gaul0code=("+nations+ ')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
 		
 		//console.log(URI);
@@ -1066,12 +1294,12 @@ $( document ).ready(function() {
 			var vendors = [];
 			var lats = []; 
 			var lons =[];
-			var vendorcode = [];
+			var marketcode = [];
 			var addressPoints = [];	
 			address = 0;
 			
 			$.each(data.vendors, function (f,k) {	
-				var qString = "SELECT AVG(price), COUNT(price) FROM data WHERE vendorcode='"+k.code+"'";
+				var qString = "SELECT AVG(price), COUNT(price) FROM data WHERE marketcode='"+k.code+"'";
 				if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 				var avg = [];
 				var avgS = "";
@@ -1096,7 +1324,7 @@ $( document ).ready(function() {
 						if (response[1] !== undefined) 
 							avgS = " - " +( parseFloat(response[1][0]).toFixed(2) ) + currency +"\/"+ munit;
 						vendors.push(k.name);
-						vendorcode.push(k.code);
+						marketcode.push(k.code);
 						lats.push(k.lat);
 						lons.push(k.lon);
 							var temp = [];	
@@ -1228,7 +1456,7 @@ $( document ).ready(function() {
 					  var title = "";
 					  var cIcon = desatIcon;
 					  var marker = L.marker( new L.LatLng(aresLat[j], aresLon[j]) , { title: title, icon: desatIcon });
-					  marker.bindPopup(title);
+					  //marker.bindPopup(title);
 					  markers.addLayer(marker);						  
 				  }
 				  
@@ -1285,14 +1513,14 @@ $( document ).ready(function() {
 			var vendors = [];
 			var lats = []; 
 			var lons =[];
-			var vendorcode = [];
+			var marketcode = [];
 			var addressPoints = [];
 			var comm = [];
 				
 			$.each(data.datas, function (f,k) {
 				dates.push(k.date);
 				vendors.push(k.vendorname);
-				vendorcode.push(k.vendorcode);
+				marketcode.push(k.marketcode);
 				lats.push(k.lat);
 				lons.push(k.lon);
 				comm.pus(k.commoditys[0].name);
@@ -1317,14 +1545,14 @@ $( document ).ready(function() {
 			$.each(lons, function(i, el){
 				if($.inArray(el, uLons) === -1) uLons.push(el);
 			});
-			$.each(vendorcode, function(i, el){
+			$.each(marketcode, function(i, el){
 				if($.inArray(el, uVcode) === -1) uVcode.push(el);
 			});
 			$.each(comm, function(i, el){
 				if($.inArray(el, uComm) === -1) uComm.push(el);
 			});
 
-			//console.log (uVcode, vendorcode);
+			//console.log (uVcode, marketcode);
 			/*
 			console.log(uDates);
 			console.log(uVendor);
@@ -1398,7 +1626,7 @@ $( document ).ready(function() {
 					  temp.push(title);
 					  existingPoints.push(temp);
 					  var marker = L.marker(position, { title: title, icon: foundIcon });
-					  marker.bindPopup(title);
+					  //marker.bindPopup(title);
 					  markers.addLayer(marker);
 				  }
 				  
@@ -1424,7 +1652,7 @@ $( document ).ready(function() {
 					  var title = "";
 					  var cIcon = desatIcon;
 					  var marker = L.marker( new L.LatLng(aresLat[j], aresLon[j]) , { title: title, icon: desatIcon });
-					  marker.bindPopup(title);
+					  //marker.bindPopup(title);
 					  markers.addLayer(marker);						  
 				  }
 				  
