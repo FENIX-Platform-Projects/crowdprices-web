@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="description" content="Crowd Prices">
+<meta name="keywords" content="">
+<title>Crowd Prices</title>
+<link REL="SHORTCUT ICON" HREF="favicon.ico">
+<link rel="stylesheet" href="src/css/crowdprices-home-style.css" type="text/css" />
+<link rel="stylesheet" href="resources/jqwidgets/2.2/styles/jqx.base.css" type="text/css" />
+
+<script type="text/javascript" src="resources/jquery/1.7.2/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="resources/jqwidgets/2.2/jqxcore.js"></script>
+<script type="text/javascript" src="resources/jqwidgets/2.2/jqxbuttons.js"></script>
+<script type="text/javascript" src="resources/jqwidgets/2.2/jqxscrollbar.js"></script>
+<script type="text/javascript" src="resources/jqwidgets/2.2/jqxlistbox.js"></script>
+<script type="text/javascript" src="resources/jqwidgets/2.2/jqxdropdownlist.js"></script>
+<script type="text/javascript" src="resources/jqwidgets/2.2/jqxpanel.js"></script>
+
+<!-- Leaflet -->
+<link rel='stylesheet' href='http://fenixapps.fao.org/maps/libs/leaflet/0.4/leaflet.css' />
+	<!--[if lte IE 8]><link rel='stylesheet' href='http://ldvapp07.fao.org:8030/maps/libs/leaflet/0.4/leaflet.ie.css' /><![endif]-->
+<style>#map {width: 998px; height: 470px; } </style>
+<link rel='stylesheet' href='http://fenixapps.fao.org/maps/libs/leaflet/0.4/legend.css' />
+<!--[if lte IE 8]><link rel='stylesheet' href='http://ldvapp07.fao.org:8030/maps/libs/leaflet/0.4/legend.ie.css' /><![endif]-->
+</style>
+<script src="http://fenixapps.fao.org/maps/libs/leaflet/0.4/leaflet.js" type="text/javascript"></script>
+
+<script src="src/js/CrowdPricesController.js" type="text/javascript"></script>
+</head>
+
+<body>
+<div id="centerColumn">
+	<div id="language-bar">
+		<div class="left">
+				<a href="http://www.fao.org" target="_blank">Food and Agriculture Organization of the United Nations - for a world without hunger</a>
+		</div>
+
+		<div id="language" class="right"> 
+			<b>english</b> | <a  href='dataviewer_fr.html?locale=fr'>fran&#231;ais</a> | <a href='dataviewer_es.html?locale=es'>espa&#241;ol</a>
+		</div>
+
+	</div>
+
+	<div id="header">
+		<div class="logo">
+			<div class="left-logo"><img src="http://ldvapp07.fao.org:8030/fenix-web/crowdprices/crowdprices-images/crowdprices.jpg"></div>
+		</div>
+	</div>
+
+	<div id="MENU"></div>
+	
+	<div id="MAIN_CONTENT">
+		<div id='jqxWidget'>
+			<div>
+				<div style='float:left; margin-top: 20px; margin-right: 15px' id='jqxddCommodities'> </div>
+				<div style='float:left; margin-top: 20px;' id='jqxddDates'> </div>
+			</div>
+		</div>
+		<div style='float:left; margin-top: 10px; border: 1px solid #bbbbbb;' id="map"></div>
+	</div>
+	
+	<div id="summary"></div>
+</div>
+
+	<script type="text/javascript">
+	
+	var commodity;
+    var commodityItem;
+	var date;
+	var dateItem;
+	var commodities;
+	var dates;
+	
+	 $(document).ready(function () {
+
+                var theme = '';
+				
+                commodities = [
+                    			"Rice",
+					"Wheat"
+		        ];
+				
+				dates = [
+					"2012-06-22",
+					"2012-06-21",
+					"2012-06-20",
+					"2012-06-19",
+					"2012-06-18",
+					"2012-06-17",
+		        ];
+
+                // Create a jqxDropDownList
+
+                $("#jqxddCommodities").jqxDropDownList({ source: commodities, selectedIndex: 0, width: '200px', height: '25px', theme: theme });
+				
+			    $("#jqxddDates").jqxDropDownList({ source: dates, selectedIndex: 2, width: '200px', height: '25px', theme: theme });
+
+                $('#Events').jqxPanel({ theme: theme, height: '250px', width: '200px' });
+
+                $('#Events').css('border', 'none');
+
+				commodityItem = $("#jqxddCommodities").jqxDropDownList('getSelectedItem'); 
+                // bind to 'unselect' and 'select' events.
+                $('#jqxddCommodities').bind('select', function (event) {
+				    commodity = event.args;
+                    commodityItem = $('#jqxddCommodities').jqxDropDownList('getItem', commodity.index);
+					removeMarkers();
+					spatialquery();
+                });
+				
+				dateItem = $("#jqxddDates").jqxDropDownList('getSelectedItem'); 
+				$('#jqxddDates').bind('select', function (event) {
+					date = event.args;
+                    dateItem = $('#jqxddDates').jqxDropDownList('getItem', date.index);
+					removeMarkers();
+					spatialquery();
+                });
+
+				// here it's calling the first spatial query
+				spatialquery();
+            });
+	
+	
+
+var map = new L.Map('map', {crs:L.CRS.EPSG3857});
+// var map = new L.Map('map');
+
+map.setView(new L.LatLng(0,0), 1);
+
+var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+var osm = new L.TileLayer(osmUrl);		
+//map.addLayer(osm);
+
+var mapquestUrl='http://otile1.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png';
+var mapquest = new L.TileLayer(mapquestUrl);
+map.addLayer(mapquest);
+
+var nasaUrl='http://tile21.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png';
+var nasa = new L.TileLayer(nasaUrl);
+
+var sketchMapUrl ='http://a.tiles.mapbox.com/v3/aj.sketchy/{z}/{x}/{y}.png';
+var sketchMap = new L.TileLayer(sketchMapUrl);
+
+var baseMaps = {
+    "MapQuest": mapquest,
+	"Open Street Map": osm,
+	"Aerial Nasa": nasa,
+	"Drew": sketchMap
+};
+var layersControl = new L.Control.Layers(baseMaps);
+map.addControl(layersControl);
+
+//map.addControl(new L.Control.Scale());
+
+
+var geojsonLayer = new L.GeoJSON();
+
+ // this to add the geojsonlayer
+ /**geojsonLayer.on("featureparse", function (e) {
+					var popupContent = "";
+
+					if (e.properties && e.properties.popupContent) {
+						popupContent += e.properties.popupContent;
+					}**/
+					//e.layer.bindPopup(popupContent);
+					/*if (e.properties && e.properties.style && e.layer.setStyle) {
+						e.layer.setStyle(e.properties.style);
+					}**/
+					/** var myIcon = L.Icon.extend({
+						iconUrl:  e.properties.iconurl,
+						shadowUrl:null,
+						iconSize: new L.Point(24, 24),
+					});
+					var icon = new myIcon();
+					e.layer.setIcon(icon); **/		
+/**				});**/
+
+//spatialquery();
+map.on('moveend', function(e) {
+	removeMarkers();
+	spatialquery();
+});
+
+function onEachFeature(feature, layer) {
+    // does this feature have a property named popupContent?
+    if (feature.properties && feature.properties.popupContent) {
+        layer.bindPopup(feature.properties.popupContent);
+    }
+}
+
+function spatialquery() {
+	// spatial query (for now takes directly the label of the dropdowns)
+	//$.getJSON('http://ldvapp07.fao.org:8030/maps/api?&jsoncallback=?&crowdprices='+ commodityItem.label +','+ dateItem.label, function(data)
+	/**$.getJSON('http://127.0.0.1:8080/wds/rest/crowdprices/null/null/null/e', function(data)
+	{ 
+		geojsonLayer = L.geoJson(data, {onEachFeature: onEachFeature});
+		map.addLayer(geojsonLayer);
+		$("#summary").append("ok ");
+	});**/
+	
+	var bounds = map.getBounds();
+	var sw = bounds.getSouthWest();
+	var ne = bounds.getNorthEast();
+//	alert(sw);
+	//alert(ne);
+
+	var BBOX = sw.lng + "," + sw.lat +"," + ne.lng + ","+ ne.lat;
+	//alert(BBOX);
+	$.ajax({
+		type : 'GET',
+		url : 'http://localhost:8080/wds/rest/crowdprices/null/null/null/'+ BBOX +'/fr',
+		dataType : 'json',
+		success : function(response) {
+			geojsonLayer = L.geoJson(response, {onEachFeature : onEachFeature });
+			map.addLayer(geojsonLayer);
+			$("#summary").append("ok ");
+		},
+		error : function(err, b, c) {
+			alert(err.status + ", " + b + ", " + c);
+		}
+	});
+
+	}
+
+	function removeMarkers() {
+		geojsonLayer.clearLayers();
+	}
+
+</script>
+</body>
+</html>
+
