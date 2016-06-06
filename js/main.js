@@ -509,8 +509,8 @@ $( document ).ready(function() {
 							 temArray[1] = ( aggregated / j );
 							 if (temArray[1] >1) averagedata.push(temArray);
 
-							console.log(data);
-							 getMarkers(data);
+							//console.log(data);
+							getMarkers(data);
 
 
 							//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
@@ -1412,7 +1412,9 @@ $( document ).ready(function() {
 				
 				var foundIcon = L.icon({
 					iconUrl: 'img/marker-icon.png',
-					shadowUrl: 'img/marker-shadow.png'
+					shadowUrl: 'img/marker-shadow.png',
+					iconSize: L.point(109,109),
+					iconAncho: L.point(109,109)
 				});
 				
 				var existingPoints = [];
@@ -1428,9 +1430,14 @@ $( document ).ready(function() {
 					  var temp = [];
 					  temp.push(position);
 					  temp.push(title);
+					  
 					  existingPoints.push(temp);
-					  var marker = L.marker(position, { title: title, icon: foundIcon });
-					  //marker.bindPopup(title);
+
+					  var marker = L.marker(position, { icon: foundIcon });
+
+
+					  marker.bindPopup(title);
+
 					  markers.addLayer(marker);
 				  }
 				  
