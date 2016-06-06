@@ -5,8 +5,8 @@ $( document ).ready(function() {
 	var markers = null;
 	var allAddressPoints = [];
 	
-	//var globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/"
-	var globalURI = "http://168.202.28.127:8080/restsql-0.8.8/res/"
+	var globalURI = "http://fenix.fao.org/restsql-0.8.8/res/"
+	//var globalURI = "http://168.202.28.127:8080/restsql-0.8.8/res/"
 
 	var initLatLon = [-6.816330, 39.276638];
 	var initGaul = 257
@@ -33,18 +33,11 @@ $( document ).ready(function() {
 	function initUI() {
 		// console.log("initUI");		
 		populateUI();
-		Highcharts.setOptions({
-			chart: {
-				style: {
-					fontFamily: "Roboto Condensed"
-				}
-			}
-		});
 	}
 	
 	function startUI() {
 		//console.log("startUI");
-		$(".content").css('visibility', 'visible');
+		$(".content-item").show();
 	}
 	
 	function timestamp(str){
@@ -129,13 +122,8 @@ $( document ).ready(function() {
 					
 			$.getJSON( globalURI+'auto.gaul0?_output=json', function(data) {
 				var sel = $("#countries");
-				var first = "selected";
 				$.each(data.gaul0s, function() {
-						
-						/* all countries --> sel.append($("<option selected />").val(this.code).text(this.name)); */
-						sel.append($("<option "+first+" />").val(this.code).text(this.name));
-						first = "";						
-						
+						sel.append($("<option selected />").val(this.code).text(this.name));
 				});
 				updateValues();
 				$('#countries').chosen('.chosen-select');
@@ -209,11 +197,7 @@ $( document ).ready(function() {
 						},						
 						title: {
 							text: 'Average Prices'
-						
 						},
-						
-						credits: false,
-						
 						xAxis: {
 							title: {
 								text: null
@@ -384,11 +368,10 @@ $( document ).ready(function() {
 		allDatas = [];
 		
 		$.getJSON(globalURI+"auto.city?_output=json", function (data) { allCity = data.citys; });
-		
 		$.getJSON(globalURI+"auto.market?_output=json", function (data) { allMarket = data.markets; });
 		$.getJSON(globalURI+"auto.commodity?_output=json", function (data) { allCommodity = data.commoditys; });
 		
-		$.getJSON(globalURI+"auto.data?gaul0code=("+nations.toString()+ ")&_output=json&_limit=100&_offset=0", function (data) {
+		$.getJSON(globalURI+"auto.data?gaul0code=("+nations.toString()+ ")&_output=json", function (data) {
 				data.datas = data.datas.sort(function(a, b) {
 					//return (a['fulldate'] > b['fulldate']);
 					return new Date(b['fulldate']) - new Date(a['fulldate']);
@@ -416,7 +399,14 @@ $( document ).ready(function() {
 		
 		$(document).ajaxStop(function () { 				
 			console.log("webix: "+tableIsInit);
-			var uri = globalURI+"auto.data?gaul0code=("+nations.toString()+ ")&_output=json&_limit=100&_offset=0";
+			var uri = globalURI+"auto.data?gaul0code=("+nations.toString()+ ")&_output=json";
+			/*
+			console.log("allDatas [B]");
+			console.log(allDatas);
+			findAndReplace(allDatas, "citycode", "34", "Romaaaaaa");
+			console.log("allDatas [A]");
+			console.log(allDatas);
+			*/
 			
 			mergeArrays(allDatas);
 			
@@ -458,24 +448,23 @@ $( document ).ready(function() {
 				},	
 				pager:{
 					container:"table-pager",
-					size:30, 
+					size:50, 
 					group:5,
 					template:" {common.prev()} {common.pages()} {common.next()}" 
 				},								
 				columns:[
 //					{ id:"id",				width:50,	header:"", 				css:"id"},
-					{ id:"citycode",		width:176, 	css:{ "font-size": "13px", "font-family": "Roboto Condensed" }, header:[ "City",{content:"textFilter"}]	},
-					{ id:"marketcode",		width:210,	css:{ "font-size": "13px", "font-family": "Roboto Condensed" }, header:[ "Market",{content:"textFilter"}] },
-					{ id:"vendorname",		width:210,	css:{ "font-size": "13px", "font-family": "Roboto Condensed" }, header:[ "Vendor",{content:"textFilter"}] },
-					{ id:"commoditycode",	width:210,	css:{ "font-size": "13px", "font-family": "Roboto Condensed" }, header:[ "Commodity",{content:"textFilter"}] },
+					{ id:"fulldate",		width:160,	header:"Date",									format:webix.i18n.fullDateFormatStr, sort: "date"},
+					{ id:"citycode",		width:116, 	header:[ "City",{content:"textFilter"}]	},
+					{ id:"marketcode",		width:180,	header:[ "Market",{content:"textFilter"}] },
+					{ id:"vendorname",		width:200,	header:[ "Vendor",{content:"textFilter"}] },
+					{ id:"commoditycode",	width:200,	header:[ "Commodity",{content:"textFilter"}] },
 //					{ id:"varietyname",		width:100,	header:[ "Variety",{content:"textFilter"}] },
-					{ id:"price",			width:130,	css:{ "font-size": "13px", "font-family": "Roboto Condensed" }, header:"Price",									format:webix.Number.numToStr({ 
+					{ id:"price",			width:100,	header:"Price",									format:webix.Number.numToStr({ 
 																											groupDelimiter:",", 
 																											groupSize:3, 
 																											decimalDelimiter:".", 
-																											decimalSize:2})},
-					{ id:"fulldate",		width:200,	css:{ "font-size": "13px", "font-family": "Roboto Condensed" }, header:"Date",		format:webix.i18n.fullDateFormatStr, sort: "date"}
-																											
+																											decimalSize:2})}           
 				],
 				autoheight:true,
 				autowidth:true,
@@ -509,8 +498,8 @@ $( document ).ready(function() {
 			})
 		});
 		
-		$("#slider").Link('lower').to('-inline-<div class="slider_tooltip"></div>', setDate);
-		$("#slider").Link('upper').to('-inline-<div class="slider_tooltip"></div>', setDate);
+		$("#slider").Link('lower').to('-inline-<div class="tooltip"></div>', setDate);
+		$("#slider").Link('upper').to('-inline-<div class="tooltip"></div>', setDate);
 		
 		$("#slider").on({
 			change: function(){
@@ -574,40 +563,6 @@ $( document ).ready(function() {
 //		console.log("getMarkers [E]");
 
 	}
-	
-	function getAllVendors() {
-		console.log("getAllVendors");
-		var URI = globalURI+'auto.vendor?_output=json';
-		$.getJSON( URI, function(data) { 
-			var ritorno = [];
-			$.each(data.vendors, function (f,k) { 
-				var temp = [];
-				temp.push(k.lat);
-				temp.push(k.lon);
-				temp.push(k.name);
-				ritorno.push(temp);
-				/*
-				var desatIcon = L.icon({
-					iconUrl: 'img/marker-icon-none.png',
-					shadowUrl: 'img/marker-shadow.png'
-				});
-				
-			    var title = k.name;
-			    var cIcon = desatIcon;
-			    var marker = L.marker( new L.LatLng(k.lat, k.lon) , { title: title, icon: desatIcon });
-			    marker.bindPopup(title);
-			    markers.addLayer(marker);
-				*/
-				  
-			});
-			//console.log(apoint);
-			return ritorno;
-			/*
-			*/	
-			
-		});
-	}
-	
 	
 	function updateMap() {	
 		//console.log("updateMap : "+commodityMaps);
@@ -705,141 +660,75 @@ $( document ).ready(function() {
 						temp.push(fLat);
 						temp.push(fLon);
 						temp.push(fDate + " @ " + fVend+" - "+fPrice+" (Avg)"); //KSh 
-						temp.push(fVend);
+						//temp.push(true);
 						addressPoints.push(temp);
 						//console.log("bhy");
 					}
 					
 					address++ ;
-					if ( address >= uDates.length ) refreshCluster();					
+					if ( address >= uDates.length ) refreshCluster();
 				});	
 				
 			});
 			
 			function refreshCluster() {
-				var existingPoints = [];
-				var allVendors = [];
+				//console.log(addressPoints.length);
 				var desatIcon = L.icon({
 					iconUrl: 'img/marker-icon-none.png',
-					shadowUrl: 'img/marker-shadow.png'
+					//shadowUrl: 'img/marker-shadow.png'
 				});
 				
 				var foundIcon = L.icon({
 					iconUrl: 'img/marker-icon.png',
-					shadowUrl: 'img/marker-shadow.png'
+					//shadowUrl: 'img/marker-shadow.png'
 				});
 				
-			
-				var URI = globalURI+'auto.vendor?_output=json';
-				$.getJSON( URI, function(data) { 					
-					$.each(data.vendors, function (f,k) { 
-						var title = k.name;					
-						var position = new L.LatLng(k.lat, k.lon);						
-						var temp = [];
-						  temp.push(position);
-						  temp.push(title);						  
-						  temp.push(false);
-						  temp.push(title);
-						  allVendors.push(temp);
-						/*
-						var marker = L.marker( position, { title: title, icon: desatIcon });
-						marker.bindPopup(title);
-						markers.addLayer(marker);						
-						*/  
-					});
+				var existingPoints = [];
 				
-				
-					//console.log(addressPoints.length);
-					
-					
-					
-					var latlng = L.latLng(addressPoints[0][0], addressPoints[0][1]);
-					  for (var i = 0; i < addressPoints.length; i++) {
-						  //console.log ("pop!");
-						  var a = addressPoints[i];
-						  var title = a[2];
-						  var name = a[3];
-						  var cIcon = desatIcon;
-						  var position = new L.LatLng(a[0], a[1]);
-						  var temp = [];
-						  temp.push(position);
-						  temp.push(title);
-						  temp.push(true);
-						  temp.push(name);
-						  existingPoints.push(temp);
-						  allVendors.push(temp);
-						  /*
-						  var marker = L.marker(position, { title: title, icon: foundIcon });
-						  marker.bindPopup(title);
-						  markers.addLayer(marker);
-						  */
-					  }
-					  
-					  var a1Lat = [];
-					  var a1Lon = [];
-					  var a2Lat = [];				  
-					  var a2Lon = [];
-					  var results = [];
-					  
-					  console.log(allVendors);
-					  
-					  console.log($(allVendors).not(existingPoints).get());
-					  
-					  /*
-					  $.each(allVendors, function(i, el){
-						$.each(existingPoints, function(j, elem){
-							//console.log(el[3],elem[3]);
-							if (el[3] == elem[3]) {
-								console.log ("fDate", el[3], elem[3], el[1]);
-								results.push(elem);
-							} 
-						});
-						//console.log(el[3])
-						//if($.inArray(el, results) === -1) results.push(el);
-					  });
-					  */
-					  //console.log(results.length);
-					  
-					  $.each(allVendors, function(i, el){
-					//	if($.inArray(el, results) === -1) {
-							//results.push(el);
-							//console.log(el);
-							var position = el[0];
-							var title = el[1];							
-							var ricon = desatIcon;
-							if (el[2] == true) ricon = foundIcon;
-							  var marker = L.marker(position, { title: title, icon: ricon });
-							  marker.bindPopup(title);
-							  markers.addLayer(marker);					  							
-					//	}
-					  });
-					  					  
-					 
-					  
-					  console.log(existingPoints.length, allAddressPoints.length, allVendors.length, results.length);
-					  for (var k = 0; k < allAddressPoints.length; k++) {
-						a1Lat.push(allAddressPoints[k][0]['lat']);				  	
-						a1Lon.push(allAddressPoints[k][0]['lng']);
-					  }				  		  	
-					  for (var k = 0; k < existingPoints.length; k++) {
-						a2Lat.push(existingPoints[k][0]['lat']);
-						a2Lon.push(existingPoints[k][0]['lng']);
-					  }
+				var latlng = L.latLng(addressPoints[0][0], addressPoints[0][1]);
+				  for (var i = 0; i < addressPoints.length; i++) {
+					  //console.log ("pop!");
+					  var a = addressPoints[i];
+					  var title = a[2];
+					  var cIcon = desatIcon;
+					  var position = new L.LatLng(a[0], a[1]);
+					  var temp = [];
+					  temp.push(position);
+					  temp.push(title);
+					  existingPoints.push(temp);
+					  var marker = L.marker(position, { title: title, icon: foundIcon });
+					  marker.bindPopup(title);
+					  markers.addLayer(marker);
+				  }
+				  
+				  var a1Lat = [];
+				  var a1Lon = [];
+				  var a2Lat = [];				  
+				  var a2Lon = [];
+				  
+				  //console.log(existingPoints.length, allAddressPoints.length);
+				  for (var k = 0; k < allAddressPoints.length; k++) {
+				  	a1Lat.push(allAddressPoints[k][0]['lat']);				  	
+				  	a1Lon.push(allAddressPoints[k][0]['lng']);
+				  }				  		  	
+				  for (var k = 0; k < existingPoints.length; k++) {
+					a2Lat.push(existingPoints[k][0]['lat']);
+				  	a2Lon.push(existingPoints[k][0]['lng']);
+				  }
 
-						var aresLat = $(a1Lat).not(a2Lat).get();
-						var aresLon = $(a1Lon).not(a2Lon).get();
-					  
-					  for (var j = 0; j < aresLat.length; j++) {
-						  var title = "";
-						  var cIcon = desatIcon;
-						  var marker = L.marker( new L.LatLng(aresLat[j], aresLon[j]) , { title: title, icon: desatIcon });
-						  marker.bindPopup(title);
-						  markers.addLayer(marker);						  
-					  }
-					  
-					 map.addLayer(markers);	
-					 map.panTo(latlng);
-				 });
+					var aresLat = $(a1Lat).not(a2Lat).get();
+					var aresLon = $(a1Lon).not(a2Lon).get();
+				  
+				  for (var j = 0; j < aresLat.length; j++) {
+					  var title = "";
+					  var cIcon = desatIcon;
+					  var marker = L.marker( new L.LatLng(aresLat[j], aresLon[j]) , { title: title, icon: desatIcon });
+					  marker.bindPopup(title);
+					  markers.addLayer(marker);						  
+				  }
+				  
+				 map.addLayer(markers);	
+				 map.panTo(latlng);
 			}
 			
 		});
@@ -859,16 +748,18 @@ $( document ).ready(function() {
 		//  if (markers == null) { 
 			markers = L.markerClusterGroup();
 			map = L.map('map-cluster', {
-			 	center: initLatLon, 
-				attributionControl: false, 
-				zoom: 7, 
+			 	center: initLatLon,
+				attributionControl: false,
+				zoom: 7,
 				markerZoomAnimation: true,
 				layers: [tiles]
+
 			});
 			// Initialise the FeatureGroup to store editable layers
 			var drawnItems = new L.FeatureGroup();
 			map.addLayer(drawnItems);
-			
+		map.dragging.disable();
+
 			var Doptions = {
 				position: 'topleft',
 				draw: {					
