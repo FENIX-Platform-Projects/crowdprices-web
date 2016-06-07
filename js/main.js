@@ -889,7 +889,7 @@ window.filterPolygonWKT = filterPolygonWKT;
 					  //console.log ("pop!");
 					  var a = addressPoints[i];
 
-					  var title = a[2];
+					  var title = a[2].replace('-','<br>');
 					  //console.log(a.toString());
 					  var cIcon = desatIcon;
 					  var position = new L.LatLng(a[0], a[1]);
@@ -903,6 +903,10 @@ window.filterPolygonWKT = filterPolygonWKT;
 
 
 					  marker.bindPopup(title);
+
+					  marker.on('mouseover', function(e) {
+					  	e.target.openPopup();
+					  });
 
 					  markers.addLayer(marker);
 				  }
