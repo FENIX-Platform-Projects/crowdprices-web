@@ -439,7 +439,7 @@ $( document ).ready(function() {
 							 if (temArray[1] >1) averagedata.push(temArray);
 
 							//console.log(data);
-							getMarkers(data);
+							//getMarkers(data);
 
 
 							//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
@@ -821,7 +821,7 @@ $( document ).ready(function() {
 
 window.filterPolygonWKT = filterPolygonWKT;
 
-				console.log('QUERY updateMap2', qString);
+				//console.log('QUERY updateMap2', qString);
 
 				var avg = [];
 				var avgS = "";
@@ -835,27 +835,29 @@ window.filterPolygonWKT = filterPolygonWKT;
 							outputType: 'array'
 						},
 						success: function (response) {
-						
-						console.log('QUERY updateMap2 response: ',response);
 
-						if (response[1] !== undefined)
-							avgS = " - " +( parseFloat(response[1][0]).toFixed(2) ) + currency +"\/"+ munit;
+							//console.log('QUERY updateMap2 response: ', response[1]);
 
-						vendors.push(k.name);
-						marketcode.push(k.code);
-						lats.push(k.lat);
-						lons.push(k.lon);
+							if (response[1][0] !== null) {
 
-						var temp = [];	
-						temp.push(k.lat);
-						temp.push(k.lon);
-						temp.push(k.name+avgS);
-						
-						addressPoints.push(temp);		
+								avgS = " - " + ( parseFloat(response[1][0]).toFixed(2) ) + currency + "\/" + munit;
+
+								vendors.push(k.name);
+								marketcode.push(k.code);
+								lats.push(k.lat);
+								lons.push(k.lon);
+
+								var temp = [];
+								temp.push(k.lat);
+								temp.push(k.lon);
+								temp.push(k.name + avgS);
+
+								addressPoints.push(temp);
+							}
 						address++ ;
-						//console.log(data.vendors.length+" > "+address);
+						console.log(data.vendors.length+" > "+address);
 						if ( address >= data.vendors.length )
-							refreshCluster();						
+							refreshCluster();
 					
 					  },
 					  error: function (a) {
@@ -922,7 +924,7 @@ window.filterPolygonWKT = filterPolygonWKT;
 
 					var aresLat = $(a1Lat).not(a2Lat).get();
 					var aresLon = $(a1Lon).not(a2Lon).get();
-				  
+
 				  for (var j = 0; j < aresLat.length; j++) {
 					  var title = "";
 					  var cIcon = desatIcon;
@@ -930,7 +932,7 @@ window.filterPolygonWKT = filterPolygonWKT;
 					  //marker.bindPopup(title);
 					  markers.addLayer(marker);						  
 				  }
-				  
+
 				 map.addLayer(markers);	
 				 map.panTo(latlng);
 				 
@@ -974,6 +976,7 @@ window.filterPolygonWKT = filterPolygonWKT;
 			layers: [tiles],
 			scrollWheelZoom: false
 		});
+
 		// Initialise the FeatureGroup to store editable layers
 		var drawnItems = new L.FeatureGroup();
 		map.addLayer(drawnItems);
