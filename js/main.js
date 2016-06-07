@@ -625,20 +625,21 @@ $( document ).ready(function() {
 				outputType: 'array'
 			},
 			success: function (response) {
-				console.log("Dates defined");
+				console.log("Dates defined",response);
 				//console.log(startDate,endDate);
-				//console.log(response[0],response[1]);
 				//console.log(new Date(response[0]),new Date(response[1]));
-				var s1 = response[1][0];
-				var s2 = response[1][1];
-				var d1 = (s1.substring(0,10));
-				var d2 = (s2.substring(0,10));
+				if(response[1]) {
+					var s1 = response[1][0];
+					var s2 = response[1][1];
+					var d1 = (s1.substring(0,10));
+					var d2 = (s2.substring(0,10));
 
 
-				startDate = d1;
-				endDate = d2;
-				console.log(startDate,endDate);
-				if (isInit) updateSlider();
+					startDate = d1;
+					endDate = d2;
+					console.log(startDate,endDate);
+					if (isInit) updateSlider();
+				}
 			},
 			error: function (a) {
 				console.log("Dates undefined");
@@ -766,6 +767,7 @@ $( document ).ready(function() {
 		
 		if (commodityMaps != "")
 			$.getJSON( URI, function(data)  {
+
 			var vendors = [];
 			var lats = []; 
 			var lons =[];
