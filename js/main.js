@@ -105,72 +105,71 @@ $( document ).ready(function() {
 	}
 
 	function updateValues() {					
-			var items = $("#commodity").chosen().val();
-			var countries = $("#countries").chosen().val();
+		var items = $("#commodity").chosen().val(),
+			countries = $("#countries").chosen().val(),
+			markets = $("#markets").chosen().val(),
+			checkedNames = [],
+			checkedMaps  = "",
+			checkedItems = [];
 
-			munit = "Kg"
-			currency = "USD";
-			nations = countries;
+		munit = "Kg"
+		currency = "USD";
+		nations = countries;
+		allMarketName = [];
+		//
 
-			var markets = $("#markets").chosen().val();
-			//console.log(markets);
-			var checkedNames = [];
-            var checkedMaps  = "";
-			var checkedItems = [];
-			allMarketName = [];
-			//
+		checkedMarkets = markets;
+		//checkedMarkets.push("0");
 
-			checkedMarkets = markets;
-			//checkedMarkets.push("0");
+		$.each(checkedMarkets, function(index){
+			if (checkedMarkets[index] == 0)
+				allMarketName.push("Undefined Market");
+			
+			if (checkedMarkets[index] != 0)
+				allMarketName.push($("#markets option[value='"+checkedMarkets[index]+"']").text());
+		});
+		allMarketName.reverse();
+		//console.log("*"+allMarketName.toString());
 
-			$.each(checkedMarkets, function(index){
-				if (checkedMarkets[index] == 0) allMarketName.push("Undefined Market");
-				if (checkedMarkets[index] != 0) allMarketName.push($("#markets option[value='"+checkedMarkets[index]+"']").text());
+        if (items){
+			$.each(items, function (index) {
+				checkedMaps += items[index] + ",";
+				checkedItems.push(items[index]);
+				checkedNames.push( $("#commodity option[value='"+items[index]+"']").text() );
 			});
-			allMarketName.reverse();
-			//console.log("*"+allMarketName.toString());
-
-            if (items){
-				$.each(items, function (index) {
-					checkedMaps += items[index] + ",";
-					checkedItems.push(items[index]);
-					checkedNames.push( $("#commodity option[value='"+items[index]+"']").text() );
-				});
-	            checkedMaps = checkedMaps.substring(0, checkedMaps.length-1);
-	            commodityMaps = checkedMaps;	
-				commodityItem = checkedItems;	
-				commodityName = checkedNames;	
-				//console.log (commodityName);
-	            updateView();
-			}
+            checkedMaps = checkedMaps.substring(0, checkedMaps.length-1);
+            commodityMaps = checkedMaps;	
+			commodityItem = checkedItems;	
+			commodityName = checkedNames;	
+			//console.log (commodityName);
+            updateView();
+		}
 	}
 	
-
-	
 	function populateUI() {
-			//console.log("populateUI");
-			/* Commodity Selector */			
-			$.getJSON( globalURI+'auto.commodity?_output=json', function(data) {
-				var sel = $("#commodity");
-				var first = "";
-				$.each(data.commoditys, function() {
-					if(this.code == 38) first = "selected";
-						sel.append($("<option "+first+" />").val(this.code).text(this.name));
-						first = "";
-				});
-				$('#commodity').chosen({max_selected_options: 10});
-				
-				//updateValues();
-				$('#commodity').on('change', function(evt, params) {
-					//console.log("udadas");
-					updateDates();
-					updateValues();
-  				}).trigger('chosen:updated');
-				$('#commodity');
-				counterUI++;				
-				
-				getCountries(false);
+		//console.log("populateUI");
+		/* Commodity Selector */			
+		$.getJSON( globalURI+'auto.commodity?_output=json', function(data) {
+			var sel = $("#commodity");
+			var first = "";
+			$.each(data.commoditys, function() {
+				if(this.code == 38) first = "selected";
+					sel.append($("<option "+first+" />").val(this.code).text(this.name));
+					first = "";
 			});
+			$('#commodity').chosen({max_selected_options: 10});
+			
+			//updateValues();
+			$('#commodity').on('change', function(evt, params) {
+				//console.log("udadas");
+				updateDates();
+				updateValues();
+				}).trigger('chosen:updated');
+			$('#commodity');
+			counterUI++;				
+			
+			getCountries(false);
+		});
 	}
 
 	function getCountries(clearall) {
