@@ -700,7 +700,6 @@ $( document ).ready(function() {
 
 
 	function getMarkers(dataarray) {
-//		console.log("getMarkers [S]");
 
 		var allMarkers = [];
 		var uniqueMarkers = [];
@@ -757,23 +756,29 @@ $( document ).ready(function() {
 	}
 
 	function toWKT(layer) {
+	    
 	    var lng, lat, coords = [];
-	    if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+
+	    if (layer instanceof L.Polygon || layer instanceof L.Polyline)
+	    {
 	        var latlngs = layer.getLatLngs();
+
 	        for (var i = 0; i < latlngs.length; i++) {
-		    	latlngs[i]
-		    	coords.push(latlngs[i].lng + " " + latlngs[i].lat);
-		        if (i === 0) {
-		        	lng = latlngs[i].lng;
-		        	lat = latlngs[i].lat;
-		        }
-		};
+			    	coords.push(latlngs[i].lng + " " + latlngs[i].lat);
+			        if (i === 0) {
+			        	lng = latlngs[i].lng;
+			        	lat = latlngs[i].lat;
+			        }
+			};
+
 	        if (layer instanceof L.Polygon) {
 	            return "POLYGON((" + coords.join(",") + "," + lng + " " + lat + "))";
+
 	        } else if (layer instanceof L.Polyline) {
 	            return "LINESTRING(" + coords.join(",") + ")";
 	        }
-	    } else if (layer instanceof L.Marker) {
+	    }
+	    else if (layer instanceof L.Marker) {
 	        return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
 	    }
 	}
@@ -797,20 +802,26 @@ $( document ).ready(function() {
 			var lats = []; 
 			var lons =[];
 			var marketcode = [];
-			var addressPoints = [];	
+			var addressPoints = [];
+
 			address = 0;
 			
 			$.each(data.vendors, function (f,k) {	
 				
 				var qString = "SELECT AVG(price), COUNT(price) "+
-					"FROM data WHERE "+
-					"marketcode = '"+k.code+"' ";
+					"FROM data "+
+					"WHERE marketcode = '"+k.code+"' ";
 				
-				if( startDate !== undefined && endDate !== undefined )
+				if( startDate && endDate )
 					qString += " AND date>='"+startDate+"'"+
 							   " AND date<= '"+endDate+"'";
 
-console.log('updateMap2',qString)
+				if(filterPolygonWKT)
+					qString += " AND ST_contains(ST_GeomFromText('"+filterPolygonWKT+"',4326),geo)";
+
+window.filterPolygonWKT = filterPolygonWKT;
+
+				console.log('QUERY updateMap2', qString);
 
 				var avg = [];
 				var avgS = "";
@@ -824,7 +835,9 @@ console.log('updateMap2',qString)
 							outputType: 'array'
 						},
 						success: function (response) {
-						//console.log(response);
+						
+						console.log('QUERY updateMap2 response: ',response);
+
 						if (response[1] !== undefined)
 							avgS = " - " +( parseFloat(response[1][0]).toFixed(2) ) + currency +"\/"+ munit;
 
@@ -868,9 +881,12 @@ console.log('updateMap2',qString)
 				var existingPoints = [];
 				
 				var latlng = L.latLng(addressPoints[0][0], addressPoints[0][1]);
-				  for (var i = 0; i < addressPoints.length; i++) {
+
+				  for (var i = 0; i < addressPoints.length; i++)
+				  {
 					  //console.log ("pop!");
 					  var a = addressPoints[i];
+
 					  var title = a[2];
 					  //console.log(a.toString());
 					  var cIcon = desatIcon;
@@ -931,7 +947,7 @@ console.log('updateMap2',qString)
 				addressSearch = new L.Control.GeoSearch({
         		    provider: new L.GeoSearch.Provider.Google(),
 					showMarker: false,
-		        })
+		        });
 				map.addControl( addressSearch );
 				 
 			}	
@@ -953,7 +969,7 @@ console.log('updateMap2',qString)
 		map = L.map('map-cluster', {
 		 	center: initLatLon,
 			attributionControl: false,
-			zoom: 5,
+			zoom: 9,
 			markerZoomAnimation: true,
 			layers: [tiles],
 			scrollWheelZoom: false
