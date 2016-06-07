@@ -1020,6 +1020,7 @@ window.filterPolygonWKT = filterPolygonWKT;
 			console.log('SELECTION toWKT', filterPolygonWKT )
 
 			drawnItems.addLayer(layer);
+			updateMap2();
 		});		  
 
 	}
