@@ -68,12 +68,7 @@ $( document ).ready(function() {
 			}
 		});
 	}
-	
-	function startUI() {
-		console.log("startUI");
-		//$(".content").css('visibility', 'visible');
-	}
-	
+
 	function timestamp(str){
 		return new Date(str).getTime();   
 	}
@@ -140,7 +135,7 @@ $( document ).ready(function() {
 					checkedMaps += items[index] + ",";
 					checkedItems.push(items[index]);
 					checkedNames.push( $("#commodity option[value='"+items[index]+"']").text() );
-				});				
+				});
 	            checkedMaps = checkedMaps.substring(0, checkedMaps.length-1);
 	            commodityMaps = checkedMaps;	
 				commodityItem = checkedItems;	
@@ -173,20 +168,9 @@ $( document ).ready(function() {
   				}).trigger('chosen:updated');
 				$('#commodity');
 				counterUI++;				
-				if (  counterUI == itemToInit ) startUI();
+				
 				getCountries(false);
 			});
-			
-			/* Countries Selector */
-			//
-
-			/* Market Selector */
-
-			//getMarkets(false);
-
-			/* Map */
-			//initMap();
-		
 	}
 
 	function getCountries(clearall) {
@@ -194,18 +178,11 @@ $( document ).ready(function() {
 			var sel = $("#countries");
 			var count = 2;
 			data.gaul0s.reverse();
+
 			$.each(data.gaul0s, function() {
-//						sel.append($("<option selected />").val(this.code).text(this.name));
-				if (this.code == initGaul) sel.append($("<option />").val(this.code).text(this.name));
-/*
-				if (this.code == initGaul) var first = "selected";
-				sel.append($("<option "+first+" />").val(this.code).text(this.name));
-				first = "";
-				count--;
-				if(count<1) return false;
-*/
+				if(this.code == initGaul)
+					sel.append($("<option />").val(this.code).text(this.name));
 			});
-			//updateValues();
 
 			$('#countries').chosen({max_selected_options: 1});
 			$('#countries').on('change', function(evt, params) {
@@ -214,7 +191,7 @@ $( document ).ready(function() {
 			$('#countries');
 
 			counterUI++;
-			if (  counterUI == itemToInit ) startUI();
+			
 			getMarkets(false);
 
 		});
@@ -246,7 +223,8 @@ $( document ).ready(function() {
 			updateValues();
 
 			counterUI++;
-			if (  counterUI == itemToInit ) startUI();
+			
+
 			initMap();
 		});
 	}
@@ -534,108 +512,9 @@ $( document ).ready(function() {
 							return null;
 						}
 					});
-/*
-					$.getJSON( baseURI1+commodityItem[i]+"&_output=json" , function (data) {
-						console.log(baseURI1+commodityItem[i]+"&_output=json")
-						if (data.datas.length > 0) {
-							data.datas = data.datas.sort(function(a, b) {
-								//return (a['fulldate'] > b['fulldate']);
-								var A_head = a['date'];
-								var A_tail = a['fulldate'];
-								var A_UTCDate = A_head+"T"+A_tail.substr(11)+"Z";
-								var B_head = b['date'];
-								var B_tail = b['fulldate'];
-								var B_UTCDate = B_head+"T"+B_tail.substr(11)+"Z";
-
-								return new Date(A_UTCDate) - new Date(B_UTCDate);
-							});
-
-							var resultdata = [];
-							var averagedata = [];
-							var j = 0;
-							var aggregated = 0;
-							$.each(data.datas, function() {
-								tmpArray = new Array(2)
-								console.log(this.quantity);
-								//tmpArray[0] = new Date(this.fulldate).getTime();
-								var str = this.fulldate;
-								str = str.substring(0, str.length - 2);
-								str = str.replace(/-/g,"/");
-								var dateObject = new Date(str);
-								tmpArray[0] = dateObject.getTime();
-								tmpArray[1] = this.price/parseFloat(this.quantity);
-								tmpArray[2] = this.vendorname;
-								tmpArray[3] = this.commoditys[0].name;
-
-								resultdata.push(tmpArray);
-								j++;
-								aggregated = aggregated + this.price;
-							});
-
-							startDate = data.datas[0].date;
-							endDate =  data.datas[j-1].date;
-
-							temArray = new Array(1);
-							//temArray[0] = new Date().getTime();
-							temArray[1] = ( aggregated / j );
-							if (temArray[1] >1) averagedata.push(temArray);
-
-							getMarkers(data.datas);
-
-							console.log("h:"+h+" - "+allMarketName[indexName],indexName);
-							index++;
-
-							console.log(resultdata);
-
-							seriesOptions1[index] = {
-								name: name + " @ " + allMarketName[h],
-								data: resultdata
-							};
-
-							seriesOptions2[index] = {
-								name: name +" (Avg)" + " @ " + allMarketName[h],
-								data: averagedata,
-								type: 'column'
-							};
-
-							//console.log("i+1["+i+1+"]*h["+h+"]= "+(i*h));
-							/ *
-							 seriesCounter += 1;
-
-							 if (seriesCounter === names.length) {
-							 createChart1($('#hi-stock1'),seriesOptions1);
-							 //createChart2($('#hi-stock2'));
-							 //createChart($('#hi-stock3'));
-							 }
-							 * /
-							//console.log("fine1");
-						} else {
-							/ *alert* /console.log("New Data Found - Please reload");
-							getMarkers(null);
-						}
-					});
-*/
 				});
 
 			});
-
-
-
-			//console.log("fine2");
-			/*
-			$.getJSON(baseURI2, function (data) {
-				var resultmark = [];
-				$.each(data.markets, function(f,k) {
-					tmpArray = new Array(1)
-					tmpArray[0] = this.code.replace(/\s/g, '');
-					tmpArray[1] = this.name;
-					resultmark.push(tmpArray);
-				});
-				//console.log(resultmark);
-				//console.log(data);
-					
-			});
-			*/
 			
 			
 			$(document).ajaxStop(function () { 				
@@ -786,76 +665,6 @@ $( document ).ready(function() {
 
 
 		});
-		/*
-
-		$.ajax({
-			type: 'POST',
-			contentType:'application/x-www-form-urlencoded; charset=UTF-8',
-			url: WDSURI,
-			data: {
-				payload: '{"query": "'+qString+'"}',
-				datasource: 'faostatdata',
-				outputType: 'object'
-			},
-			success: function (response) {
-				//console.log("createTable3");
-				console.log(response);
-				allDatas = response;
-				allDatas.shift();
-				if (tableIsInit) {
-					console.log("!createTable3");
-					$('#table').bootstrapTable('removeAll');
-					$('#table').bootstrapTable('append', allDatas);
-				} else {
-					$('#table').bootstrapTable({
-						columns: [{
-							field: 'cityname',
-							title: 'City',
-							sortable: true,
-							searchable: true
-						}, {
-							field: 'marketname',
-							title: 'Market',
-							sortable: true,
-							searchable: true
-						}, {
-							field: 'vendorname',
-							title: 'Vendor',
-							sortable: true,
-							searchable: true
-						}, {
-							field: 'commodityname',
-							title: 'Commodity',
-							sortable: true,
-							searchable: true
-						}, {
-							field: 'price',
-							title: 'Price ('+currency+')',
-							sortable: true
-						}, {
-							field: 'quantity',
-							title: 'Quantity ('+munit+')',
-							sortable: true
-						}, {
-							field: 'fulldate',
-							title: 'Date',
-							sortable: true,
-							searchable: true
-						}],
-						data: allDatas,
-						pagination: true,
-						search: true,
-						sortable: true
-
-					});
-					tableIsInit = true;
-				}
-			},
-			error: function (a) {
-				console.log("KO:"+a.responseText);
-			}
-		});
-		*/
 	}
 
 	function createTable() {	
@@ -1265,22 +1074,12 @@ $( document ).ready(function() {
 		} else {
 			allAddressPoints = [];
 		}
-		
-//		console.log("getMarkers [E]");
 
-	
 	}
 	
 	function updateMap2() {
-	//	console.log("nations:"+nations);
-	//	console.log("checkedMarkets.toString():"+checkedMarkets.toString());
 
 		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&code=('+checkedMarkets.toString()+')&_output=json';
-	//	console.log(URI);
-		var URI2 = globalURI+'auto.data?marketcode=';
-		// "auto.dataweb?gaul0code=("+nations+ ')&date=>'+startDate+'&date=<'+endDate + "&commoditycode=";
-		
-		//console.log(URI);
 
 		if (markers != null) { 
 			map.removeLayer(markers);
@@ -1288,9 +1087,10 @@ $( document ).ready(function() {
 				showCoverageOnHover: false
 			});
 			markers.clearLayers()
-		}	
+		}
 		
-		if (commodityMaps != "") $.getJSON( URI, function(data)  {
+		if (commodityMaps != "")
+			$.getJSON( URI, function(data)  {
 			var vendors = [];
 			var lats = []; 
 			var lons =[];
@@ -1299,110 +1099,54 @@ $( document ).ready(function() {
 			address = 0;
 			
 			$.each(data.vendors, function (f,k) {	
-				var qString = "SELECT AVG(price), COUNT(price) FROM data WHERE marketcode='"+k.code+"'";
-				if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
+				
+				var qString = "SELECT AVG(price), COUNT(price) "+
+					"FROM data WHERE "+
+					"marketcode = '"+k.code+"' ";
+				
+				if( startDate !== undefined && endDate !== undefined )
+					qString += " AND date>='"+startDate+"'"+
+							   " AND date<= '"+endDate+"'";
+
 				var avg = [];
 				var avgS = "";
-				/*
-				avg = getFromWDS(qString);
-				console.log(avg);
-				//console.log(qString);
-				//console.log("danni veri ["+avg+"]");
-				var avgS = ""
-				if (avg !== undefined) avgS = " - " +( parseInt(avg[1][0]) / parseInt(avg[1][1]) ) + munit +"\/"+ currency;
-				*/
+
 				$.ajax({
 				  type: 'GET',
 				  url: WDSURI,
 				  data: {
-					  payload: '{"query": "'+qString+'"}',
-					  datasource: DATASOURCE,
-						  outputType: 'array'
-					  },
-					  success: function (response) {
-						//console.log(response);						
-						if (response[1] !== undefined) 
+						payload: '{"query": "'+qString+'"}',
+						datasource: DATASOURCE,
+							outputType: 'array'
+						},
+						success: function (response) {
+						//console.log(response);
+						if (response[1] !== undefined)
 							avgS = " - " +( parseFloat(response[1][0]).toFixed(2) ) + currency +"\/"+ munit;
+
 						vendors.push(k.name);
 						marketcode.push(k.code);
 						lats.push(k.lat);
 						lons.push(k.lon);
-							var temp = [];	
-							temp.push(k.lat);
-							temp.push(k.lon);
-							temp.push(k.name+avgS);
-							addressPoints.push(temp);		
-							address++ ;
-							//console.log(data.vendors.length+" > "+address);
-							if ( address >= data.vendors.length ) refreshCluster();						
+
+						var temp = [];	
+						temp.push(k.lat);
+						temp.push(k.lon);
+						temp.push(k.name+avgS);
 						
-						  
-						  
+						addressPoints.push(temp);		
+						address++ ;
+						//console.log(data.vendors.length+" > "+address);
+						if ( address >= data.vendors.length )
+							refreshCluster();						
+					
 					  },
 					  error: function (a) {
 						  console.log("KO:"+a.responseText);						               
 					  }
-				  });				
-				
+				  });
 			});	
-			/*
 			
-			// merge them
-			if (vendorcode != "") {
-				var allK = "";
-				var allC = "";
-				var allPrice = 0;
-
-				$.each(commodityItem, function (f,k) { allC = allC + k +  ","; });
-				allC = allC.substring(0, allC.length - 1);			
-				//allK = allK.substring(0, allK.length - 1);
-				//console.log(allK);
-				console.log(allC);
-				$.each(vendorcode, function (f,k){ 
-					//console.log(URI2+k+"&commoditycode=("+allC+")");
-					$.getJSON (URI2+k+'&commoditycode=('+allC+')&_output=json', function(data) {
-						//console.log(URI2+"["+allK+"]&commoditycode=["+allC+"]");
-						//console.log(commodityItem);
-						$.each(data.datas, function (f,k) {
-							console.log(data.datas);
-							allPrice = allPrice + k.price;
-						});
-						/*
-						//console.log(uLats[f],uLons[f],uDates[f],uVendor[f]);
-						var fLat = uLats[f];
-						var fLon = uLons[f];
-						var fDate = uDates[f];
-						var fVend = uVendor[f];
-						var fVcod = uVcode[f];
-						var fPrice = 0; 
-						$.each(data.datas, function (f,k) {
-							//var temp = [];	
-							//fLat = k.lat;
-							//fLon = k.lon; 
-							//fDate = k.date;
-							//fVend = k.vendorname
-							fPrice = fPrice + k.price;
-						});
-						fPrice = (fPrice / data.datas.length).toFixed(2);
-						if (fLat !== undefined) {
-							var temp = [];	
-							temp.push(fLat);
-							temp.push(fLon);
-							temp.push(fDate + " @ " + fVend+" - "+fPrice+" (Avg)"); //KSh 
-							//temp.push(true);
-							addressPoints.push(temp);
-							//console.log("bhy");
-						}
-						
-						address++ ;
-						console.log(address,uDates.length);
-						if ( address >= uDates.length ) refreshCluster();
-						* /
-					});	
-				
-				});
-			 }
-		*/		
 		function refreshCluster() {
 				//console.log("refreshCluster inside UpdateMap");
 				var desatIcon = L.icon({
@@ -1472,9 +1216,12 @@ $( document ).ready(function() {
 				 
 				 // Search
 
-				if (controlSearch != null) map.removeControl (controlSearch);
-				controlSearch = new L.Control.Search({layer: markers, initial: false, position:'topright'});
-				map.addControl( controlSearch );
+				if(controlSearch)
+					L.control.search({
+						layer: markers,
+						initial: false,
+						position:'topright'
+					}).addTo(map);
 				
 				if (addressSearch != null) map.removeControl (addressSearch);
 				addressSearch = new L.Control.GeoSearch({
@@ -1487,262 +1234,70 @@ $( document ).ready(function() {
 			
 		});
 	}
-	
-	function updateMap() {	
-		console.log("updateMap : "+commodityMaps);
-		//console.log($(".chosen-select").chosen().val());
-		//var URI = globalURI+'auto.getmarker?_output=json&commoditycode=('+commodityMaps+')';		
-		var URI = globalURI+'auto.getmarker?_output=json&gaul0code=('+nations+')&commoditycode=('+commodityMaps+')';
-		console.log(URI);
-		var URI2 = URI;
-		if (startDate !== undefined) URI2 = URI2 + '&date=>'+startDate+'&date=<'+endDate;			
-		if (markers != null) { 
-			//map.removeLayer(markers);
-			//console.log(markers);
-			/*
-			map.eachLayer(function (layer){
-    			map.removeLayer(layer);
-			});
-			map.remove();
-			*/
-			map.removeLayer(markers);
-			markers = L.markerClusterGroup({
-				markerClusterGroup:false
-			});
-			//console.log(markers);
-			markers.clearLayers()
-			//markers = null;
-			//console.log("done");
-		}	
-		// retrieve dates
-		if (commodityMaps != "") $.getJSON( URI2, function(data) {
-			var dates = [];
-			var vendors = [];
-			var lats = []; 
-			var lons =[];
-			var marketcode = [];
-			var addressPoints = [];
-			var comm = [];
-				
-			$.each(data.datas, function (f,k) {
-				dates.push(k.date);
-				vendors.push(k.vendorname);
-				marketcode.push(k.marketcode);
-				lats.push(k.lat);
-				lons.push(k.lon);
-				comm.pus(k.commoditys[0].name);
-			});
-			// delete duplicates			
-			var uDates = [];
-			var uVendor = [];
-			var uLats = []; 
-			var uLons = [];
-			var uVcode = [];
-			var uComm = [];
-			
-			$.each(dates, function(i, el){
-				if($.inArray(el, uDates) === -1) uDates.push(el);
-			});			
-			$.each(vendors, function(i, el){
-				if($.inArray(el, uVendor) === -1) uVendor.push(el);
-			});
-			$.each(lats, function(i, el){
-				if($.inArray(el, uLats) === -1) uLats.push(el);
-			});
-			$.each(lons, function(i, el){
-				if($.inArray(el, uLons) === -1) uLons.push(el);
-			});
-			$.each(marketcode, function(i, el){
-				if($.inArray(el, uVcode) === -1) uVcode.push(el);
-			});
-			$.each(comm, function(i, el){
-				if($.inArray(el, uComm) === -1) uComm.push(el);
-			});
 
-			//console.log (uVcode, marketcode);
-			/*
-			console.log(uDates);
-			console.log(uVendor);
-			console.log(uLats);
-			console.log(uLons);
-			*/
-									
-			// merge them
-			address = 0;
-			if (uDates != "") $.each(uDates, function (f,k){
-				$.getJSON (URI+'&date="'+k+'"', function(data) {
-		
-					//console.log(uLats[f],uLons[f],uDates[f],uVendor[f]);
-					var fLat = uLats[f];
-					var fLon = uLons[f];
-					var fDate = uDates[f];
-					var fVend = uVendor[f];
-					var fVcod = uVcode[f];
-					var fVcom = uComm[f];
-					var fPrice = 0; 
-					$.each(data.datas, function (f,k) {
-						//var temp = [];	
-						//fLat = k.lat;
-						//fLon = k.lon; 
-						//fDate = k.date;
-						//fVend = k.vendorname
-						fPrice = fPrice + k.price;
-					});
-					fPrice = (fPrice / data.datas.length).toFixed(2);
-					if (fLat !== undefined) {
-						var temp = [];	
-						temp.push(fLat);
-						temp.push(fLon);
-						temp.push(fDate + " @ " + fVend+" - "+fPrice+" (Avg)"); //KSh 
-						//temp.push(true);
-						addressPoints.push(temp);
-						//console.log("bhy");
-					}
-					
-					address++ ;
-					//console.log(address,uDates.length);
-					if ( address >= uDates.length ) refreshCluster();
-				});	
-				
-			});
-			
-			function refreshCluster() {
-				console.log("refreshCluster in UpdateMap");
-//				console.log(addressPoints.length);
-				var desatIcon = L.icon({
-					iconUrl: 'img/marker-icon-none.png',
-					shadowUrl: 'img/marker-shadow.png'
-				});
-				
-				var foundIcon = L.icon({
-					iconUrl: 'img/marker-icon.png',
-					shadowUrl: 'img/marker-shadow.png'
-				});
-				
-				var existingPoints = [];
-				
-				var latlng = L.latLng(addressPoints[0][0], addressPoints[0][1]);
-				  for (var i = 0; i < addressPoints.length; i++) {
-					  //console.log ("pop!");
-					  var a = addressPoints[i];
-					  var title = a[2];
-					  var cIcon = desatIcon;
-					  var position = new L.LatLng(a[0], a[1]);
-					  var temp = [];
-					  temp.push(position);
-					  temp.push(title);
-					  existingPoints.push(temp);
-					  var marker = L.marker(position, { title: title, icon: foundIcon });
-					  //marker.bindPopup(title);
-					  markers.addLayer(marker);
-				  }
-				  
-				  var a1Lat = [];
-				  var a1Lon = [];
-				  var a2Lat = [];				  
-				  var a2Lon = [];
-				  
-				  //console.log(existingPoints.length, allAddressPoints.length);
-				  for (var k = 0; k < allAddressPoints.length; k++) {
-				  	a1Lat.push(allAddressPoints[k][0]['lat']);				  	
-				  	a1Lon.push(allAddressPoints[k][0]['lng']);
-				  }				  		  	
-				  for (var k = 0; k < existingPoints.length; k++) {
-					a2Lat.push(existingPoints[k][0]['lat']);
-				  	a2Lon.push(existingPoints[k][0]['lng']);
-				  }
-
-					var aresLat = $(a1Lat).not(a2Lat).get();
-					var aresLon = $(a1Lon).not(a2Lon).get();
-				  
-				  for (var j = 0; j < aresLat.length; j++) {
-					  var title = "";
-					  var cIcon = desatIcon;
-					  var marker = L.marker( new L.LatLng(aresLat[j], aresLon[j]) , { title: title, icon: desatIcon });
-					  //marker.bindPopup(title);
-					  markers.addLayer(marker);						  
-				  }
-				  
-				 map.addLayer(markers);	
-				 map.panTo(latlng);
-			}
-			
-		});
-		
-	
-	}
 	
 	function initMap() {
-		//console.log("initMap");
-		  var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-			  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-			  subdomains: 'abcd',
-			  maxZoom: 19
-		  });
-		  
-//		  var center = 
-		  
-		//  if (markers == null) { 
-			markers = L.markerClusterGroup({
-				showCoverageOnHover: false
+
+		var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				subdomains: 'abcd',
+				maxZoom: 19
 			});
-			map = L.map('map-cluster', {
-			 	center: initLatLon,
-				attributionControl: false,
-				zoom: 5,
-				markerZoomAnimation: true,
-				layers: [tiles],
-				scrollWheelZoom: false
-			});
-			// Initialise the FeatureGroup to store editable layers
-			var drawnItems = new L.FeatureGroup();
-			map.addLayer(drawnItems);
-			
-			var Doptions = {
-				position: 'topleft',
-				draw: {					
-					marker: false,
-					polygon: {
-						allowIntersection: false,
-						drawError: {
-							color: '#399BCC',
-							timeout: 1000
-						},
-						shapeOptions: {
-							color: '#399BCC'
-						},
-						showArea: true
+
+		markers = L.markerClusterGroup({
+			showCoverageOnHover: false
+		});
+
+		map = L.map('map-cluster', {
+		 	center: initLatLon,
+			attributionControl: false,
+			zoom: 5,
+			markerZoomAnimation: true,
+			layers: [tiles],
+			scrollWheelZoom: false
+		});
+		// Initialise the FeatureGroup to store editable layers
+		var drawnItems = new L.FeatureGroup();
+		map.addLayer(drawnItems);
+
+		var Doptions = {
+			position: 'topleft',
+			draw: {					
+				marker: false,
+				polygon: {
+					allowIntersection: false,
+					drawError: {
+						color: '#399BCC',
+						timeout: 1000
 					},
-					polyline: {
-						metric: true
+					shapeOptions: {
+						color: '#399BCC'
 					},
-					circle: {
-						shapeOptions: {
-							color: '#399BCC'
-						}
-					}					
+					showArea: true
 				},
-				edit: {
-					featureGroup: drawnItems
-				}
-			};
-			
-			var drawControl = new L.Control.Draw(Doptions);
-			map.addControl(drawControl);			  
-			
-			map.on('draw:created', function (e) {
-				var type = e.layerType,
-					layer = e.layer;
-			
-				drawnItems.addLayer(layer);
-			});
+				polyline: false,
+				circle: {
+					shapeOptions: {
+						color: '#399BCC'
+					}
+				}					
+			},
+			edit: {
+				featureGroup: drawnItems
+			}
+		};
 
+		var drawControl = new L.Control.Draw(Doptions);
+		map.addControl(drawControl);			  
 
-		//  } else { 
-		//	  markers = L.markerClusterGroup();
-			  //map.addLayer(markers);
-		//  }
-		  
+		map.on('draw:created', function (e) {
+			var type = e.layerType,
+				layer = e.layer;
+
+			console.log('SELECTION toGeoJson', JSON.stringify(e.layer.toGeoJSON()) )
+
+			drawnItems.addLayer(layer);
+		});		  
+
 	}
 	
 	
@@ -1750,7 +1305,6 @@ $( document ).ready(function() {
 	function updateView() {
 		//console.log("UpdView");
 		// reload map
-		//updateMap();
 		updateMap2();
 		// reload graphs	
 		updateChart();	

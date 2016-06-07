@@ -129,7 +129,7 @@ var CrowdpricesMap = function(mapID) {
 				});
 
 				map.on('draw:edited', function (e) {
-					console.log('edited');
+					console.log('edited', e);
 	
 					var layers = e.layers;
 					    layers.eachLayer(function (layer) {
@@ -139,7 +139,7 @@ var CrowdpricesMap = function(mapID) {
 				});
 
 				map.on('draw:created', function (e) {
-					 console.log('created');
+					 console.log('created', e);
 					_this.setBBOX(e.layer);
 				});
 
@@ -207,7 +207,7 @@ var CrowdpricesMap = function(mapID) {
 					drawnItems.addLayer(l);
 
 					var geojson = layer.toGeoJSON();
-					console.log(geojson);
+					console.log('setBBOX',geojson);
 					// console.log(geojson.coordinates);
 
 					var s = '';
