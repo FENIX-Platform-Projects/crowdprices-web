@@ -186,7 +186,7 @@ $( document ).ready(function() {
 			$.each(data.markets, function() {
 				//sel.append($("<option selected />").val(this.code).text(this.name));
 						sel.append($("<option "+first+" />").val(this.code).text(this.name));
-						first = "";
+						//first = "";
 			});
 
 
