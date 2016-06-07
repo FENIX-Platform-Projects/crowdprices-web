@@ -16,25 +16,11 @@ $( document ).ready(function() {
 	// WDS
 	var WDSURI =  "http://fenixapps2.fao.org/wds-5.2.1/rest/crud/";
 	var DATASOURCE = "CROWD";
-	//var WDSURI =  "http://168.202.28.127:8080/wds/rest/crud/";
-	//var DATASOURCE = "DEV";
-	
-	/*
-	var initLatLon = [-6.816330, 39.276638];	
-	var initGaul = 257
-	var nations = [257];
-	*/
 
 	var initLatLon = [13.453 , -16.578];
 	var initGaul = 90;
 	var nations = [90];
 
-	//console.log("UPD");
-
-	var allDatas = [];
-	var allCity = [];
-	var allMarket = [];
-	var allCommodity = [];
 
 	var allMarketName = [];
 
@@ -46,14 +32,11 @@ $( document ).ready(function() {
 	
 	var startDate;
 	var endDate;
-	var WDSClient;
-	
+
 	var tableIsInit = false;	
 	var isInit = false;
-	var tableObj;
-	
-	var addressed = 0;
-		
+
+
 	function initUI() {
 
 
@@ -69,9 +52,7 @@ $( document ).ready(function() {
 		});
 	}
 
-	function timestamp(str){
-		return new Date(str).getTime();   
-	}
+
 	var months = [
 			"01", "02", "03",
 			"04", "05", "06", "07",
@@ -88,12 +69,6 @@ $( document ).ready(function() {
 		return ret;
 	}
 	
-	// Write a date as a pretty value.
-	function setDate( value ){
-		//console.log("setDate: "+value);
-		$(this).html(formatDate(new Date(+value)));   
-	}
-
 	function updateNations() {
 		var countries = $("#countries").chosen().val();
 		nations = countries;
@@ -228,33 +203,7 @@ $( document ).ready(function() {
 		});
 	}
 	
-	function getFromWDS(query) {
-		$.ajax({
-		  type: 'GET',
-		  url: WDSURI,
-		  data: {
-			  payload: '{"query": "'+query+'"}',
-			  datasource: DATASOURCE,
-				  outputType: 'array'
-			  },
-			  success: function (response) {
-				  //console.log(response[1]);
-				  return response[1];				  
-				  var json = response;
-				  if (typeof json == 'string')
-					  json = $.parseJSON(response);
-				  
-				  
-				  //console.log("OK:"+JSON.stringify(json));
-				  
-			  },
-			  error: function (a) {
-				  console.log("KO:"+a.responseText);
-				  return null;                            
-			  }
-		  });
-	}
-		
+
 	
 	function updateChart() {
 			console.log("updateChart");
@@ -323,7 +272,7 @@ $( document ).ready(function() {
 						
 						series: seriesOptions1
 					});
-					console.log(seriesOptions1)
+					//	console.log(seriesOptions1)
 				},
 				createChart2 = function (item) {
 		
@@ -398,12 +347,12 @@ $( document ).ready(function() {
 			//console.log(startDate,endDate);
 			var index = -1;
 			var indexName = allMarketName.length;
-			console.log("prev "+indexName)
-			console.log("prev "+allMarketName.toString())
+			//console.log("prev "+indexName)
+			//console.log("prev "+allMarketName.toString())
 
 			$.each(checkedMarkets, function(h,marketcode){
 				indexName--;
-				console.log("allMarketName: "+allMarketName[indexName]);
+				//console.log("allMarketName: "+allMarketName[indexName]);
 
 				if ((startDate !== undefined)&&(endDate !== undefined)) {
 					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+')&marketcode=('+marketcode+')&date=>'+startDate+'&date=<'+endDate+"&commoditycode=";
@@ -416,7 +365,7 @@ $( document ).ready(function() {
 				$.each(names, function (i, name) {
 					var sQuery = "SELECT data.id, data.gaul0code, data.citycode, data.marketcode, data.munitcode, data.currencycode, data.commoditycode, data.varietycode, data.price, data.quantity, data.untouchedprice, data.fulldate, data.note, data.userid, data.vendorname, data.vendorcode, data.lat, data.lon, data.geo FROM data WHERE gaul0code=ANY('{"+nations+"}') and marketcode=ANY('{"+marketcode+"}') and commoditycode='"+commodityItem[i]+"' ";
 					sQuery = sQuery + " ORDER BY fulldate";
-					console.log("sQuery "+sQuery);
+					//console.log("sQuery "+sQuery);
 					$.ajax({
 						url: 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
 						type: 'POST',
@@ -520,7 +469,7 @@ $( document ).ready(function() {
 				//console.log("ajaxStop");
 				//console.log(seriesOptions1);
 				//console.log(seriesOptions2);
-				//console.log(seriesOptions3);				
+				//console.log(seriesOptions3);
 				createChart1($('#hi-stock1'));
 				createChart2($('#hi-stock2'));
 				if (!isInit) initSlider();
@@ -535,24 +484,21 @@ $( document ).ready(function() {
 	  }
 	}	
 	
-	function reloadTable () {
-		console.log("RELOAD");
-	}
 
-	function createTable3() {
+	function createTable() {
 		var allDatas = [];
-		//console.log("createTable3");
+		console.log("createTable");
 		if (tableIsInit) {
 			//console.log("!createTable3");
 			//return;
 		}
-		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity, data.userid FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND data.commoditycode = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND data.marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST(data.marketcode AS INT) = market.code";
+		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity, data.userid FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND CAST (data.commoditycode as INT)  = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND data.marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST(data.marketcode AS INT) = market.code";
 		//var qString = "SELECT data.gaul0code, commodity.code as commocode, city.name as citycode, market.name as marketcode, data.vendorname, commodity.name as commoditycode, data.price, data.quantity, data.fulldate FROM data, city, vendor, market, commodity WHERE data.citycode = city.code AND CAST(data.marketcode AS INT) = market.code AND data.gaul0code='45' AND commodity.code = ANY('{"+commodityItem.toString()+"}') ORDER BY fulldate ";
 		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY data.fulldate DESC ";
 
-		console.log(qString);
+		//console.log("Q:"+qString);
 
 		$.ajax({
 
@@ -565,7 +511,7 @@ $( document ).ready(function() {
 			},
 
 			success: function (response) {
-				//console.log("createTable3");
+				console.log("createTable success");
 				allDatas = JSON.parse(response);
 				var output = {table:[]};
 				$.each(allDatas, function(index,element){
@@ -590,7 +536,7 @@ $( document ).ready(function() {
 				});
 
 				if (tableIsInit) {
-					console.log("!createTable3");
+				//	console.log("!createTable");
 					$('#table').bootstrapTable('removeAll');
 					$('#table').bootstrapTable('append', output.table);
 				} else {
@@ -666,233 +612,6 @@ $( document ).ready(function() {
 		});
 	}
 
-	function createTable() {	
-		/*
-		if (tableIsInit) {				
-			console.log("!webix");
-			tableObj.clearAll()							
-		}	
-		*/
-		var allDatas = [];
-		console.log("createTable");
-		if (tableIsInit) {
-			console.log("!createTable");
-			return;
-		}
-
-		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND data.commoditycode = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND CAST(data.marketcode AS INT) = market.code ORDER BY data.fulldate DESC ";
-		//var qString = "SELECT data.gaul0code, commodity.code as commocode, city.name as citycode, market.name as marketcode, data.vendorname, commodity.name as commoditycode, data.price, data.quantity, data.fulldate FROM data, city, vendor, market, commodity WHERE data.citycode = city.code AND CAST(data.marketcode AS INT) = market.code AND data.gaul0code='45' AND commodity.code = ANY('{"+commodityItem.toString()+"}') ORDER BY fulldate ";
-		//if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
-		qString = qString + "limit 100";
-		
-		$.ajax({
-		  type: 'GET',
-		  url: WDSURI,
-		  data: {
-			  payload: '{"query": "'+qString+'"}',
-			  datasource: DATASOURCE,
-				  outputType: 'object'
-			  },
-			  success: function (response) {
-				console.log(response);
-				allDatas = response;
-				allDatas.shift();
-				tableObj = webix.ui({
-				container:"table",
-				view:"datatable",
-				scrollY:true,
-				sizeToContent:true,
-				
-				on:{
-					onBeforeLoad:function(){
-						this.showOverlay("Loading...");
-					},
-					onAfterLoad:function(){
-						this.hideOverlay();
-						reloadTable();
-						if (!this.count()) this.showOverlay("Sorry, there is no data");	
-						tableIsInit = true;						
-					},
-					onDataRequest:function() {
-						reloadTable();
-					},
-					onDataUpdate:function() {
-						reloadTable();
-					}
-				},
-					
-				pager:{
-					container:"table-pager",
-					size:30, 
-					group:5,
-					template:" {common.prev()} {common.pages()} {common.next()}" 
-				},
-												 /*width:176,*/ /*width:210,*/ /*width:210,*/ /*width:210,*/ /*width:130,*/ /*width:200,*/
-				columns:[
-		{ id:"citycode", minWidth:170, css: "wx-font" , header:[ "City",{content:"textFilter"}]	},
-		{ id:"marketcode",  minWidth:170, css: "wx-font" , header:[ "Market",{content:"textFilter"}] },
-		{ id:"vendorname",  minWidth:170, css: "wx-font" , header:[ "Vendor",{content:"textFilter"}] },
-		{ id:"commoditycode",  minWidth:170, css: "wx-font" , header:[ "Commodity",{content:"textFilter"}] },
-		{ id:"price",  minWidth:170, css: "wx-font" , header:"Price (CFA)", format:webix.Number.numToStr({ 
-																											groupDelimiter:",", 
-																											groupSize:3, 
-																											decimalDelimiter:".", 
-																											decimalSize:2})},
-		{ id:"quantity",  css: "wx-font" , header:"Quantity (KG)", format:webix.Number.numToStr({ 
-																											groupDelimiter:",", 
-																											groupSize:3, 
-																											decimalDelimiter:".", 
-																											decimalSize:2})},																											
-		{ id:"fulldate",  css: "wx-font" , header:"Date", format:webix.i18n.fullDateFormatStr, sort: "date"}																											
-				],
-				autoheight:true,
-				
-				
-				data: allDatas
-			});
-			  },
-			  error: function (a) {
-				  console.log("KO:"+a.responseText);						               
-			  }
-		  });
-		  
-		  
-				
-			
-	}
-	
-	function createTable2() {
-		console.log("createTable2");
-		
-		if (tableIsInit) {
-			console.log("!createTable");
-			return;
-		}
-		
-		allDatas = [];
-		allCity = [];
-		allMarket = [];
-		allCommodity = [];
-		
-		$.getJSON(globalURI+"auto.city?_output=json", function (data) { allCity = data.citys; });
-		$.getJSON(globalURI+"auto.market?_output=json", function (data) { allMarket = data.markets; });
-		$.getJSON(globalURI+"auto.commodity?_output=json", function (data) { allCommodity = data.commoditys; });
-		
-		if (nations == null) nations = initGaul;
-		console.log(checkedMarkets.toString());
-		$.getJSON(globalURI+"auto.dataweb?marketcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0", function (data) {
-				console.log(globalURI+"auto.dataweb?marketcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0");
-				console.log(data.datas);
-				data.datas = data.datas.sort(function(a, b) {
-					//return (a['fulldate'] > b['fulldate']);
-					return new Date(b['fulldate']) - new Date(a['fulldate']);
-				});	
-							
-				allDatas = data.datas;
-				console.log(data.datas);
-			
-		});
-		
-		function mergeArrays(start) {
-			console.log("mergeArrays");
-			$.each(allCity, function(index,value) {
-				//findAndReplace(start, "citycode", value.code.replace(/ /g,""), value.name);
-				findAndReplace(start, "citycode", value.code, value.name);
-			});
-			$.each(allMarket, function(index,value) {
-				//findAndReplace(start, "marketcode", value.code.replace(/ /g,""), value.name);
-				findAndReplace(start, "marketcode", value.code, value.name);
-			});
-			$.each(allCommodity, function(index,value) {
-				//findAndReplace(start, "commoditycode", value.code.replace(/ /g,""), value.name);
-				findAndReplace(start, "commoditycode", value.code, value.name);
-			});
-			allDatas = start;
-			console.log("merged",allDatas);
-		}
-		
-		//
-		
-		$(document).ajaxStop(function () { 				
-			console.log("webix: "+tableIsInit);
-			var uri = globalURI+"auto.dataweb?commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")&_output=json&_limit=10&_offset=0";
-			/*
-			console.log("allDatas [B]");
-			console.log(allDatas);
-			findAndReplace(allDatas, "citycode", "34", "Romaaaaaa");
-			console.log("allDatas [A]");
-			console.log(allDatas);
-			*/
-			
-			mergeArrays(allDatas);
-			
-			
-					
-			
-			//tableObj = $("#table").webix_datatable({	
-					
-			tableObj = webix.ui({
-				container:"table",
-				view:"datatable",
-				scrollY:true,
-				sizeToContent:true,
-				
-				on:{
-					onBeforeLoad:function(){
-						this.showOverlay("Loading...");
-					},
-					onAfterLoad:function(){
-						this.hideOverlay();
-						reloadTable();
-						if (!this.count()) this.showOverlay("Sorry, there is no data");	
-						tableIsInit = true;						
-					},
-					onDataRequest:function() {
-						reloadTable();
-					},
-					onDataUpdate:function() {
-						reloadTable();
-					}
-				},
-				/*	
-				pager:{
-					container:"table-pager",
-					size:30, 
-					group:5,
-					template:" {common.prev()} {common.pages()} {common.next()}" 
-				},
-				*/								 /*width:176,*/ /*width:210,*/ /*width:210,*/ /*width:210,*/ /*width:130,*/ /*width:200,*/
-				columns:[
-		{ id:"citycode", minWidth:170, css: "wx-font" , header:[ "City",{content:"textFilter"}]	},
-		{ id:"marketcode",  minWidth:170, css: "wx-font" , header:[ "Market",{content:"textFilter"}] },
-		{ id:"vendorname",  minWidth:170, css: "wx-font" , header:[ "Vendor",{content:"textFilter"}] },
-		{ id:"commoditycode",  minWidth:170, css: "wx-font" , header:[ "Commodity",{content:"textFilter"}] },
-		{ id:"price",  minWidth:170, css: "wx-font" , header:"Price (CFA)", format:webix.Number.numToStr({ 
-																											groupDelimiter:",", 
-																											groupSize:3, 
-																											decimalDelimiter:".", 
-																											decimalSize:2})},
-		{ id:"quantity",  css: "wx-font" , header:"Quantity (KG)", format:webix.Number.numToStr({ 
-																											groupDelimiter:",", 
-																											groupSize:3, 
-																											decimalDelimiter:".", 
-																											decimalSize:2})},																											
-		{ id:"fulldate",  css: "wx-font" , header:"Date", format:webix.i18n.fullDateFormatStr, sort: "date"}																											
-				],
-				autoheight:true,
-				
-				
-				data: allDatas
-			});
-			
-			webix.event(window, "resize", function () {
-				console.log("si");
-                tableObj.adjust();
-            })
-			
-		});
-		//});
-	}
 
 	function updateDates() {
 		console.log(" updateDates "+isInit);
@@ -975,50 +694,7 @@ $( document ).ready(function() {
 		}
 	}
 
-	function initSliderOld() {
-		if ((startDate !== undefined) && (endDate !== undefined)){
-			isInit = true;
-			console.log(startDate,endDate);
-			$("#slider").noUiSlider({
-			// Create two timestamps to define a range.
-				range: {
-					min: timestamp(startDate),
-					max: timestamp(endDate)
-				},
-				connect: true,
-				
-			// Steps of one week
-				step: 7 * 24 * 60 * 60 * 1000,
-				
-			// Two more timestamps indicate the handle starting positions.
-				start: [ timestamp(startDate), timestamp(endDate) ],
-				
-			// No decimals
-				format: wNumb({
-					decimals: 0
-				})
-			});
-			
-			$("#slider").Link('lower').to('-inline-<div class="slider_tooltip"></div>', setDate);
-			$("#slider").Link('upper').to('-inline-<div class="slider_tooltip"></div>', setDate);
-			
-			$("#slider").on({
-				change: function(){
-					var arr = $("#slider").val();
 
-					var d1 = formatDate(new Date(Number(arr[0])));
-					var d2 = formatDate(new Date(Number(arr[1])));
-					//console.log(startDate, endDate);
-					startDate =  d1;
-					endDate = d2; 
-					updateValues();
-				}
-			});
-		} else {
-			alert("Dates undefined");
-		}
-	}
-	
 	function getMarkers(dataarray) {
 //		console.log("getMarkers [S]");
 
@@ -1308,7 +984,7 @@ $( document ).ready(function() {
 		// reload graphs	
 		updateChart();	
 		// reload table
-		createTable3();
+		createTable();
 
 	}
 	
