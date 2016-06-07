@@ -283,6 +283,54 @@
         });
 
 
+/*
+        function highlightCountry(codif, codes) {
+
+            codif = codif || 'iso3';
+
+            var self = this;
+
+            //var rootUrl = "http://fenix.fao.org:20200/geoserver/fenix/ows";
+            //var rootUrl = this.options.url.DEFAULT_WMS_SERVER+'/demo/fenix/ows'
+            var rootUrl = "http://fenix.fao.org/demo/fenix/geoserver/ows";
+
+            var defaultParameters = {
+                service: 'WFS',
+                version: '1.0.0',
+                request: 'GetFeature',
+                typeName: 'fenix:gaul0_bounds',
+                maxFeatures: 50,
+                outputFormat: 'text/javascript',
+                format_options: 'callback: getJson',
+                //srsName: 'EPSG:3857',
+                viewparams: 'iso3_code:'+codes[0]
+            };
+
+            var parameters = L.Util.extend(defaultParameters);
+
+            $.ajax({
+                url: rootUrl + L.Util.getParamString(parameters),
+                dataType: 'jsonp',
+                jsonpCallback: 'getJson',
+                success: function(json) {
+                    var gLayer = L.geoJson(json, {
+                        style: function (feature) {
+                            return self.options.style;
+                        }
+                    });
+                    self.map.addLayer( gLayer );
+                    //self.map.fitBounds( gLayer.getBounds() );
+                }
+            });
+        }
+
+        var bb = map.getBounds();
+        window.wfs_bbox = L.Util.template($('#wfs_bbox').html(), {
+            lat1: bb._southWest.lat, lon1: ,
+            lat2: , lon2:
+        });
+*/
+
     });
 
     function onResize() {
@@ -296,7 +344,6 @@
         resizeMap();
 
         resizeCharts();
-
     }
 
     function resizeChosen() {
@@ -306,19 +353,12 @@
         $(".chosen-container").each(function () {
             $(this).attr('style', 'width: 100%');
         });
-
-
     }
-
     function resizeMap () {
         $("#map-cluster").height("#country-details").width($("#country-details"));
     }
-
     function resizeCharts() {
-
     }
-
-
 </script>
 
 <script id="wfs_bbox" type="text/xmldata">
@@ -328,8 +368,8 @@
                 <ogc:BBOX>
                     <ogc:PropertyName>geo</ogc:PropertyName>
                     <gml:Envelope srsName="http://www.opengis.net/gml/srs/epsg.xml#4326">
-                        <gml:lowerCorner>60 30</gml:lowerCorner>
-                        <gml:upperCorner>70 32</gml:upperCorner>
+                        <gml:lowerCorner>{lon1} {lat1}</gml:lowerCorner>
+                        <gml:upperCorner>{lon2} {lat2}</gml:upperCorner>
                     </gml:Envelope>
                 </ogc:BBOX>
             </ogc:Filter>
@@ -347,7 +387,7 @@
                         <gml:outerBoundaryIs>          
                             <gml:LinearRing>             
                                 <gml:coordinates>
-                                    <!-- lat,lon lat,lon lat,lon -->
+                                    {latlngs}
                                 </gml:coordinates>          
                             </gml:LinearRing>       
                         </gml:outerBoundaryIs>    
