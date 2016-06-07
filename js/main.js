@@ -33,6 +33,8 @@ $( document ).ready(function() {
 	var startDate;
 	var endDate;
 
+	var filterPolygonWKT;
+
 	var tableIsInit = false;	
 	var isInit = false;
 
@@ -363,6 +365,7 @@ $( document ).ready(function() {
 				//console.log(baseURI1);
 				// baseURI+commodityItem[i]+"&_output=json"
 				$.each(names, function (i, name) {
+
 					var sQuery = "SELECT data.id, data.gaul0code, data.citycode, data.marketcode, data.munitcode, data.currencycode, data.commoditycode, data.varietycode, data.price, data.quantity, data.untouchedprice, data.fulldate, data.note, data.userid, data.vendorname, data.vendorcode, data.lat, data.lon, data.geo FROM data WHERE gaul0code=ANY('{"+nations+"}') and marketcode=ANY('{"+marketcode+"}') and commoditycode='"+commodityItem[i]+"' ";
 					sQuery = sQuery + " ORDER BY fulldate";
 					//console.log("sQuery "+sQuery);
@@ -752,7 +755,29 @@ $( document ).ready(function() {
 		}
 
 	}
-	
+
+	function toWKT(layer) {
+	    var lng, lat, coords = [];
+	    if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+	        var latlngs = layer.getLatLngs();
+	        for (var i = 0; i < latlngs.length; i++) {
+		    	latlngs[i]
+		    	coords.push(latlngs[i].lng + " " + latlngs[i].lat);
+		        if (i === 0) {
+		        	lng = latlngs[i].lng;
+		        	lat = latlngs[i].lat;
+		        }
+		};
+	        if (layer instanceof L.Polygon) {
+	            return "POLYGON((" + coords.join(",") + "," + lng + " " + lat + "))";
+	        } else if (layer instanceof L.Polyline) {
+	            return "LINESTRING(" + coords.join(",") + ")";
+	        }
+	    } else if (layer instanceof L.Marker) {
+	        return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
+	    }
+	}
+		
 	function updateMap2() {
 
 		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&code=('+checkedMarkets.toString()+')&_output=json';
@@ -784,6 +809,8 @@ $( document ).ready(function() {
 				if( startDate !== undefined && endDate !== undefined )
 					qString += " AND date>='"+startDate+"'"+
 							   " AND date<= '"+endDate+"'";
+
+console.log('updateMap2',qString)
 
 				var avg = [];
 				var avgS = "";
@@ -822,8 +849,8 @@ $( document ).ready(function() {
 						  console.log("KO:"+a.responseText);						               
 					  }
 				  });
-			});	
-			
+			});
+
 		function refreshCluster() {
 				//console.log("refreshCluster inside UpdateMap");
 				var desatIcon = L.icon({
@@ -912,7 +939,6 @@ $( document ).ready(function() {
 		});
 	}
 
-	
 	function initMap() {
 
 		var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
@@ -969,15 +995,15 @@ $( document ).ready(function() {
 		map.on('draw:created', function (e) {
 			var type = e.layerType,
 				layer = e.layer;
+			
+			filterPolygonWKT = toWKT(layer);
 
-			console.log('SELECTION toGeoJson', JSON.stringify(e.layer.toGeoJSON()) )
+			console.log('SELECTION toWKT', filterPolygonWKT )
 
 			drawnItems.addLayer(layer);
 		});		  
 
 	}
-	
-	
 
 	function updateView() {
 		//console.log("UpdView");
