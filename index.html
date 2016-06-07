@@ -320,4 +320,41 @@
 
 
 </script>
+
+<script id="wfs_bbox" type="text/xmldata">
+    <wfs:GetFeature service="WFS" version="1.1.0" outputFormat="json" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:topp="http://www.openplans.org/topp" xmlns:wfs="http://www.opengis.net/wfs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs                       http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">
+        <wfs:Query typeName="fenix:data">
+            <ogc:Filter>
+                <ogc:BBOX>
+                    <ogc:PropertyName>geo</ogc:PropertyName>
+                    <gml:Envelope srsName="http://www.opengis.net/gml/srs/epsg.xml#4326">
+                        <gml:lowerCorner>60 30</gml:lowerCorner>
+                        <gml:upperCorner>70 32</gml:upperCorner>
+                    </gml:Envelope>
+                </ogc:BBOX>
+            </ogc:Filter>
+        </wfs:Query>
+    </wfs:GetFeature>
+</script>
+
+<script id="wfs_polygon" type="text/xmldata">
+    <wfs:GetFeature outputFormat="json" service="WFS" version="1.1.0" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:topp="http://www.openplans.org/topp" xmlns:wfs="http://www.opengis.net/wfs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs                       http://schemas.opengis.net/wfs/1.1.0/wfs.xsd">
+        <wfs:Query typeName="fenix:data">
+            <ogc:Filter>
+                <ogc:Within>
+                    <ogc:PropertyName>geo</ogc:PropertyName>
+                    <gml:Polygon>         
+                        <gml:outerBoundaryIs>          
+                            <gml:LinearRing>             
+                                <gml:coordinates>
+                                    <!-- lat,lon lat,lon lat,lon -->
+                                </gml:coordinates>          
+                            </gml:LinearRing>       
+                        </gml:outerBoundaryIs>    
+                    </gml:Polygon>
+                </ogc:Within>
+            </ogc:Filter>
+        </wfs:Query>
+    </wfs:GetFeature>
+</script>
 </html>
