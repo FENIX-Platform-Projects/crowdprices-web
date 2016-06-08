@@ -1052,6 +1052,8 @@ window.filterPolygonWKT = filterPolygonWKT;
 			scrollWheelZoom: false
 		});
 
+		window.map = map;
+
 		// Initialise the FeatureGroup to store editable layers
 		var drawnItems = new L.FeatureGroup();
 		map.addLayer(drawnItems);
@@ -1097,30 +1099,29 @@ window.filterPolygonWKT = filterPolygonWKT;
 				var origin = layer.getLatLng(); //center of drawn circle
 				var radius = layer.getRadius(); //radius of drawn circle
 				var projection = L.CRS.EPSG4326;
-				var polys = createGeodesicPolygon(origin, radius, 60, 0, projection); //these are the points that make up the circle
+				var polys = createGeodesicPolygon(origin, radius, 10 , 0, projection); //these are the points that make up the circle
 				var polygon = []; // store the geometry
 				for (var i = 0; i < polys.length; i++) {
-				    var geometry = [polys[i].lat, polys[i].lng]; 
+				    var geometry = [
+				    	parseFloat(polys[i].lat.toFixed(3)),
+				    	parseFloat(polys[i].lng.toFixed(3))
+				    ]; 
 				    polygon.push(geometry);
 				}
-
-				//console.log(polygon);
 
 				var polyCircle = L.polygon(polygon),
 					geoPolygon = polyCircle.toGeoJSON();
 
 				//L.geoJson(geoPolygon, {style: {color:'#f00'} }).addTo(map);
 
-				filterPolygonWKT = toWKT(polyCircle);				
+				filterPolygonWKT = toWKT(polyCircle);
 
 				//console.log(filterPolygonWKT)
 	        }
 	        else
 				filterPolygonWKT = toWKT(layer);
 
-			//console.log('SELECTION toWKT', filterPolygonWKT )
-			drawnItems.clearLayers();
-			drawnItems.addLayer(layer);
+			drawnItems.clearLayers().addLayer(layer);
 			updateMap2();
 		});		  
 
