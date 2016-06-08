@@ -756,18 +756,19 @@ $( document ).ready(function() {
 	}
 
 	//http://stackoverflow.com/questions/24145205/writing-a-function-to-convert-a-circle-to-a-polygon-using-leaflet-js
-	L.Util.VincentyConstants = {
-	    a: 6378137,
-	    b: 6356752.3142,
-	    f: 1/298.257223563  
-	};
 
 	function destinationVincenty(lonlat, brng, dist) {
 	//rewritten to work with leaflet
 
 	    var u = L.Util;
-	    var ct = u.VincentyConstants;
-	    var a = ct.a, b = ct.b, f = ct.f;
+	    var VincentyConstants = {
+			    a: 6378137,
+			    b: 6356752.3142,
+			    f: 1/298.257223563  
+			},
+	    var a = VincentyConstants.a,
+	    	b = VincentyConstants.b,
+	    	f = VincentyConstants.f;
 	    var lon1 = lonlat.lng;
 	    var lat1 = lonlat.lat;
 	    var s = dist;
