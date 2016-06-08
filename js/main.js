@@ -882,7 +882,7 @@ $( document ).ready(function() {
 				var qString = "SELECT AVG(price), COUNT(price) "+
 					"FROM data "+
 					"WHERE marketcode = '"+k.code+"' ";
-				
+				console.log(startDate, endDate)
 				if( startDate && endDate )
 					qString += " AND date>='"+startDate+"'"+
 							   " AND date<= '"+endDate+"'";
@@ -1100,26 +1100,37 @@ window.filterPolygonWKT = filterPolygonWKT;
 				var radius = layer.getRadius(); //radius of drawn circle
 				var projection = L.CRS.EPSG4326;
 				var polys = createGeodesicPolygon(origin, radius, 10 , 0, projection); //these are the points that make up the circle
-				var polygon = []; // store the geometry
+				var coords = []; // store the geometry
 				for (var i = 0; i < polys.length; i++) {
 				    var geometry = [
 				    	parseFloat(polys[i].lat.toFixed(3)),
 				    	parseFloat(polys[i].lng.toFixed(3))
 				    ]; 
-				    polygon.push(geometry);
+				    coords.push(geometry);
 				}
 
-				var polyCircle = L.polygon(polygon),
-					geoPolygon = polyCircle.toGeoJSON();
-
+				var polyCircle = L.polygon(coords);
+					
+				//var geoPolygon = polyCircle.toGeoJSON();
 				//L.geoJson(geoPolygon, {style: {color:'#f00'} }).addTo(map);
 
 				filterPolygonWKT = toWKT(polyCircle);
-
-				//console.log(filterPolygonWKT)
 	        }
 	        else
 				filterPolygonWKT = toWKT(layer);
+			//*/
+/*var P = 
+ 'POLYGON((-16.70196533203125 13.656662778922, '+
+ '-16.91070556640625 13.325484885597936, '+
+ '-16.85577392578125 12.951029216018357, '+
+ '-16.50421142578125 12.97244201057838, '+
+ '-15.905456542968748 13.132979019087472, '+
+ '-15.68572998046875 13.266679794815284, '+
+ '-15.55938720703125 13.635310367863765, '+
+ '-16.18560791015625 13.410994034321702, '+
+ '-16.70196533203125 13.656662778922 '+
+ '))';
+console.log(P);*/
 
 			drawnItems.clearLayers().addLayer(layer);
 			updateMap2();
