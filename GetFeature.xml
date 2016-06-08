@@ -5,8 +5,8 @@
 			<ogc:BBOX>
 				<ogc:PropertyName>geo</ogc:PropertyName>
 				<gml:Envelope srsName="http://www.opengis.net/gml/srs/epsg.xml#4326">
-					<gml:lowerCorner><!-- lat lon --></gml:lowerCorner>
-					<gml:upperCorner><!-- lat lon --></gml:upperCorner>
+					<gml:lowerCorner><!-- lon lat --></gml:lowerCorner>
+					<gml:upperCorner><!-- lon lat --></gml:upperCorner>
 				</gml:Envelope>
 			</ogc:BBOX>
 		</ogc:Filter>
@@ -23,7 +23,7 @@
 					<gml:exterior>          
 						<gml:LinearRing>             
 							<gml:posList>
-								<!-- list(lat lon) on a single line
+								<!-- list(lon lat) on a single line
 								The first and the last have to be the same --> 
 							</gml:posList>          
 						</gml:LinearRing>       
