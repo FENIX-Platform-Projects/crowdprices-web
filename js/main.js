@@ -850,7 +850,7 @@ $( document ).ready(function() {
 	    }
 	}
 		
-	function updateMap2() {
+	function updateMap() {
 
 		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&code=('+checkedMarkets.toString()+')&_output=json';
 
@@ -886,9 +886,7 @@ $( document ).ready(function() {
 				if(filterPolygonWKT)
 					qString += " AND ST_contains(ST_GeomFromText('"+filterPolygonWKT+"',4326),geo)";
 
-//window.filterPolygonWKT = filterPolygonWKT;
-
-				//console.log('QUERY updateMap2', qString);
+				//console.log('QUERY updateMap', qString);
 
 				var avg = [],
 					avgS = "";
@@ -903,11 +901,12 @@ $( document ).ready(function() {
 						},
 						success: function (response) {
 
-							//console.log('QUERY updateMap2 response: ', response[1]);
-
 							if (response[1][0] !== null) {
 
-								avgS = " - " + ( parseFloat(response[1][0]).toFixed(2) ) + currency + "\/" + munit;
+								avgS = " - " + 
+									parseFloat(response[1][0]).toFixed(2) +
+									currency + "\/" + 
+									munit;
 
 								vendors.push(k.name);
 								marketcode.push(k.code);
@@ -969,7 +968,6 @@ $( document ).ready(function() {
 				  existingPoints.push(temp);
 
 				  var marker = L.marker(position, { icon: foundIcon });
-
 
 				  marker.bindPopup(title);
 
@@ -1110,7 +1108,7 @@ $( document ).ready(function() {
 			
 			drawnItems.clearLayers().addLayer(layer);
 
-			updateMap2();
+			updateMap();
 		});		  
 
 	}
@@ -1118,7 +1116,7 @@ $( document ).ready(function() {
 	function updateView() {
 		//console.log("UpdView");
 		// reload map
-		updateMap2();
+		updateMap();
 		// reload graphs	
 		updateChart();	
 		// reload table
