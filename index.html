@@ -1,9 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-
     <title>Crowd Prices</title>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="format-detection" content="telephone=no">
@@ -12,7 +10,7 @@
 
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
     <link rel="icon" href="img/favicon.ico" type="image/x-icon">
-    <link href="css/style_mockup.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="css/style_mockup.css" type="text/css">
     <link rel="stylesheet" href="css/chosen.css">
     <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/MarkerCluster.css"/>
@@ -20,16 +18,11 @@
     <link rel="stylesheet" href="js/slider/jquery.nouislider.min.css">
     <link rel="stylesheet" href="js/draw/leaflet.draw.css">
     <link rel="stylesheet" href="css/leaflet-search.css"/>
-
     <!-- Fonts -->
     <link href='https://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'>
-
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
     <!-- Fenix CSS -->
     <link href="css/host.css" rel="stylesheet">
-
-
     <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -41,29 +34,28 @@
     <script src="js/high/modules/exporting.js"></script>
     <script src="js/slider/jquery.nouislider.all.min.js"></script>
     <script src="js/draw/leaflet.draw.js"></script>
-    <script src="js/leaflet.search.js"></script>
+    <!--script src="js/leaflet.search.js"></script-->
     <script src="js/export-table.js"></script>
-
+    <script src="js/underscore.min.js"></script>
     <script src="js/l.control.geosearch.js"></script>
     <script src="js/l.geosearch.provider.google.js"></script>
     <link rel="stylesheet" href="css/l.geosearch.css"/>
-
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
-
-
     <!-- rangeslider -->
     <link rel="stylesheet" href="css/iThing-min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     <script src="js/slider/jQAllRangeSliders-min.js"></script>
-
     <link rel="stylesheet" href="js/webix/webix.css" type="text/css" charset="utf-8">
     <script src="js/webix/webix.js" type="text/javascript" charset="utf-8"></script>
     <style>
         .container-fluid {
             position: relative;
             z-index: 0;
+        }
+        .ui-rangeSlider-arrow.ui-rangeSlider-rightArrow {
+            background: none !important;
         }
     </style>
 </head>
@@ -92,7 +84,7 @@
 
             <ul class="sidebar-nav fx-ul">
                 <li id="home"><a href="http://fenixapps2.fao.org/crowddata/"> Price Monitoring </a></li>
-                <li id="maps"><a href="http://fenix.fao.org/demo/fenix/">See more about FENIX platform</a></li>
+                <!--li id="maps"><a href="http://fenix.fao.org/demo/fenix/">See more about FENIX platform</a></li-->
                 <li id="analysis"><a href="http://fenixapps2.fao.org/repository/crowddata/CrowdPricesLatest.apk">Download
                     App (APK)</a></li>
                 <li id="createdataset"><a href="http://fenixapps2.fao.org/repository/crowddata/changelog.txt">Latest
@@ -119,16 +111,6 @@
 
                 <br><br>
 
-
-
-                <h2>DISCLAIMER</h2>
-
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tristique at velit ac accumsan.
-                    Duis vel orci sagittis, aliquet dui et, ultricies dui. Pellentesque imperdiet ligula nec
-                    pellentesque pharetra. Donec et sem justo. Pellentesque eget ipsum posuere, gravida neque sit amet,
-                    vehicula velit.
-                </p>
             </div>
 
 
@@ -287,55 +269,6 @@
             }, 500);
 
         });
-
-
-/*
-        function highlightCountry(codif, codes) {
-
-            codif = codif || 'iso3';
-
-            var self = this;
-
-            //var rootUrl = "http://fenix.fao.org:20200/geoserver/fenix/ows";
-            //var rootUrl = this.options.url.DEFAULT_WMS_SERVER+'/demo/fenix/ows'
-            var rootUrl = "http://fenix.fao.org/demo/fenix/geoserver/ows";
-
-            var defaultParameters = {
-                service: 'WFS',
-                version: '1.0.0',
-                request: 'GetFeature',
-                typeName: 'fenix:gaul0_bounds',
-                maxFeatures: 50,
-                outputFormat: 'text/javascript',
-                format_options: 'callback: getJson',
-                //srsName: 'EPSG:3857',
-                viewparams: 'iso3_code:'+codes[0]
-            };
-
-            var parameters = L.Util.extend(defaultParameters);
-
-            $.ajax({
-                url: rootUrl + L.Util.getParamString(parameters),
-                dataType: 'jsonp',
-                jsonpCallback: 'getJson',
-                success: function(json) {
-                    var gLayer = L.geoJson(json, {
-                        style: function (feature) {
-                            return self.options.style;
-                        }
-                    });
-                    self.map.addLayer( gLayer );
-                    //self.map.fitBounds( gLayer.getBounds() );
-                }
-            });
-        }
-
-        var bb = map.getBounds();
-        window.wfs_bbox = L.Util.template($('#wfs_bbox').html(), {
-            lat1: bb._southWest.lat, lon1: ,
-            lat2: , lon2:
-        });
-*/
 
     });
 

@@ -7,9 +7,6 @@ $( document ).ready(function() {
 	var currency = "USD";
 	var allAddressPoints = [];
 	
-	var controlSearch  = null;
-	var addressSearch = null; 
-	
 	var globalURI = "http://fenix.fao.org/restsql-0.8.8/res/";
 	//PROD var globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/";
 	
@@ -20,7 +17,6 @@ $( document ).ready(function() {
 	var initLatLon = [13.453 , -16.578];
 	var initGaul = 90;
 	var nations = [90];
-
 
 	var allMarketName = [];
 
@@ -729,8 +725,8 @@ $( document ).ready(function() {
 				temp.push(k[14]);
 				//temp.push(k.commoditys[0].name)
 				allMarkers.push(temp);
-				//console.log(temp);
 			});
+
 			$.each(allMarkers, function(i, el){	
 				//if($.inArray(el, uniqueVendors) === -1) uniqueVendors.push(el);
 				if($.inArray(el[2], uniqueVendors) === -1) {				
@@ -882,7 +878,7 @@ $( document ).ready(function() {
 				var qString = "SELECT AVG(price), COUNT(price) "+
 					"FROM data "+
 					"WHERE marketcode = '"+k.code+"' ";
-				console.log(startDate, endDate)
+
 				if( startDate && endDate )
 					qString += " AND date>='"+startDate+"'"+
 							   " AND date<= '"+endDate+"'";
@@ -890,12 +886,12 @@ $( document ).ready(function() {
 				if(filterPolygonWKT)
 					qString += " AND ST_contains(ST_GeomFromText('"+filterPolygonWKT+"',4326),geo)";
 
-window.filterPolygonWKT = filterPolygonWKT;
+//window.filterPolygonWKT = filterPolygonWKT;
 
 				//console.log('QUERY updateMap2', qString);
 
-				var avg = [];
-				var avgS = "";
+				var avg = [],
+					avgS = "";
 
 				$.ajax({
 				  type: 'GET',
@@ -925,14 +921,16 @@ window.filterPolygonWKT = filterPolygonWKT;
 
 								addressPoints.push(temp);
 							}
-						address++ ;
-						console.log(data.vendors.length+" > "+address);
-						if ( address >= data.vendors.length )
-							refreshCluster();
-					
+
+							address++;
+							
+							//console.log(data.vendors.length+" > "+address);
+
+							if ( address >= data.vendors.length )
+								refreshCluster();
 					  },
 					  error: function (a) {
-						  console.log("KO:"+a.responseText);						               
+						  //console.log("KO:"+a.responseText);						               
 					  }
 				  });
 			});
@@ -955,78 +953,64 @@ window.filterPolygonWKT = filterPolygonWKT;
 				
 				var latlng = L.latLng(addressPoints[0][0], addressPoints[0][1]);
 
-				  for (var i = 0; i < addressPoints.length; i++)
-				  {
-					  //console.log ("pop!");
-					  var a = addressPoints[i];
+				for (var i = 0; i < addressPoints.length; i++)
+				{
+				  //console.log ("pop!");
+				  var a = addressPoints[i];
 
-					  var title = a[2].replace('-','<br>');
-					  //console.log(a.toString());
-					  var cIcon = desatIcon;
-					  var position = new L.LatLng(a[0], a[1]);
-					  var temp = [];
-					  temp.push(position);
-					  temp.push(title);
-					  
-					  existingPoints.push(temp);
-
-					  var marker = L.marker(position, { icon: foundIcon });
-
-
-					  marker.bindPopup(title);
-
-					  marker.on('mouseover', function(e) {
-					  	e.target.openPopup();
-					  });
-
-					  markers.addLayer(marker);
-				  }
+				  var title = a[2].replace('-','<br>');
+				  //console.log(a.toString());
+				  var cIcon = desatIcon;
+				  var position = new L.LatLng(a[0], a[1]);
+				  var temp = [];
+				  temp.push(position);
+				  temp.push(title);
 				  
-				  var a1Lat = [];
-				  var a1Lon = [];
-				  var a2Lat = [];				  
-				  var a2Lon = [];
-				  
-				  //console.log(existingPoints.length, allAddressPoints.length);
-				  for (var k = 0; k < allAddressPoints.length; k++) {
-				  	a1Lat.push(allAddressPoints[k][0]['lat']);				  	
-				  	a1Lon.push(allAddressPoints[k][0]['lng']);
-				  }
-				  for (var k = 0; k < existingPoints.length; k++) {
-					a2Lat.push(existingPoints[k][0]['lat']);
-				  	a2Lon.push(existingPoints[k][0]['lng']);
-				  }
+				  existingPoints.push(temp);
 
-					var aresLat = $(a1Lat).not(a2Lat).get();
-					var aresLon = $(a1Lon).not(a2Lon).get();
+				  var marker = L.marker(position, { icon: foundIcon });
 
-				  for (var j = 0; j < aresLat.length; j++) {
-					  var title = "";
-					  var cIcon = desatIcon;
-					  var marker = L.marker( new L.LatLng(aresLat[j], aresLon[j]) , { title: title, icon: desatIcon });
-					  //marker.bindPopup(title);
-					  markers.addLayer(marker);						  
-				  }
 
-				 map.addLayer(markers);	
-				 map.panTo(latlng);
-				 
-				 // Search
+				  marker.bindPopup(title);
 
-				if(controlSearch)
-					L.control.search({
-						layer: markers,
-						initial: false,
-						position:'topright'
-					}).addTo(map);
-				
-				if (addressSearch != null) map.removeControl (addressSearch);
-				addressSearch = new L.Control.GeoSearch({
-        		    provider: new L.GeoSearch.Provider.Google(),
-					showMarker: false,
-		        });
-				map.addControl( addressSearch );
-				 
+				  marker.on('mouseover', function(e) {
+				  	e.target.openPopup();
+				  });
+
+				  markers.addLayer(marker);
+				}
+
+				var a1Lat = [];
+				var a1Lon = [];
+				var a2Lat = [];				  
+				var a2Lon = [];
+
+				//console.log(existingPoints.length, allAddressPoints.length);
+				for (var k = 0; k < allAddressPoints.length; k++) {
+					a1Lat.push(allAddressPoints[k][0]['lat']);				  	
+					a1Lon.push(allAddressPoints[k][0]['lng']);
+				}
+				for (var k = 0; k < existingPoints.length; k++) {
+				a2Lat.push(existingPoints[k][0]['lat']);
+					a2Lon.push(existingPoints[k][0]['lng']);
+				}
+
+				var aresLat = $(a1Lat).not(a2Lat).get();
+				var aresLon = $(a1Lon).not(a2Lon).get();
+
+				for (var j = 0; j < aresLat.length; j++) {
+				  var title = "";
+				  var cIcon = desatIcon;
+				  var marker = L.marker( new L.LatLng(aresLat[j], aresLon[j]), {
+					title: title,
+					icon: desatIcon
+				  });
+				  //marker.bindPopup(title);
+				  markers.addLayer(marker);						  
+				}
+
+				map.addLayer(markers);	
+				map.panTo(latlng);				 
 			}	
 			
 		});
@@ -1053,6 +1037,11 @@ window.filterPolygonWKT = filterPolygonWKT;
 		});
 
 		window.map = map;
+
+		map.addControl( new L.Control.GeoSearch({
+		    provider: new L.GeoSearch.Provider.Google(),
+			showMarker: false,
+        }) );
 
 		// Initialise the FeatureGroup to store editable layers
 		var drawnItems = new L.FeatureGroup();
@@ -1118,21 +1107,9 @@ window.filterPolygonWKT = filterPolygonWKT;
 	        }
 	        else
 				filterPolygonWKT = toWKT(layer);
-			//*/
-/*var P = 
- 'POLYGON((-16.70196533203125 13.656662778922, '+
- '-16.91070556640625 13.325484885597936, '+
- '-16.85577392578125 12.951029216018357, '+
- '-16.50421142578125 12.97244201057838, '+
- '-15.905456542968748 13.132979019087472, '+
- '-15.68572998046875 13.266679794815284, '+
- '-15.55938720703125 13.635310367863765, '+
- '-16.18560791015625 13.410994034321702, '+
- '-16.70196533203125 13.656662778922 '+
- '))';
-console.log(P);*/
-
+			
 			drawnItems.clearLayers().addLayer(layer);
+
 			updateMap2();
 		});		  
 
