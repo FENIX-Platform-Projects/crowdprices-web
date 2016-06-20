@@ -2,53 +2,63 @@
 <html>
 <head>
 <title>Crowd Prices</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="format-detection" content="telephone=no">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="format-detection" content="telephone=no" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-<link rel="icon" href="img/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+<link rel="icon" href="img/favicon.ico" type="image/x-icon" />
+
+<link rel="stylesheet" href="//fenixrepo.fao.org/cdn/js/leaflet/0.7.7/leaflet.css" />
+<link rel="stylesheet" href="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.draw/0.2.4/leaflet.draw.css" />
+
+<link rel="stylesheet" href="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.markecluster/1.1/MarkerCluster.css" />
+<link rel="stylesheet" href="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.markecluster/1.1/MarkerCluster.Default.css" />
+
+<link rel="stylesheet" href="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.geosearch/1.1.0/css/l.geosearch.css" />
+<link rel="stylesheet" href="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.geosearch/1.1.0/css/l.geosearch.css" />
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Oswald:400,300,700" type="text/css">
+
+<link rel="stylesheet" href="js/slider/jquery.nouislider.min.css">
+
 <link rel="stylesheet" href="css/style_mockup.css" type="text/css">
 <link rel="stylesheet" href="css/chosen.css">
-<link rel="stylesheet" href="css/leaflet.css">
-<link rel="stylesheet" href="css/MarkerCluster.css"/>
-<link rel="stylesheet" href="css/MarkerCluster.Default.css"/>
-<link rel="stylesheet" href="js/slider/jquery.nouislider.min.css">
-<link rel="stylesheet" href="js/draw/leaflet.draw.css">
-<link rel="stylesheet" href="css/leaflet-search.css"/>
+
 <!-- Fonts -->
-<link href='https://fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'>
 <link href="css/bootstrap.min.css" rel="stylesheet">
-<!-- Fenix CSS -->
-<link href="css/host.css" rel="stylesheet">
-<!--[if lt IE 9]>
-<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-<![endif]-->
-<script src="js/jquery.js" type="text/javascript"></script>
-<script src="js/chosen.js" type="text/javascript"></script>
-<script src="js/leaflet.js" type="text/javascript"></script>
-<script src="js/leaflet.markercluster.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="//fenixrepo.fao.org/cdn/js/bootstrap-table/1.9.1/bootstrap-table.min.css">
+
+<link rel="stylesheet" href="css/iThing-min.css">
+
+<script src="//fenixrepo.fao.org/cdn/js/jquery/2.1.1/jquery.min.js"></script>
+
+<script src="//fenixrepo.fao.org/cdn/js/leaflet/0.7.7/leaflet.js"></script>
+<script src="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.markecluster/1.1/leaflet.markercluster.js"></script>
+<script src="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.draw/0.2.4/leaflet.draw.js"></script>
+<script src="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.control.geosearch.js"></script>
+<script src="//fenixrepo.fao.org/cdn/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.geosearch.provider.google.js"></script>
+
+<script src="js/chosen.js"></script>
 <script src="js/high/highstock.js"></script>
 <script src="js/high/modules/exporting.js"></script>
-<script src="js/slider/jquery.nouislider.all.min.js"></script>
-<script src="js/draw/leaflet.draw.js"></script>
-<!--script src="js/leaflet.search.js"></script-->
+
 <script src="js/export-table.js"></script>
 <script src="js/underscore.min.js"></script>
-<script src="js/l.control.geosearch.js"></script>
-<script src="js/l.geosearch.provider.google.js"></script>
-<link rel="stylesheet" href="css/l.geosearch.css"/>
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
-<!-- rangeslider -->
-<link rel="stylesheet" href="css/iThing-min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+<script src="//fenixrepo.fao.org/cdn/js/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
+<script src="//fenixrepo.fao.org/cdn/js/jquery-ui/1.10.3/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="js/slider/jquery.nouislider.all.min.js"></script>
 <script src="js/slider/jQAllRangeSliders-min.js"></script>
-<link rel="stylesheet" href="js/webix/webix.css" type="text/css" charset="utf-8">
-<script src="js/webix/webix.js" type="text/javascript" charset="utf-8"></script>
+
+<link href="js/webix/webix.css" rel="stylesheet" type="text/css">
+<script src="js/webix/webix.js"></script>
+
+<!-- Fenix CSS -->
+<link href="css/host.css" rel="stylesheet">
+
 <style>
 .container-fluid {
     position: relative;
@@ -83,14 +93,10 @@
 
         <div class="fx-menu sidemenu">
 
-
             <ul class="sidebar-nav fx-ul">
-                <li id="home"><a href="http://fenixapps2.fao.org/crowddata/"> Price Monitoring </a></li>
-                <!--li id="maps"><a href="http://fenix.fao.org/demo/fenix/">See more about FENIX platform</a></li-->
-                <li id="analysis"><a href="http://fenixapps2.fao.org/repository/crowddata/CrowdPricesLatest.apk">Download
-                    App (APK)</a></li>
-                <li id="createdataset"><a href="http://fenixapps2.fao.org/repository/crowddata/changelog.txt">Latest
-                    Updates</a></li>
+                <li id="home"><a href="./"> Price Monitoring </a></li>
+                <li id="analysis"><a href="http://fenixrepo.fao.org/apk/CrowdPricesLatest.apk">Download App (APK)</a></li>
+                <li id="createdataset"><a href="http://fenixrepo.fao.org/apk/changelog.txt">Latest Updates</a></li>
             </ul>
 
             <div class="spark-holder">
@@ -245,7 +251,7 @@
 <script src="js/main.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/sparkilne-charts.js"></script>
-<script type="text/javascript" charset="utf-8">
+<script>
 
     // Test Purpose Only
     $(document).ready(function () {

@@ -12,6 +12,8 @@ $( document ).ready(function() {
 	
 	// WDS
 	var WDSURI =  "http://fenixapps2.fao.org/wds-5.2.1/rest/crud/";
+	var WDSURI5 = 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/';
+	
 	var DATASOURCE = "CROWD";
 
 	var initLatLon = [13.453 , -16.578];
@@ -366,7 +368,7 @@ $( document ).ready(function() {
 					sQuery = sQuery + " ORDER BY fulldate";
 					//console.log("sQuery "+sQuery);
 					$.ajax({
-						url: 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
+						url: WDSURI5,
 						type: 'POST',
 						data: {
 							datasource: 'CROWD',
@@ -501,7 +503,7 @@ $( document ).ready(function() {
 
 		$.ajax({
 
-			url: 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
+			url: WDSURI5,
 			type: 'POST',
 			data: {
 				datasource: 'CROWD',
@@ -1046,7 +1048,7 @@ $( document ).ready(function() {
 		map.addLayer(drawnItems);
 
 		var Doptions = {
-			position: 'topleft',
+			position: 'bottomleft',
 			draw: {					
 				marker: false,
 				polygon: {
@@ -1114,14 +1116,9 @@ $( document ).ready(function() {
 	}
 
 	function updateView() {
-		//console.log("UpdView");
-		// reload map
-		updateMap();
-		// reload graphs	
+		updateMap();	
 		updateChart();	
-		// reload table
 		createTable();
-
 	}
 	
 	
