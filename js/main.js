@@ -897,13 +897,12 @@ $( document ).ready(function() {
 var Cresponse = _.groupBy(response,'marketcode');
 var CglobalMarkets = _.groupBy(globalMarkets,'code');
 
-console.log(Cresponse);
+//console.log(Cresponse);
 //console.log(CglobalMarkets);
 
 					$.each(globalMarkets, function (k, v) {
 
 v = _.extend(v, Cresponse[v.code] );
-//if() console.log(" sto senza avg e sono il "+k)
 
 //console.log(v);
 
@@ -918,7 +917,7 @@ v = _.extend(v, Cresponse[v.code] );
 							else
 								avgS = "";
 
-							console.log(avgS);
+							//console.log(avgS);
 
 							vendors.push(v.name);
 							marketcode.push(v.code);
