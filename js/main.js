@@ -938,7 +938,7 @@ $( document ).ready(function() {
 				}
 
 				map.addLayer(markers);	
-				map.fitBounds( L.latLngBounds(latlngs));
+				map.fitBounds( L.latLngBounds(latlngs).pad(0.2) );
 			}	
 			
 		});
