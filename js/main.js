@@ -907,8 +907,7 @@ $( document ).ready(function() {
 
 				console.log('refreshCluster',addressPoints)
 		
-				var latlng = L.latLng(addressPoints[0][0], addressPoints[0][1]);
-
+				var latlngs = [];
 				for (var i = 0; i < addressPoints.length; i++)
 				{
 				  //console.log ("pop!");
@@ -933,41 +932,13 @@ $( document ).ready(function() {
 				  });
 
 				  markers.addLayer(marker);
-
+				  
+				  if(a[3])
+				  	latlngs.push(position);
 				}
-/*
-				var a1Lat = [];
-				var a1Lon = [];
-				var a2Lat = [];				  
-				var a2Lon = [];
-
-				//console.log(existingPoints.length, allAddressPoints.length);
-				for (var k = 0; k < allAddressPoints.length; k++) {
-					a1Lat.push(allAddressPoints[k][0]['lat']);				  	
-					a1Lon.push(allAddressPoints[k][0]['lng']);
-				}
-				for (var k = 0; k < existingPoints.length; k++) {
-					a2Lat.push(existingPoints[k][0]['lat']);
-					a2Lon.push(existingPoints[k][0]['lng']);
-				}
-
-				var aresLat = $(a1Lat).not(a2Lat).get();
-				var aresLon = $(a1Lon).not(a2Lon).get();
-
-				for (var j = 0; j < aresLat.length; j++) {
-				  var title = "";
-				  var cIcon = desatIcon;
-				  var marker = L.marker( new L.LatLng(aresLat[j], aresLon[j]), {
-					title: title,
-					icon: desatIcon
-				  });
-				  //marker.bindPopup(title);
-				  markers.addLayer(marker);						  
-				}
-*/
 
 				map.addLayer(markers);	
-				map.panTo(latlng);				 
+				map.fitBounds( L.latLngBounds(latlngs));
 			}	
 			
 		});
