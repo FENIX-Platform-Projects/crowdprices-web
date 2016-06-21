@@ -975,12 +975,14 @@ $( document ).ready(function() {
 
 		// Initialise the FeatureGroup to store editable layers
 		var drawnItems = new L.FeatureGroup();
+
 		map.addLayer(drawnItems);
 
-		var Doptions = {
+		var drawOpts = {
 			position: 'bottomleft',
 			draw: {					
 				marker: false,
+				polyline: false,
 				polygon: {
 					allowIntersection: false,
 					drawError: {
@@ -988,14 +990,17 @@ $( document ).ready(function() {
 						timeout: 1000
 					},
 					shapeOptions: {
-						color: '#399BCC'
+						color: '#3FAAA9',
+						fillColor: '#3FAAA9',
+						fillOpacity: 0.1
 					},
 					showArea: true
 				},
-				polyline: false,
 				circle: {
 					shapeOptions: {
-						color: '#399BCC'
+						color: '#3FAAA9',
+						fillColor: '#3FAAA9',
+						fillOpacity: 0.1
 					}
 				}					
 			},
@@ -1004,14 +1009,13 @@ $( document ).ready(function() {
 			}
 		};
 
-		var drawControl = new L.Control.Draw(Doptions);
-		map.addControl(drawControl);			  
+		var drawControl = new L.Control.Draw(drawOpts);
+
+		map.addControl(drawControl);
 
 		map.on('draw:created', function (e) {
 			var type = e.layerType,
 				layer = e.layer;
-
-//console.log('draw:created',e.layerType, e.layer)
 
 			if (type === 'circle')
 			{
@@ -1019,7 +1023,7 @@ $( document ).ready(function() {
 				var radius = layer.getRadius(); //radius of drawn circle
 				var projection = L.CRS.EPSG4326;
 				var polys = createGeodesicPolygon(origin, radius, 10 , 0, projection); //these are the points that make up the circle
-				var coords = []; // store the geometry
+				var coords = [];
 				for (var i = 0; i < polys.length; i++) {
 				    var geometry = [
 				    	parseFloat(polys[i].lat.toFixed(3)),
@@ -1029,9 +1033,6 @@ $( document ).ready(function() {
 				}
 
 				var polyCircle = L.polygon(coords);
-					
-				//var geoPolygon = polyCircle.toGeoJSON();
-				//L.geoJson(geoPolygon, {style: {color:'#f00'} }).addTo(map);
 
 				filterPolygonWKT = toWKT(polyCircle);
 	        }
@@ -1039,6 +1040,7 @@ $( document ).ready(function() {
 				filterPolygonWKT = toWKT(layer);
 			
 			drawnItems.clearLayers().addLayer(layer);
+			drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
 			updateMap();
 		})
