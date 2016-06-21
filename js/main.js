@@ -905,7 +905,7 @@ $( document ).ready(function() {
 				
 				var existingPoints = [];
 
-				console.log('refreshCluster',addressPoints)
+				//console.log('refreshCluster',addressPoints)
 		
 				var latlngs = [];
 				for (var i = 0; i < addressPoints.length; i++)
@@ -1039,8 +1039,11 @@ $( document ).ready(function() {
 			drawnItems.clearLayers().addLayer(layer);
 
 			updateMap();
-		});		  
-
+		})
+		.on('draw:deleted', function (e) {
+			console.log('DRAW deleted')
+			drawnItems.clearLayers();
+		});
 	}
 
 
