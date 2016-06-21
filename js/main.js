@@ -2,6 +2,8 @@ $( document ).ready(function() {
 	var itemToInit = 3;
 	var counterUI = 0;
 	var map = null;
+	var mapInit = false;
+
 	var markers = null;
 	var munit = "Kg";
 	var currency = "USD";
@@ -246,7 +248,9 @@ $( document ).ready(function() {
 
 				updateValues();
 				counterUI++;
-				initMap();
+
+				if(mapInit===false)
+					initMap();
 			}
 		});
 	}
@@ -988,7 +992,9 @@ v = _.extend(v, Cresponse[v.code] );
 						}
 
 						map.addLayer(markers)
-							.fitBounds(L.latLngBounds(latlngs).pad(0.2));
+						
+						if(latlngs.length>0)
+							map.fitBounds(L.latLngBounds(latlngs).pad(0.2));
 					}
 				}
 			});
@@ -998,6 +1004,8 @@ v = _.extend(v, Cresponse[v.code] );
 	}
 
 	function initMap() {
+
+		mapInit=true;
 
 		var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
 				subdomains: 'abcd',
