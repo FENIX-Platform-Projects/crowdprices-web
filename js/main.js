@@ -855,7 +855,7 @@ $( document ).ready(function() {
 			//console.log(checkedMarkets);
 			var table = countries_tables[nations].table,
 			//  AND date>='2015-12-01' AND date<= '2015-12-31'
-				qString = "SELECT AVG(price), COUNT(price), marketcode" +
+				qString = "SELECT AVG(price), COUNT(price), marketcode " +
 					" FROM " + table +
 					" WHERE marketcode IN ('" + _.compact(checkedMarkets).join("','") + "') ";
 
@@ -891,28 +891,38 @@ $( document ).ready(function() {
 
 					response = _.rest(response);
 
-					//console.log(response);
-					//console.log(globalMarkets);
+					//console.log(response);		//xxx.marketcode
+					//console.log(globalMarkets);	//xxx.code
 
-					$.each(globalMarkets, function (f, v) {
+var Cresponse = _.groupBy(response,'marketcode');
+var CglobalMarkets = _.groupBy(globalMarkets,'code');
+
+console.log(Cresponse);
+//console.log(CglobalMarkets);
+
+					$.each(globalMarkets, function (k, v) {
+
+v = _.extend(v, Cresponse[v.code] );
+//if() console.log(" sto senza avg e sono il "+k)
+
+//console.log(v);
 
 
 						var avg = [],
 							avgS = "";
-/*
-							var noData = !!response[1][0];
+
+							var noData = !!v[0];
 
 							if (noData)
-								avgS = "<br>" + parseFloat(response[1] ? response[1][0] : 0).toFixed(2) +
-									currency + "\/" + munit;
+								avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + currency + "\/" + munit;
 							else
 								avgS = "";
 
 							console.log(avgS);
-*/
 
 							vendors.push(v.name);
 							marketcode.push(v.code);
+
 							lats.push(v.lat);
 							lons.push(v.lon);
 
@@ -920,15 +930,11 @@ $( document ).ready(function() {
 							temp.push(v.lat);
 							temp.push(v.lon);
 							temp.push(v.name + avgS);
-							temp.push(true);
+							temp.push(noData);
 
 							addressPoints.push(temp);
 
 							address++;
-
-							//console.log(data.vendors.length+" > "+address);
-
-							//if (address >= globalMarkets.length)
 					});
 
 					refreshCluster();
