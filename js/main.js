@@ -6,6 +6,7 @@ $( document ).ready(function() {
 	var munit = "Kg";
 	var currency = "USD";
 	var allAddressPoints = [];
+	var globalMarkets;
 	
 	var globalURI = "http://fenix.fao.org/restsql-0.8.8/res/";
 	//PROD var globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/";
@@ -127,31 +128,44 @@ $( document ).ready(function() {
 	
 	function populateUI() {
 		//console.log("populateUI");
-		/* Commodity Selector */			
-		$.getJSON( globalURI+'auto.commodity?_output=json', function(data) {
-			var sel = $("#commodity");
-			var first = "";
+		/* Commodity Selector */
+		$.ajax({
+			type: 'GET',
+			url: WDSURI,
+			data: {
+				payload: '{"query": "SELECT code, name, lang, divisor, shown, countries, groups FROM commodity"}',
+				datasource: DATASOURCE,
+				outputType: 'object'
+			},
+			success: function (response) {
+				var sel = $("#commodity");
+				var first = "";
+				$.each(response, function() {
+					if(this.code == 38) first = "selected";
+					sel.append($("<option "+first+" />").val(this.code).text(this.name));
+					first = "";
+				});
+				$('#commodity').chosen({max_selected_options: 10});
 
-			$.each(data.commoditys, function() {
-				if(this.code == 38)
-					first = "selected";
-				sel.append($("<option "+first+" />").val(this.code).text(this.name));
-				first = "";
-			});
-			$('#commodity').chosen({max_selected_options: 10});
-			
-			//updateValues();
+				//updateValues();
 
-			$('#commodity').on('change', function(evt, params) {
-				//console.log("udadas");
-				updateDates();
-				updateValues();
+				$('#commodity').on('change', function(evt, params) {
+					//console.log("udadas");
+					updateDates();
+					updateValues();
 				}).trigger('chosen:updated');
 
-			counterUI++;				
-			
-			getCountries(false);
+				counterUI++;
+
+				getCountries(false);
+			},
+			error: function (a) {
+				console.log("populateUI Error");
+				return null;
+			}
 		});
+
+
 	}
 
 	function getCountries() {
@@ -159,17 +173,22 @@ $( document ).ready(function() {
 		var $sel = $("#countries");
 
 		$.ajax({
-			url: globalURI+'auto.gaul0?_output=json', 
+			type: 'GET',
+			url: WDSURI,
+			data: {
+				payload: '{"query": "SELECT code, name FROM gaul0"}',
+				datasource: DATASOURCE,
+				outputType: 'object'
+			},
 			async: false,
 			dataType: "json",
 			success: function(data) {
 
 				//console.log('getCountries', data);
 
-				$.each(data.gaul0s, function() {
+				$.each(data, function() {
 					var selezionato = "";
-					if (parseInt(this.code) === nations)
-						selezionato = "selected";
+					if (parseInt(this.code) === nations) selezionato = "selected";
 
 					if( _.contains(initGauls, parseInt(this.code)) )
 						$sel.append($("<option "+selezionato+" />")
@@ -182,19 +201,13 @@ $( document ).ready(function() {
 				$('#countries').on('change', function(evt, params) {
 
 					nations = evt.currentTarget.value;
-
 					getMarkets(true);
-
-					//populateUI();
 					updateValues();
-
 					resizeChosen();
 
 				}).trigger('chosen:updated').trigger("changed");
-				//$('#countries');
 
 				counterUI++;
-				
 				getMarkets(false);
 			}
 		});
@@ -206,29 +219,35 @@ $( document ).ready(function() {
 			$("#markets").empty();
 			$('#markets').chosen("destroy");
 		}
-		$.getJSON( globalURI+'auto.market?_output=json&gaul0='+nations.toString(), function(data) {
-			var sel = $("#markets");
-			var first = "selected";
-			//	data.markets.reverse();
-			$.each(data.markets, function() {
-				//sel.append($("<option selected />").val(this.code).text(this.name));
-						sel.append($("<option "+first+" />").val(this.code).text(this.name));
-						//first = "";
-			});
+		$.ajax({
+			type: 'GET',
+			url: WDSURI,
+			data: {
+				payload: '{"query": "SELECT parentcode, code, name, lang, shown, lat, lon, geo, gaul0 FROM market WHERE gaul0='+nations.toString()+' ORDER BY code"}',
+				datasource: DATASOURCE,
+				outputType: 'object'
+			},
+			async: false,
+			dataType: "json",
+			success: function (data) {
+				globalMarkets = data;
+				globalMarkets = _.rest(globalMarkets);
+				var sel = $("#markets");
+				var first = "selected";
+				//	data.markets.reverse();
+				$.each(data, function () {
+					sel.append($("<option " + first + " />").val(this.code).text(this.name));
+				});
 
+				$('#markets').on('change', function () {
+					updateDates();
+					updateValues();
+				}).trigger('chosen:updated');
 
-			//$('#markets').chosen({max_selected_options: 5});
-			$('#markets').on('change', function(evt, params) {
-				updateDates();
 				updateValues();
-			}).trigger('chosen:updated');
-
-			updateValues();
-
-			counterUI++;
-			
-
-			initMap();
+				counterUI++;
+				initMap();
+			}
 		});
 	}
 	
@@ -510,7 +529,7 @@ $( document ).ready(function() {
 	
 
 	function createTable() {
-		console.log("createTable");
+		//console.log("createTable");
 
 		var allDatas = [];
 
@@ -523,7 +542,7 @@ $( document ).ready(function() {
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		console.log("Q:"+qString);
+		//console.log("Q:"+qString);
 
 		$.ajax({
 
@@ -536,7 +555,7 @@ $( document ).ready(function() {
 			},
 
 			success: function (response) {
-				console.log("createTable success");
+				//console.log("createTable success");
 				allDatas = JSON.parse(response);
 				var output = {table:[]};
 				$.each(allDatas, function(index,element){
@@ -822,11 +841,9 @@ $( document ).ready(function() {
 		
 	function updateMap() {
 
-		console.log('updateMap',nations)
+		//console.log('updateMap',nations)
 
-		var URI = globalURI+'auto.vendor?gaul0=('+nations.toString()+')&code=('+checkedMarkets.toString()+')&_output=json';
-
-		if (markers != null) { 
+		if (markers != null) {
 			map.removeLayer(markers);
 			markers = L.markerClusterGroup({
 				showCoverageOnHover: false
@@ -834,133 +851,144 @@ $( document ).ready(function() {
 			markers.clearLayers()
 		}
 		
-		if (commodityMaps != "")
-			$.getJSON( URI, function(data)  {
+		if (commodityMaps != "") {
+			//console.log(checkedMarkets);
+			var table = countries_tables[nations].table,
+			//  AND date>='2015-12-01' AND date<= '2015-12-31'
+				qString = "SELECT AVG(price), COUNT(price), marketcode" +
+					" FROM " + table +
+					" WHERE marketcode IN ('" + _.compact(checkedMarkets).join("','") + "') ";
 
-			var vendors = [];
-			var lats = []; 
-			var lons =[];
-			var marketcode = [];
-			var addressPoints = [];
+			if (startDate && endDate)
+				qString += " AND date>='" + startDate + "'" +
+					" AND date<= '" + endDate + "'";
 
-			address = 0;
-			
-			$.each(data.vendors, function (f,k) {	
-				
-				var qString = "SELECT AVG(price), COUNT(price) "+
-					"FROM data "+
-					"WHERE marketcode = '"+k.code+"' ";
+			if (filterPolygonWKT) qString += " AND ST_contains(ST_GeomFromText('" + filterPolygonWKT + "',4326),geo)";
 
-				if( startDate && endDate )
-					qString += " AND date>='"+startDate+"'"+
-							   " AND date<= '"+endDate+"'";
+			qString += " GROUP BY marketcode ORDER BY marketcode";
 
-				if(filterPolygonWKT)
-					qString += " AND ST_contains(ST_GeomFromText('"+filterPolygonWKT+"',4326),geo)";
+			//console.log('qString: ',qString);
+
+			$.ajax({
+				type: 'GET',
+				url: WDSURI,
+				data: {
+					payload: '{"query": "'+qString+'"}',
+					datasource: DATASOURCE,
+					outputType: 'object'
+				},
+				success: function (response) {
 
 
-				var avg = [],
-					avgS = "";
+					var vendors = [];
+					var lats = [];
+					var lons = [];
+					var marketcode = [];
+					var addressPoints = [];
 
-				$.ajax({
-				  type: 'GET',
-				  url: WDSURI,
-				  data: {
-						payload: '{"query": "'+qString+'"}',
-						datasource: DATASOURCE,
-							outputType: 'array'
-						},
-						success: function (response) {
-							
+
+					address = 0;
+
+					response = _.rest(response);
+
+					//console.log(response);
+					//console.log(globalMarkets);
+
+					$.each(globalMarkets, function (f, v) {
+
+
+						var avg = [],
+							avgS = "";
+/*
 							var noData = !!response[1][0];
 
-							if(noData)
-								avgS = "<br>" + parseFloat(response[1] ? response[1][0] : 0).toFixed(2)+ 
+							if (noData)
+								avgS = "<br>" + parseFloat(response[1] ? response[1][0] : 0).toFixed(2) +
 									currency + "\/" + munit;
 							else
 								avgS = "";
 
-							vendors.push(k.name);
-							marketcode.push(k.code);
-							lats.push(k.lat);
-							lons.push(k.lon);
+							console.log(avgS);
+*/
+
+							vendors.push(v.name);
+							marketcode.push(v.code);
+							lats.push(v.lat);
+							lons.push(v.lon);
 
 							var temp = [];
-							temp.push(k.lat);
-							temp.push(k.lon);
-							temp.push(k.name + avgS);
-							temp.push(noData);
+							temp.push(v.lat);
+							temp.push(v.lon);
+							temp.push(v.name + avgS);
+							temp.push(true);
 
 							addressPoints.push(temp);
 
 							address++;
-							
+
 							//console.log(data.vendors.length+" > "+address);
 
-							if ( address >= data.vendors.length )
-								refreshCluster();
-					  },
-					  error: function (a) {
-						  //console.log("KO:"+a.responseText);						               
-					  }
-				  });
+							if (address >= globalMarkets.length) refreshCluster();
+
+					});
+
+					function refreshCluster() {
+						//console.log("refreshCluster inside UpdateMap");
+						var desatIcon = L.icon({
+							iconUrl: 'img/marker-icon-none.png',
+							shadowUrl: 'img/marker-shadow.png',
+							iconSize: L.point(109, 109),
+							iconAncho: L.point(109, 109)
+						});
+
+						var foundIcon = L.icon({
+							iconUrl: 'img/marker-icon.png',
+							shadowUrl: 'img/marker-shadow.png',
+							iconSize: L.point(109, 109),
+							iconAncho: L.point(109, 109)
+						});
+
+						var existingPoints = [];
+
+						//console.log('refreshCluster',addressPoints)
+
+						var latlngs = [];
+						for (var i = 0; i < addressPoints.length; i++) {
+							//console.log ("pop!");
+							var a = addressPoints[i];
+
+							var title = a[2];
+							//console.log(a.toString());
+							var cIcon = desatIcon;
+							var loc = new L.LatLng(a[0], a[1]);
+							var temp = [];
+							temp.push(loc);
+							temp.push(title);
+
+							existingPoints.push(temp);
+
+							var marker = L.marker(loc, {icon: a[3] ? foundIcon : desatIcon});
+
+							marker.bindPopup('<div class="' + (!a[3] && 'notValued') + '">' + title + '</div>');
+
+							marker.on('mouseover', function (e) {
+								e.target.openPopup();
+							});
+
+							markers.addLayer(marker);
+
+							if (a[3])
+								latlngs.push(loc);
+						}
+
+						map.addLayer(markers)
+							.fitBounds(L.latLngBounds(latlngs).pad(0.2));
+					}
+				}
 			});
 
-		function refreshCluster() {
-				//console.log("refreshCluster inside UpdateMap");
-				var desatIcon = L.icon({
-					iconUrl: 'img/marker-icon-none.png',
-					shadowUrl: 'img/marker-shadow.png',
-					iconSize: L.point(109,109),
-					iconAncho: L.point(109,109)
-				});
-				
-				var foundIcon = L.icon({
-					iconUrl: 'img/marker-icon.png',
-					shadowUrl: 'img/marker-shadow.png',
-					iconSize: L.point(109,109),
-					iconAncho: L.point(109,109)
-				});
-				
-				var existingPoints = [];
+		}
 
-				//console.log('refreshCluster',addressPoints)
-		
-				var latlngs = [];
-				for (var i = 0; i < addressPoints.length; i++)
-				{
-				  //console.log ("pop!");
-				  var a = addressPoints[i];
-
-				  var title = a[2];
-				  //console.log(a.toString());
-				  var cIcon = desatIcon;
-				  var loc = new L.LatLng(a[0], a[1]);
-				  var temp = [];
-				  temp.push(loc);
-				  temp.push(title);
-				  
-				  existingPoints.push(temp);
-
-				  var marker = L.marker(loc, { icon: a[3] ? foundIcon : desatIcon });
-					
-				  marker.bindPopup('<div class="'+(!a[3]&&'notValued')+'">'+title+'</div>');
-
-				  marker.on('mouseover', function(e) {
-				  	e.target.openPopup();
-				  });
-
-				  markers.addLayer(marker);
-				  
-				  if(a[3])
-				  	latlngs.push(loc);
-				}
-
-				map.addLayer(markers)
-				   .fitBounds( L.latLngBounds(latlngs).pad(0.2) );
-			}	
-			
-		});
 	}
 
 	function initMap() {
