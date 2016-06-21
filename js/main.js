@@ -918,16 +918,16 @@ $( document ).ready(function() {
 				  var title = a[2];
 				  //console.log(a.toString());
 				  var cIcon = desatIcon;
-				  var position = new L.LatLng(a[0], a[1]);
+				  var loc = new L.LatLng(a[0], a[1]);
 				  var temp = [];
-				  temp.push(position);
+				  temp.push(loc);
 				  temp.push(title);
 				  
 				  existingPoints.push(temp);
 
-				  var marker = L.marker(position, { icon: a[3] ? foundIcon : desatIcon });
+				  var marker = L.marker(loc, { icon: a[3] ? foundIcon : desatIcon });
 					
-				  marker.bindPopup(title);
+				  marker.bindPopup('<div class="'+(!a[3]&&'notValued')+'">'+title+'</div>');
 
 				  marker.on('mouseover', function(e) {
 				  	e.target.openPopup();
@@ -936,11 +936,11 @@ $( document ).ready(function() {
 				  markers.addLayer(marker);
 				  
 				  if(a[3])
-				  	latlngs.push(position);
+				  	latlngs.push(loc);
 				}
 
-				map.addLayer(markers);	
-				map.fitBounds( L.latLngBounds(latlngs).pad(0.2) );
+				map.addLayer(markers)
+				   .fitBounds( L.latLngBounds(latlngs).pad(0.2) );
 			}	
 			
 		});
