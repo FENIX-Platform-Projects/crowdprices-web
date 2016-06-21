@@ -21,19 +21,19 @@ $( document ).ready(function() {
 
 	var countries_tables = {
 		"1": { // afganistan demo
+			"name": "Demo",
 			"table": "data",
 			"currency": "USD"
 		},
-		"90": {	//gambia
+		"90": {
 			"table": "data",
 			"currency": "GMD"
 		},
-		"45": { //cameroon
+		"45": {
 			"table": "data",
 			"currency": "CFA"
 		}
-
-	}
+	};
 
 	var allMarketName = [];
 
@@ -133,9 +133,10 @@ $( document ).ready(function() {
 			var first = "";
 
 			$.each(data.commoditys, function() {
-				if(this.code == 38) first = "selected";
-					sel.append($("<option "+first+" />").val(this.code).text(this.name));
-					first = "";
+				if(this.code == 38)
+					first = "selected";
+				sel.append($("<option "+first+" />").val(this.code).text(this.name));
+				first = "";
 			});
 			$('#commodity').chosen({max_selected_options: 10});
 			
@@ -166,10 +167,14 @@ $( document ).ready(function() {
 				//console.log('getCountries', data);
 
 				$.each(data.gaul0s, function() {
-					var selezionato = ""
-					if (parseInt(this.code) === nations) selezionato = "selected";
+					var selezionato = "";
+					if (parseInt(this.code) === nations)
+						selezionato = "selected";
+
 					if( _.contains(initGauls, parseInt(this.code)) )
-						$sel.append($("<option "+selezionato+" />").val(this.code).text(this.name));
+						$sel.append($("<option "+selezionato+" />")
+							.val(this.code)
+							.text(countries_tables[this.code].name || this.name));
 				});
 
 				$('#countries').chosen({max_selected_options: 1});
