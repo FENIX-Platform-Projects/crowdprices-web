@@ -15,14 +15,24 @@ $( document ).ready(function() {
 	var WDSURI5 = 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/';
 	var DATASOURCE = "CROWD";
 
-	var initLatLon = [13.453 , -16.578];
-	var initGauls = [90,45];
+	//var initLatLon = [13.453 , -16.578];
+	var initGauls = [90,1,45];
 	var nations = 90;
 
 	var countries_tables = {
-		"90": "data", // data_gambia
-		"45": "data", // data_cameroon
-		"122": "data"	//italy test
+		"1": { // afganistan demo
+			"table": "data",
+			"currency": "USD"
+		},
+		"90": {	//gambia
+			"table": "data",
+			"currency": "GMD"
+		},
+		"45": { //cameroon
+			"table": "data",
+			"currency": "CFA"
+		}
+
 	}
 
 	var allMarketName = [];
@@ -82,7 +92,7 @@ $( document ).ready(function() {
 			checkedItems = [];
 
 		munit = "Kg"
-		currency = "USD";
+		currency = countries_tables["90"].currency;
 
 		allMarketName = [];
 		//
@@ -156,16 +166,18 @@ $( document ).ready(function() {
 				//console.log('getCountries', data);
 
 				$.each(data.gaul0s, function() {
+					var selezionato = ""
+					if (parseInt(this.code) === nations) selezionato = "selected";
 					if( _.contains(initGauls, parseInt(this.code)) )
-						$sel.append($("<option />").val(this.code).text(this.name));
+						$sel.append($("<option "+selezionato+" />").val(this.code).text(this.name));
 				});
 
 				$('#countries').chosen({max_selected_options: 1});
 
 				$('#countries').on('change', function(evt, params) {
-					
+
 					nations = evt.currentTarget.value;
-				
+
 					getMarkets(true);
 
 					//populateUI();
@@ -173,8 +185,8 @@ $( document ).ready(function() {
 
 					resizeChosen();
 
-				}).trigger('chosen:updated');
-				$('#countries');
+				}).trigger('chosen:updated').trigger("changed");
+				//$('#countries');
 
 				counterUI++;
 				
@@ -200,7 +212,7 @@ $( document ).ready(function() {
 			});
 
 
-			$('#markets').chosen({max_selected_options: 5});
+			//$('#markets').chosen({max_selected_options: 5});
 			$('#markets').on('change', function(evt, params) {
 				updateDates();
 				updateValues();
@@ -370,7 +382,7 @@ $( document ).ready(function() {
 
 			$.each(names, function (i, name) {
 				
-				var table = countries_tables[ nations ],
+				var table = countries_tables[nations].table,
 					sQuery = "SELECT id, gaul0code, citycode, marketcode, munitcode, currencycode, commoditycode, varietycode, price, quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, geo "+
 							"FROM "+ table + " "+
 							"WHERE gaul0code = ANY('{"+nations.toString()+"}') AND marketcode=ANY('{"+marketcode+"}') AND commoditycode='"+commodityItem[i]+"' ";
@@ -497,7 +509,7 @@ $( document ).ready(function() {
 
 		var allDatas = [];
 
-		var table = countries_tables[ nations ],
+		var table = countries_tables[ nations ].table,
 			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
 			"FROM "+table+", city, commodity, market "+
 			"WHERE "+table+".citycode = city.code AND CAST ("+table+".commoditycode as INT) = commodity.code AND "+table+".gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND "+table+".marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST("+table+".marketcode AS INT) = market.code";
@@ -506,7 +518,7 @@ $( document ).ready(function() {
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		//console.log("Q:"+qString);
+		console.log("Q:"+qString);
 
 		$.ajax({
 
@@ -958,7 +970,6 @@ $( document ).ready(function() {
 		});
 
 		map = L.map('map-cluster', {
-		 	center: initLatLon,
 			attributionControl: false,
 			markerZoomAnimation: true,
 			layers: [tiles],
