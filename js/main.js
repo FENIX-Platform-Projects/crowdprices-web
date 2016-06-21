@@ -13,12 +13,17 @@ $( document ).ready(function() {
 	// WDS
 	var WDSURI =  "http://fenixapps2.fao.org/wds-5.2.1/rest/crud/";
 	var WDSURI5 = 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/';
-	
 	var DATASOURCE = "CROWD";
 
 	var initLatLon = [13.453 , -16.578];
-	var initGaul = 90;
-	var nations = [90];
+	var initGauls = [90,45];
+	var nations = 90;
+
+	var countries_tables = {
+		"90": "data", // data_gambia
+		"45": "data", // data_cameroon
+		"122": "data"	//italy test
+	}
 
 	var allMarketName = [];
 
@@ -68,20 +73,9 @@ $( document ).ready(function() {
 		//console.log(ret);
 		return ret;
 	}
-	
-	function updateNations() {
-		var countries = $("#countries").chosen().val();
-		nations = countries;
-		getMarkets(true);
-
-		//populateUI();
-		updateValues();
-		resizeChosen();
-	}
 
 	function updateValues() {					
 		var items = $("#commodity").chosen().val(),
-			countries = $("#countries").chosen().val(),
 			markets = $("#markets").chosen().val(),
 			checkedNames = [],
 			checkedMaps  = "",
@@ -89,7 +83,7 @@ $( document ).ready(function() {
 
 		munit = "Kg"
 		currency = "USD";
-		nations = countries;
+
 		allMarketName = [];
 		//
 
@@ -127,6 +121,7 @@ $( document ).ready(function() {
 		$.getJSON( globalURI+'auto.commodity?_output=json', function(data) {
 			var sel = $("#commodity");
 			var first = "";
+
 			$.each(data.commoditys, function() {
 				if(this.code == 38) first = "selected";
 					sel.append($("<option "+first+" />").val(this.code).text(this.name));
@@ -135,39 +130,56 @@ $( document ).ready(function() {
 			$('#commodity').chosen({max_selected_options: 10});
 			
 			//updateValues();
+
 			$('#commodity').on('change', function(evt, params) {
 				//console.log("udadas");
 				updateDates();
 				updateValues();
 				}).trigger('chosen:updated');
-			$('#commodity');
+
 			counterUI++;				
 			
 			getCountries(false);
 		});
 	}
 
-	function getCountries(clearall) {
-		$.getJSON( globalURI+'auto.gaul0?_output=json', function(data) {
-			var sel = $("#countries");
-			var count = 2;
-			data.gaul0s.reverse();
+	function getCountries() {
 
-			$.each(data.gaul0s, function() {
-				if(this.code == initGaul)
-					sel.append($("<option />").val(this.code).text(this.name));
-			});
+		var $sel = $("#countries");
 
-			$('#countries').chosen({max_selected_options: 1});
-			$('#countries').on('change', function(evt, params) {
-				updateNations();
-			}).trigger('chosen:updated');
-			$('#countries');
+		$.ajax({
+			url: globalURI+'auto.gaul0?_output=json', 
+			async: false,
+			dataType: "json",
+			success: function(data) {
 
-			counterUI++;
-			
-			getMarkets(false);
+				//console.log('getCountries', data);
 
+				$.each(data.gaul0s, function() {
+					if( _.contains(initGauls, parseInt(this.code)) )
+						$sel.append($("<option />").val(this.code).text(this.name));
+				});
+
+				$('#countries').chosen({max_selected_options: 1});
+
+				$('#countries').on('change', function(evt, params) {
+					
+					nations = evt.currentTarget.value;
+				
+					getMarkets(true);
+
+					//populateUI();
+					updateValues();
+
+					resizeChosen();
+
+				}).trigger('chosen:updated');
+				$('#countries');
+
+				counterUI++;
+				
+				getMarkets(false);
+			}
 		});
 
 	}
@@ -177,7 +189,7 @@ $( document ).ready(function() {
 			$("#markets").empty();
 			$('#markets').chosen("destroy");
 		}
-		$.getJSON( globalURI+'auto.market?_output=json&gaul0='+nations, function(data) {
+		$.getJSON( globalURI+'auto.market?_output=json&gaul0='+nations.toString(), function(data) {
 			var sel = $("#markets");
 			var first = "selected";
 			//	data.markets.reverse();
@@ -193,7 +205,7 @@ $( document ).ready(function() {
 				updateDates();
 				updateValues();
 			}).trigger('chosen:updated');
-			$('#markets');
+
 			updateValues();
 
 			counterUI++;
@@ -206,276 +218,270 @@ $( document ).ready(function() {
 
 	
 	function updateChart() {
-			console.log("updateChart");
-			var seriesOptions1 = [],
-				seriesOptions2 = [],
-				seriesOptions3 = [],
-				seriesCounter = 0,
-				names = commodityName,
-				createChart1 = function (item) {
-					item.highcharts('StockChart', {
-						
-						rangeSelector: {
-							selected: 4
-						},
-						colors: [ //Colori delle charts
-							'#3faaaa',
-							'#76BE94',
-							'#744490',
-							'#E10079',
-							'#2D1706',
-							'#F1E300',
-							'#F7AE3C',
-							'#DF3328'
-						],
-						title: {
-							text: 'Daily Prices',
-							style: {
-								fontFamily: "Roboto",
-								fontSize: '12px'
-							}
-						},
-						
-						credits: false,
-						
-						yAxis: {
-							labels: {
-								formatter: function () {
-									return (this.value > 0 ? ' + ' : '') + this.value + '%'
-								},
-								style: {
-									fontFamily: "Roboto",
-									fontSize: '10px'
-								}
-
-							},
-							plotLines: [{
-								value: 0,
-								width: 2,
-								color: 'silver'
-							}]
-						},
 		
-						plotOptions: {
-							series: {
-								compare: 'percent'
-							},
-							series: {
+		console.log("updateChart");
 
-							}
-						},
-		
-						tooltip: {
-							pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} '+currency+'/'+munit+'</b> ({point.change}%) <br/>',
-							valueDecimals: 2
-						},
-						
-						series: seriesOptions1
-					});
-					//	console.log(seriesOptions1)
-				},
-				createChart2 = function (item) {
-		
-					item.highcharts({
-						chart: {
-							type: 'column'
-						},
-						colors: [ //Colori delle charts
-							'#3faaaa',
-							'#76BE94',
-							'#744490',
-							'#E10079',
-							'#2D1706',
-							'#F1E300',
-							'#F7AE3C',
-							'#DF3328'
-						],
-						title: {
-							text: 'Average Prices',
-
-							style: {
-								fontFamily: "Roboto",
-								fontSize: '12px'
-							}
-
-						},
-						xAxis: {
-							title: {
-								text: null
-							},
-							labels: {
-								enabled: false
-							}
-						},
-						
-						credits: false,
-						
-						yAxis: {
-							labels: {
-								formatter: function () {
-									return this.value + ' ';
-								},
-								style: {
-									fontFamily: "Roboto",
-									fontSize: '10px'
-								}
-							},
-							plotLines: [{
-								value: 0,
-								width: 2,
-								color: 'silver'
-							}]
-						},
-						tooltip: {
-							pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} '+currency+'/'+munit+'</b> <br/>',
-							valueDecimals: 2
-						},
-						plotOptions: {
-							column: {
-								pointPadding: 0.2,
-								borderWidth: 0,
-
-							},
-							series: {
-
-							}
-						},
-						
-						series: seriesOptions2
-					});
-				}
-			//console.log(startDate,endDate);
-			var index = -1;
-			var indexName = allMarketName.length;
-			//console.log("prev "+indexName)
-			//console.log("prev "+allMarketName.toString())
-
-			$.each(checkedMarkets, function(h,marketcode){
-				indexName--;
-				//console.log("allMarketName: "+allMarketName[indexName]);
-
-				if ((startDate !== undefined)&&(endDate !== undefined)) {
-					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+')&marketcode=('+marketcode+')&date=>'+startDate+'&date=<'+endDate+"&commoditycode=";
-				} else {
-					var baseURI1 = globalURI+"auto.dataweb?gaul0code=("+nations+")&marketcode=("+marketcode+")&commoditycode=";
-				}
-				var baseURI2 = globalURI+"auto.market?_output=json";
-				//console.log(baseURI1);
-				// baseURI+commodityItem[i]+"&_output=json"
-				$.each(names, function (i, name) {
-
-					var sQuery = "SELECT data.id, data.gaul0code, data.citycode, data.marketcode, data.munitcode, data.currencycode, data.commoditycode, data.varietycode, data.price, data.quantity, data.untouchedprice, data.fulldate, data.note, data.userid, data.vendorname, data.vendorcode, data.lat, data.lon, data.geo FROM data WHERE gaul0code=ANY('{"+nations+"}') and marketcode=ANY('{"+marketcode+"}') and commoditycode='"+commodityItem[i]+"' ";
-					sQuery = sQuery + " ORDER BY fulldate";
-					//console.log("sQuery "+sQuery);
-					$.ajax({
-						url: WDSURI5,
-						type: 'POST',
-						data: {
-							datasource: 'CROWD',
-							query: sQuery,
-							outputType: 'array'
-						},
-						success: function (response) {
-							//console.log(response);
-							var data = JSON.parse(response);
-							var resultdata = [];
-							var averagedata = [];
-							var j = 0;
-							var aggregated = 0;
-
-							var output = {datas:[]};
-							$.each(data, function(index,element){
-
-								output.datas.push({
-									"id": element[0],
-									"gaul0code": element[1],
-									"citycode": element[2],
-									"marketcode": element[3],
-									"munitcode": element[4],
-									"currencycode": element[5],
-									"commoditycode": element[6],
-									"varietycode": element[7],
-									"price": element[8],
-									"untouchedprice": element[9],
-									"fulldate": element[10],
-									"note": element[11],
-									"userid": element[12],
-									"vendorname": element[13],
-									"vendorcode": element[14],
-									"lat": element[15],
-									"lon": element[16],
-									"geo": element[17]
-								});
-								//console.log(element)
-							});
-
-
-
-							 $.each(data, function() {
-								 tmpArray = new Array(2)
-								 //tmpArray[0] = new Date(this.fulldate).getTime();
-								 var str = this[11];
-								 str = str.substring(0, str.length - 2);
-								 str = str.replace(/-/g,"/");
-								 var dateObject = new Date(str);
-								 tmpArray[0] = dateObject.getTime();
-								 tmpArray[1] = parseFloat(this[8])/parseFloat(this[9]);
-								 tmpArray[2] = this[14];
-
-
-								 resultdata.push(tmpArray);
-								 j++;
-								 aggregated = aggregated + parseFloat(this[8]);
-							 });
-
-							 startDate = data[0][11];
-							 endDate =  data[j-1][11];
-
-							 temArray = new Array(1);
-							 //temArray[0] = new Date().getTime();
-							 temArray[1] = ( aggregated / j );
-							 if (temArray[1] >1) averagedata.push(temArray);
-
-							//console.log(data);
-							//getMarkers(data);
-
-
-							//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
-							index++;
-
-							seriesOptions1[index] = {
-								name: name + " @ " + allMarketName[h],
-								data: resultdata
-							};
-
-							seriesOptions2[index] = {
-								name: name +" (Avg)" + " @ " + allMarketName[h],
-								data: averagedata,
-								type: 'column'
-							};
-
-
-						},
-						error: function (a) {
-							console.log("KO:"+a.responseText);
-							return null;
+		var seriesOptions1 = [],
+			seriesOptions2 = [],
+			seriesOptions3 = [],
+			seriesCounter = 0,
+			names = commodityName,
+			createChart1 = function (item) {
+				item.highcharts('StockChart', {
+					
+					rangeSelector: {
+						selected: 4
+					},
+					colors: [ //Colori delle charts
+						'#3faaaa',
+						'#76BE94',
+						'#744490',
+						'#E10079',
+						'#2D1706',
+						'#F1E300',
+						'#F7AE3C',
+						'#DF3328'
+					],
+					title: {
+						text: 'Daily Prices',
+						style: {
+							fontFamily: "Roboto",
+							fontSize: '12px'
 						}
-					});
-				});
+					},
+					
+					credits: false,
+					
+					yAxis: {
+						labels: {
+							formatter: function () {
+								return (this.value > 0 ? ' + ' : '') + this.value + '%'
+							},
+							style: {
+								fontFamily: "Roboto",
+								fontSize: '10px'
+							}
 
-			});
+						},
+						plotLines: [{
+							value: 0,
+							width: 2,
+							color: 'silver'
+						}]
+					},
+	
+					plotOptions: {
+						series: {
+							compare: 'percent'
+						},
+						series: {
+
+						}
+					},
+	
+					tooltip: {
+						pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} '+currency+'/'+munit+'</b> ({point.change}%) <br/>',
+						valueDecimals: 2
+					},
+					
+					series: seriesOptions1
+				});
+				//	console.log(seriesOptions1)
+			},
+			createChart2 = function (item) {
+	
+				item.highcharts({
+					chart: {
+						type: 'column'
+					},
+					colors: [ //Colori delle charts
+						'#3faaaa',
+						'#76BE94',
+						'#744490',
+						'#E10079',
+						'#2D1706',
+						'#F1E300',
+						'#F7AE3C',
+						'#DF3328'
+					],
+					title: {
+						text: 'Average Prices',
+
+						style: {
+							fontFamily: "Roboto",
+							fontSize: '12px'
+						}
+
+					},
+					xAxis: {
+						title: {
+							text: null
+						},
+						labels: {
+							enabled: false
+						}
+					},
+					
+					credits: false,
+					
+					yAxis: {
+						labels: {
+							formatter: function () {
+								return this.value + ' ';
+							},
+							style: {
+								fontFamily: "Roboto",
+								fontSize: '10px'
+							}
+						},
+						plotLines: [{
+							value: 0,
+							width: 2,
+							color: 'silver'
+						}]
+					},
+					tooltip: {
+						pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} '+currency+'/'+munit+'</b> <br/>',
+						valueDecimals: 2
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0,
+
+						},
+						series: {
+
+						}
+					},
+					
+					series: seriesOptions2
+				});
+			}
+		//console.log(startDate,endDate);
+		var index = -1;
+		var indexName = allMarketName.length;
+		//console.log("prev "+indexName)
+		//console.log("prev "+allMarketName.toString())
+
+		$.each(checkedMarkets, function(h,marketcode){
+			indexName--;
+			//console.log("allMarketName: "+allMarketName[indexName]);
+
+			$.each(names, function (i, name) {
+				
+				var table = countries_tables[ nations ],
+					sQuery = "SELECT id, gaul0code, citycode, marketcode, munitcode, currencycode, commoditycode, varietycode, price, quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, geo "+
+							"FROM "+ table + " "+
+							"WHERE gaul0code = ANY('{"+nations.toString()+"}') AND marketcode=ANY('{"+marketcode+"}') AND commoditycode='"+commodityItem[i]+"' ";
+
+				sQuery = sQuery + " ORDER BY fulldate";
 			
-			
-			$(document).ajaxStop(function () { 				
-				//console.log("ajaxStop");
-				//console.log(seriesOptions1);
-				//console.log(seriesOptions2);
-				//console.log(seriesOptions3);
-				createChart1($('#hi-stock1'));
-				createChart2($('#hi-stock2'));
-				if (!isInit) initSlider();
+				$.ajax({
+					url: WDSURI5,
+					type: 'POST',
+					data: {
+						datasource: 'CROWD',
+						query: sQuery,
+						outputType: 'array'
+					},
+					success: function (response) {
+						
+						//console.log(response);
+
+						var data = JSON.parse(response);
+						var resultdata = [];
+						var averagedata = [];
+						var j = 0;
+						var aggregated = 0;
+
+						if(data.length===0)
+							return;
+
+						var output = {datas:[]};
+						$.each(data, function(index,element){
+
+							output.datas.push({
+								"id": element[0],
+								"gaul0code": element[1],
+								"citycode": element[2],
+								"marketcode": element[3],
+								"munitcode": element[4],
+								"currencycode": element[5],
+								"commoditycode": element[6],
+								"varietycode": element[7],
+								"price": element[8],
+								"untouchedprice": element[9],
+								"fulldate": element[10],
+								"note": element[11],
+								"userid": element[12],
+								"vendorname": element[13],
+								"vendorcode": element[14],
+								"lat": element[15],
+								"lon": element[16],
+								"geo": element[17]
+							});
+							//console.log(element)
+						});
+
+
+
+						 $.each(data, function() {
+							 tmpArray = new Array(2)
+							 //tmpArray[0] = new Date(this.fulldate).getTime();
+							 var str = this[11];
+							 str = str.substring(0, str.length - 2);
+							 str = str.replace(/-/g,"/");
+							 var dateObject = new Date(str);
+							 tmpArray[0] = dateObject.getTime();
+							 tmpArray[1] = parseFloat(this[8])/parseFloat(this[9]);
+							 tmpArray[2] = this[14];
+
+
+							 resultdata.push(tmpArray);
+							 j++;
+							 aggregated = aggregated + parseFloat(this[8]);
+						 });
+
+						 startDate = data[0][11];
+						 endDate =  data[j-1][11];
+
+						 temArray = new Array(1);
+						 //temArray[0] = new Date().getTime();
+						 temArray[1] = ( aggregated / j );
+						 if (temArray[1] >1) averagedata.push(temArray);
+
+						//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
+						index++;
+
+						seriesOptions1[index] = {
+							name: name + " @ " + allMarketName[h],
+							data: resultdata
+						};
+
+						seriesOptions2[index] = {
+							name: name +" (Avg)" + " @ " + allMarketName[h],
+							data: averagedata,
+							type: 'column'
+						};
+
+
+					},
+					error: function (a) {
+						console.log("KO:"+a.responseText);
+						return null;
+					}
+				});
 			});
+
+		});
 		
+		
+		$(document).ajaxStop(function () { 				
+			createChart1($('#hi-stock1'));
+			createChart2($('#hi-stock2'));
+			if (!isInit) initSlider();
+		});
 	}
 	
 	function findAndReplace(object, target, value, replacevalue){
@@ -487,17 +493,18 @@ $( document ).ready(function() {
 	
 
 	function createTable() {
-		var allDatas = [];
 		console.log("createTable");
-		if (tableIsInit) {
-			//console.log("!createTable3");
-			//return;
-		}
-		var qString = "SELECT data.gaul0code, data.vendorname as vendorname, data.citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, data.marketcode, data.quantity, data.userid FROM public.data, public.city, public.commodity, public.market WHERE data.citycode = city.code AND CAST (data.commoditycode as INT)  = commodity.code AND data.gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND data.marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST(data.marketcode AS INT) = market.code";
-		//var qString = "SELECT data.gaul0code, commodity.code as commocode, city.name as citycode, market.name as marketcode, data.vendorname, commodity.name as commoditycode, data.price, data.quantity, data.fulldate FROM data, city, vendor, market, commodity WHERE data.citycode = city.code AND CAST(data.marketcode AS INT) = market.code AND data.gaul0code='45' AND commodity.code = ANY('{"+commodityItem.toString()+"}') ORDER BY fulldate ";
+
+		var allDatas = [];
+
+		var table = countries_tables[ nations ],
+			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
+			"FROM "+table+", city, commodity, market "+
+			"WHERE "+table+".citycode = city.code AND CAST ("+table+".commoditycode as INT) = commodity.code AND "+table+".gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND "+table+".marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST("+table+".marketcode AS INT) = market.code";
+		
 		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		//qString = qString + "limit 100";
-		qString = qString + " ORDER BY data.fulldate DESC ";
+		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
 		//console.log("Q:"+qString);
 
@@ -616,6 +623,7 @@ $( document ).ready(function() {
 
 	function updateDates() {
 		console.log(" updateDates "+isInit);
+
 		var squery = "select min(fulldate) as startDate, max(fulldate) as endDate from data WHERE marketcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")";
 		$.ajax({
 			type: 'GET',
@@ -694,63 +702,6 @@ $( document ).ready(function() {
 			//$("#slider").dateRangeSlider("destroy");
 			console.log("Dates added");
 		}
-	}
-
-
-	function getMarkers(dataarray) {
-
-		var allMarkers = [];
-		var uniqueMarkers = [];
-		
-		if (dataarray != null) {
-			/*
-			var allData = dataarray.sort(function(a, b) {
-				return parseInt(a['marketcode']) - parseInt(b['marketcode']);
-			});
-			*/
-			var allData = dataarray;
-
-			//console.log(allData);
-
-			var uniqueVendors = [];
-			var uniqueLat = [];
-			var uniqueLon = [];
-			var uniqueCommody = [];
-			
-			allAddressPoints = [];
-			
-			$.each(allData, function(f,k){
-				//console.log(k.commoditys[0].name);
-				var temp = [];	
-				temp.push(k[16]);
-				temp.push(k[17]);
-				temp.push(k[14]);
-				//temp.push(k.commoditys[0].name)
-				allMarkers.push(temp);
-			});
-
-			$.each(allMarkers, function(i, el){	
-				//if($.inArray(el, uniqueVendors) === -1) uniqueVendors.push(el);
-				if($.inArray(el[2], uniqueVendors) === -1) {				
-					uniqueLat.push(el[0]);
-					uniqueLon.push(el[1]);
-					uniqueVendors.push(el[2]);
-					uniqueCommody.push(el[3]);
-				}
-			});
-			
-			$.each(uniqueVendors, function (f,k) {
-				var temp = [];	
-				temp.push(new L.LatLng(uniqueLat[f], uniqueLon[f]));
-				temp.push(k);
-				temp.push(uniqueCommody[f]);
-				allAddressPoints.push(temp);
-			});
-			
-		} else {
-			allAddressPoints = [];
-		}
-
 	}
 
 	//http://stackoverflow.com/questions/24145205/writing-a-function-to-convert-a-circle-to-a-polygon-using-leaflet-js
@@ -854,7 +805,9 @@ $( document ).ready(function() {
 		
 	function updateMap() {
 
-		var URI = globalURI+'auto.vendor?gaul0=('+nations+')&code=('+checkedMarkets.toString()+')&_output=json';
+		console.log('updateMap',nations)
+
+		var URI = globalURI+'auto.vendor?gaul0=('+nations.toString()+')&code=('+checkedMarkets.toString()+')&_output=json';
 
 		if (markers != null) { 
 			map.removeLayer(markers);
@@ -888,7 +841,6 @@ $( document ).ready(function() {
 				if(filterPolygonWKT)
 					qString += " AND ST_contains(ST_GeomFromText('"+filterPolygonWKT+"',4326),geo)";
 
-				//console.log('QUERY updateMap', qString);
 
 				var avg = [],
 					avgS = "";
@@ -902,26 +854,27 @@ $( document ).ready(function() {
 							outputType: 'array'
 						},
 						success: function (response) {
+							
+							var noData = !!response[1][0];
 
-							if (response[1][0] !== null) {
+							if(noData)
+								avgS = "<br>" + parseFloat(response[1] ? response[1][0] : 0).toFixed(2)+ 
+									currency + "\/" + munit;
+							else
+								avgS = "";
 
-								avgS = " - " + 
-									parseFloat(response[1][0]).toFixed(2) +
-									currency + "\/" + 
-									munit;
+							vendors.push(k.name);
+							marketcode.push(k.code);
+							lats.push(k.lat);
+							lons.push(k.lon);
 
-								vendors.push(k.name);
-								marketcode.push(k.code);
-								lats.push(k.lat);
-								lons.push(k.lon);
+							var temp = [];
+							temp.push(k.lat);
+							temp.push(k.lon);
+							temp.push(k.name + avgS);
+							temp.push(noData);
 
-								var temp = [];
-								temp.push(k.lat);
-								temp.push(k.lon);
-								temp.push(k.name + avgS);
-
-								addressPoints.push(temp);
-							}
+							addressPoints.push(temp);
 
 							address++;
 							
@@ -951,7 +904,9 @@ $( document ).ready(function() {
 				});
 				
 				var existingPoints = [];
-				
+
+				console.log('refreshCluster',addressPoints)
+		
 				var latlng = L.latLng(addressPoints[0][0], addressPoints[0][1]);
 
 				for (var i = 0; i < addressPoints.length; i++)
@@ -959,7 +914,7 @@ $( document ).ready(function() {
 				  //console.log ("pop!");
 				  var a = addressPoints[i];
 
-				  var title = a[2].replace('-','<br>');
+				  var title = a[2];
 				  //console.log(a.toString());
 				  var cIcon = desatIcon;
 				  var position = new L.LatLng(a[0], a[1]);
@@ -969,8 +924,8 @@ $( document ).ready(function() {
 				  
 				  existingPoints.push(temp);
 
-				  var marker = L.marker(position, { icon: foundIcon });
-
+				  var marker = L.marker(position, { icon: a[3] ? foundIcon : desatIcon });
+					
 				  marker.bindPopup(title);
 
 				  marker.on('mouseover', function(e) {
@@ -978,8 +933,9 @@ $( document ).ready(function() {
 				  });
 
 				  markers.addLayer(marker);
-				}
 
+				}
+/*
 				var a1Lat = [];
 				var a1Lon = [];
 				var a2Lat = [];				  
@@ -991,7 +947,7 @@ $( document ).ready(function() {
 					a1Lon.push(allAddressPoints[k][0]['lng']);
 				}
 				for (var k = 0; k < existingPoints.length; k++) {
-				a2Lat.push(existingPoints[k][0]['lat']);
+					a2Lat.push(existingPoints[k][0]['lat']);
 					a2Lon.push(existingPoints[k][0]['lng']);
 				}
 
@@ -1008,6 +964,7 @@ $( document ).ready(function() {
 				  //marker.bindPopup(title);
 				  markers.addLayer(marker);						  
 				}
+*/
 
 				map.addLayer(markers);	
 				map.panTo(latlng);				 
@@ -1115,6 +1072,9 @@ $( document ).ready(function() {
 
 	}
 
+
+	initUI();
+
 	function updateView() {
 		updateMap();	
 		updateChart();	
@@ -1122,5 +1082,4 @@ $( document ).ready(function() {
 	}
 	
 	
-	initUI();
 });
