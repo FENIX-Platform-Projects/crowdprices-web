@@ -928,9 +928,10 @@ $( document ).ready(function() {
 
 							//console.log(data.vendors.length+" > "+address);
 
-							if (address >= globalMarkets.length) refreshCluster();
-
+							//if (address >= globalMarkets.length)
 					});
+
+					refreshCluster();
 
 					function refreshCluster() {
 						//console.log("refreshCluster inside UpdateMap");
