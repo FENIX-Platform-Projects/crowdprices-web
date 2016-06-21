@@ -893,7 +893,9 @@ $( document ).ready(function() {
 				//console.log("refreshCluster inside UpdateMap");
 				var desatIcon = L.icon({
 					iconUrl: 'img/marker-icon-none.png',
-					shadowUrl: 'img/marker-shadow.png'
+					shadowUrl: 'img/marker-shadow.png',
+					iconSize: L.point(109,109),
+					iconAncho: L.point(109,109)
 				});
 				
 				var foundIcon = L.icon({
