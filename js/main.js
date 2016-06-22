@@ -20,7 +20,7 @@ $( document ).ready(function() {
 
 	//var initLatLon = [13.453 , -16.578];
 	var initGauls = [90,1,45];
-	var nations = 90;
+	var nations = 1;
 
 	var countries_tables = {
 		"1": { // afganistan demo
@@ -95,7 +95,7 @@ $( document ).ready(function() {
 			checkedItems = [];
 
 		munit = "Kg"
-		currency = countries_tables["90"].currency;
+		currency = countries_tables[ ''+nations ].currency;
 
 		allMarketName = [];
 		//
@@ -143,7 +143,8 @@ $( document ).ready(function() {
 				var sel = $("#commodity");
 				var first = "";
 				$.each(response, function() {
-					if(this.code == 38) first = "selected";
+					if(this.code == 38)
+						first = "selected";
 					sel.append($("<option "+first+" />").val(this.code).text(this.name));
 					first = "";
 				});
@@ -190,7 +191,8 @@ $( document ).ready(function() {
 
 				$.each(data, function() {
 					var selezionato = "";
-					if (parseInt(this.code) === nations) selezionato = "selected";
+					if (parseInt(this.code) === nations)
+						selezionato = "selected";
 
 					if( _.contains(initGauls, parseInt(this.code)) )
 						$sel.append($("<option "+selezionato+" />")
