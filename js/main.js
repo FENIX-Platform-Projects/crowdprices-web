@@ -264,7 +264,7 @@ $( document ).ready(function() {
 			seriesOptions2 = [],
 			seriesOptions3 = [],
 			seriesCounter = 0,
-			names = commodityName,
+			items = commodityItem,
 			createChart1 = function (item) {
 				item.highcharts('StockChart', {
 					
@@ -397,139 +397,144 @@ $( document ).ready(function() {
 					series: seriesOptions2
 				});
 			}
-		//console.log(startDate,endDate);
-		var index = -1;
-		var indexName = allMarketName.length;
-		//console.log("prev "+indexName)
-		//console.log("prev "+allMarketName.toString())
+			var index = -1;
+			var commodityALL = "";
+			var indexName = allMarketName.length;
 
-		$.each(checkedMarkets, function(h,marketcode){
-			indexName--;
-			//console.log("allMarketName: "+allMarketName[indexName]);
+			//	$.each(checkedMarkets, function(h,marketcode){
+			//		indexName--;
+					//console.log("allMarketName: "+allMarketName[indexName]);
 
-			$.each(names, function (i, name) {
-				
-				var table = countries_tables[nations].table,
-					sQuery = "SELECT id, gaul0code, citycode, marketcode, munitcode, currencycode, commoditycode, varietycode, price, quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, geo "+
-							"FROM "+ table + " "+
-							"WHERE gaul0code = ANY('{"+nations.toString()+"}') AND marketcode=ANY('{"+marketcode+"}') AND commoditycode='"+commodityItem[i]+"' ";
+			$.each(items, function (i, name) {
+				commodityALL += items[i]+", ";
+			});
 
+			console.log(commodityALL.length);
+			commodityALL = commodityALL.substr(0, commodityALL.length-2);
+
+			var table  = countries_tables[nations].table,
+				sQuery = "SELECT id, gaul0code, citycode, marketcode, munitcode, currencycode, commoditycode, varietycode, price, quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, geo " +
+					"FROM "+ table + " "+
+					"WHERE gaul0code = '"+nations.toString()+"' AND marketcode IN ('" + _.compact(checkedMarkets).join("','") + "') AND commoditycode IN ("+commodityALL+") ";
+				/*
+				 FROM data
+				 WHERE gaul0code = '1'
+				 AND marketcode IN ('95','96','97','98','99','100','101','102','103','104')
+				 AND commoditycode IN ('36','35')
+				 ORDER BY marketcode, fulldate
+
+				sQuery = "SELECT id, gaul0code, citycode, marketcode, munitcode, currencycode, commoditycode, varietycode, price, quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, geo "+
+					"FROM "+ table + " "+
+					"WHERE gaul0code = '"+nations.toString()+"' AND marketcode='"+marketcode+"' AND commoditycode='"+commodityItem[i]+"' ";
+				 */
 
 				if (filterPolygonWKT)
 					sQuery += " AND ST_contains(ST_GeomFromText('" + filterPolygonWKT + "',4326),geo)";
 
 
 				sQuery = sQuery + " ORDER BY fulldate";
-			
-				$.ajax({
-					/*
-					url: WDSURI5,
-					type: 'POST',
-					data: {
-						datasource: 'CROWD',
-						query: sQuery,
-						outputType: 'array'
-					},
-					*/
-					type: 'GET',
-					url: WDSURI,
-					data: {
-						payload: '{"query": "'+sQuery+'"}',
-						datasource: DATASOURCE,
-						outputType: 'array'
-					},
 
-					success: function (response) {
-						
-						//console.log(response);
+				//console.log ("sQuery: "+sQuery);
 
-						//var data = JSON.parse(response);
-						var data = _.rest(response);
-						var resultdata = [];
-						var averagedata = [];
-						var j = 0;
-						var aggregated = 0;
+			$.ajax({
+				type: 'GET',
+				url: WDSURI,
+				data: {
+					payload: '{"query": "'+sQuery+'"}',
+					datasource: DATASOURCE,
+					outputType: 'array'
+				},
 
-						if(data.length===0)
-							return;
+				success: function (response) {
 
-						var output = {datas:[]};
-						$.each(data, function(index,element){
+					//console.log(response);
 
-							output.datas.push({
-								"id": element["id"],
-								"gaul0code": element["gaul0code"],
-								"citycode": element["citycode"],
-								"marketcode": element["marketcode"],
-								"munitcode": element["munitcode"],
-								"currencycode": element["currencycode"],
-								"commoditycode": element["commoditycode"],
-								"varietycode": element["varietycode"],
-								"price": element["price"],
-								"untouchedprice": element["untouchedprice"],
-								"fulldate": element["fulldate"],
-								"note": element["note"],
-								"userid": element["userid"],
-								"vendorname": element["vendorname"],
-								"vendorcode": element["vendorcode"],
-								"lat": element["lat"],
-								"lon": element["lon"],
-								"geo": element["geo"]
-							});
-							//console.log(element)
+					//var data = JSON.parse(response);
+					var data = _.rest(response);
+					var resultdata = [];
+					var averagedata = [];
+					var j = 0;
+					var aggregated = 0;
+
+					if(data.length===0)
+						return;
+
+					var output = {datas:[]};
+					$.each(data, function(index,element){
+
+						output.datas.push({
+							"id": element["id"],
+							"gaul0code": element["gaul0code"],
+							"citycode": element["citycode"],
+							"marketcode": element["marketcode"],
+							"munitcode": element["munitcode"],
+							"currencycode": element["currencycode"],
+							"commoditycode": element["commoditycode"],
+							"varietycode": element["varietycode"],
+							"price": element["price"],
+							"untouchedprice": element["untouchedprice"],
+							"fulldate": element["fulldate"],
+							"note": element["note"],
+							"userid": element["userid"],
+							"vendorname": element["vendorname"],
+							"vendorcode": element["vendorcode"],
+							"lat": element["lat"],
+							"lon": element["lon"],
+							"geo": element["geo"]
 						});
+						//console.log(element)
+					});
 
 
 
-						 $.each(data, function() {
-							 tmpArray = new Array(2)
-							 //tmpArray[0] = new Date(this.fulldate).getTime();
-							 var str = this[11];
-							 str = str.substring(0, str.length - 2);
-							 str = str.replace(/-/g,"/");
-							 var dateObject = new Date(str);
-							 tmpArray[0] = dateObject.getTime();
-							 tmpArray[1] = parseFloat(this[8])/parseFloat(this[9]);
-							 tmpArray[2] = this[14];
+					$.each(data, function() {
+						tmpArray = new Array(2)
+						//tmpArray[0] = new Date(this.fulldate).getTime();
+						var str = this[11];
+						str = str.substring(0, str.length - 2);
+						str = str.replace(/-/g,"/");
+						var dateObject = new Date(str);
+						tmpArray[0] = dateObject.getTime();
+						tmpArray[1] = parseFloat(this[8])/parseFloat(this[9]);
+						tmpArray[2] = this[14];
 
 
-							 resultdata.push(tmpArray);
-							 j++;
-							 aggregated = aggregated + parseFloat(this[8]);
-						 });
+						resultdata.push(tmpArray);
+						j++;
+						aggregated = aggregated + parseFloat(this[8]);
+					});
 
-						 startDate = data[0][11];
-						 endDate =  data[j-1][11];
+					startDate = data[0][11];
+					endDate =  data[j-1][11];
 
-						 temArray = new Array(1);
-						 //temArray[0] = new Date().getTime();
-						 temArray[1] = ( aggregated / j );
-						 if (temArray[1] >1) averagedata.push(temArray);
+					temArray = new Array(1);
+					//temArray[0] = new Date().getTime();
+					temArray[1] = ( aggregated / j );
+					if (temArray[1] >1) averagedata.push(temArray);
 
-						//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
-						index++;
+					//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
+					index++;
 
-						seriesOptions1[index] = {
-							name: name + " @ " + allMarketName[h],
-							data: resultdata
-						};
+					seriesOptions1[index] = {
+						name: name + " @ " + allMarketName[h],
+						data: resultdata
+					};
 
-						seriesOptions2[index] = {
-							name: name +" (Avg)" + " @ " + allMarketName[h],
-							data: averagedata,
-							type: 'column'
-						};
+					seriesOptions2[index] = {
+						name: name +" (Avg)" + " @ " + allMarketName[h],
+						data: averagedata,
+						type: 'column'
+					};
 
 
-					},
-					error: function (a) {
-						console.log("KO:"+a.responseText);
-						return null;
-					}
-				});
+				},
+				error: function (a) {
+					console.log("KO:"+a.responseText);
+					return null;
+				}
 			});
 
-		});
+	//	});
 		
 		
 		$(document).ajaxStop(function () { 				
@@ -561,7 +566,7 @@ $( document ).ready(function() {
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		console.log("Q:"+qString);
+		//console.log("Q:"+qString);
 
 		$.ajax({
 /*
@@ -1111,7 +1116,7 @@ $( document ).ready(function() {
 			drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
 			updateMap();
-			updateChart();
+			//updateChart();
 			
 		})
 		.on('draw:deleted', function (e) {
@@ -1119,7 +1124,7 @@ $( document ).ready(function() {
 			drawnItems.clearLayers();
 			filterPolygonWKT = '';
 			updateMap();
-			updateChart();
+			//updateChart();
 		});
 	}
 
@@ -1128,7 +1133,7 @@ $( document ).ready(function() {
 
 	function updateView() {
 		updateMap();	
-		updateChart();	
+		//updateChart();
 		createTable();
 	}
 	
