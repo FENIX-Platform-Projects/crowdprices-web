@@ -14,8 +14,6 @@ $( document ).ready(function() {
 	
 	// WDS
 		WDSURI = 'http://fenixapps2.fao.org/wds-5.2.1/rest/crud/',
-		WDSURI5 = WDSURI,
-		//WDSURI5 = 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
 		DATASOURCE = "CROWD",
 		countries_tables = {
 			"1": { // afganistan demo
@@ -441,38 +439,36 @@ $( document ).ready(function() {
 						resultdata = [],
 						aggregated = 0,
 						j = 0;
-						
+
 					if(data.length===0)
 						return;
 
 					var output = {datas:[]};
 
-					$.each(data, function(index,element){
+					$.each(data, function(k,v){
 
 						output.datas.push({
-							"id": element["id"],
-							"gaul0code": element["gaul0code"],
-							"citycode": element["citycode"],
-							"marketcode": element["marketcode"],
-							"munitcode": element["munitcode"],
-							"currencycode": element["currencycode"],
-							"commoditycode": element["commoditycode"],
-							"varietycode": element["varietycode"],
-							"price": element["price"],
-							"untouchedprice": element["untouchedprice"],
-							"fulldate": element["fulldate"],
-							"note": element["note"],
-							"userid": element["userid"],
-							"vendorname": element["vendorname"],
-							"vendorcode": element["vendorcode"],
-							"lat": element["lat"],
-							"lon": element["lon"],
-							"geo": element["geo"]
+							"id": v["id"],
+							"gaul0code": v["gaul0code"],
+							"citycode": v["citycode"],
+							"marketcode": v["marketcode"],
+							"munitcode": v["munitcode"],
+							"currencycode": v["currencycode"],
+							"commoditycode": v["commoditycode"],
+							"varietycode": v["varietycode"],
+							"price": v["price"],
+							"untouchedprice": v["untouchedprice"],
+							"fulldate": v["fulldate"],
+							"note": v["note"],
+							"userid": v["userid"],
+							"vendorname": v["vendorname"],
+							"vendorcode": v["vendorcode"],
+							"lat": v["lat"],
+							"lon": v["lon"],
+							"geo": v["geo"]
 						});
 						//console.log(element)
 					});
-
-
 
 					$.each(data, function() {
 						tmpArray = new Array(2)
@@ -497,19 +493,19 @@ $( document ).ready(function() {
 					temArray = new Array(1);
 					//temArray[0] = new Date().getTime();
 					temArray[1] = ( aggregated / j );
-					if (temArray[1] >1) averagedata.push(temArray);
+					
+					if(temArray[1]>1)
+						averagedata.push(temArray);
 
 					_.each(checkedMarkets, function(value, key) {
-						//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
-						index++;
 
-						seriesOptions1[index] = {
-							name: name + " @ ",//+ allMarketName[h],
+						seriesOptions1[key] = {
+							name: name + " @ "+ allMarketName[key],
 							data: resultdata
 						};
 
-						seriesOptions2[index] = {
-							name: name +" (Avg)" + " @ ",// + allMarketName[h],
+						seriesOptions2[key] = {
+							name: name +" (Avg)" + " @ "+ allMarketName[key],
 							data: averagedata,
 							type: 'column'
 						};
@@ -881,7 +877,7 @@ $( document ).ready(function() {
 			var table = countries_tables[nations].table,
 			//  AND date>='2015-12-01' AND date<= '2015-12-31'
 				qString = "SELECT AVG(price), COUNT(price), marketcode " +
-					" FROM " + table +
+					" FROM " + table + " "+
 					" WHERE marketcode IN ('" + _.compact(checkedMarkets).join("','") + "') ";
 
 			if (startDate && endDate)
