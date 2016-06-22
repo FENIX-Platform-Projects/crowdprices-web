@@ -413,6 +413,11 @@ $( document ).ready(function() {
 							"FROM "+ table + " "+
 							"WHERE gaul0code = ANY('{"+nations.toString()+"}') AND marketcode=ANY('{"+marketcode+"}') AND commoditycode='"+commodityItem[i]+"' ";
 
+
+				if (filterPolygonWKT)
+					sQuery += " AND ST_contains(ST_GeomFromText('" + filterPolygonWKT + "',4326),geo)";
+
+
 				sQuery = sQuery + " ORDER BY fulldate";
 			
 				$.ajax({
@@ -1082,10 +1087,13 @@ console.log(noData)
 			drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
 			updateMap();
+			updateChart();
+			
 		})
 		.on('draw:deleted', function (e) {
 			console.log('DRAW deleted')
 			drawnItems.clearLayers();
+			filterPolygonWKT = '';
 		});
 	}
 
