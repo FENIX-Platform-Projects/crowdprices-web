@@ -1,42 +1,38 @@
 $( document ).ready(function() {
-	var itemToInit = 3;
-	var counterUI = 0;
-	var map = null;
-	var mapInit = false;
-
-	var markers = null;
-	var munit = "Kg";
-	var currency = "USD";
-	var allAddressPoints = [];
-	var globalMarkets;
+	var itemToInit = 3,
+		counterUI = 0,
+		map = null,
+		mapInit = false,
+		markers = null,
+		munit = "Kg",
+		currency = "USD",
+		allAddressPoints = [],
+		globalMarkets;
 	
-	var globalURI = "http://fenix.fao.org/restsql-0.8.8/res/";
-	//PROD var globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/";
+	var globalURI = "http://fenix.fao.org/restsql-0.8.8/res/",
+	//PROD globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/";
 	
 	// WDS
-	var WDSURI =  "http://fenixapps2.fao.org/wds-5.2.1/rest/crud/";
-	var WDSURI5 = 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/';
-	var DATASOURCE = "CROWD";
-
-	//var initLatLon = [13.453 , -16.578];
+		WDSURI = 'http://fenixapps2.fao.org/wds-5.2.1/rest/crud/',
+		WDSURI5 = 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
+		DATASOURCE = "CROWD",
+		countries_tables = {
+			"1": { // afganistan demo
+				"name": "Demo",
+				"table": "data",
+				"currency": "USD"
+			},
+			"90": {
+				"table": "data",
+				"currency": "GMD"
+			},
+			"45": {
+				"table": "data",
+				"currency": "CFA"
+			}
+		};
 	var initGauls = [90,1,45];
 	var nations = 1;
-
-	var countries_tables = {
-		"1": { // afganistan demo
-			"name": "Demo",
-			"table": "data",
-			"currency": "USD"
-		},
-		"90": {
-			"table": "data",
-			"currency": "GMD"
-		},
-		"45": {
-			"table": "data",
-			"currency": "CFA"
-		}
-	};
 
 	var allMarketName = [];
 
