@@ -1047,7 +1047,8 @@ console.log(noData)
 				}					
 			},
 			edit: {
-				featureGroup: drawnItems
+				featureGroup: drawnItems,
+				edit: false
 			}
 		};
 
