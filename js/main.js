@@ -537,8 +537,8 @@ $( document ).ready(function() {
 
 		var table = countries_tables[ nations ].table,
 			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
-			"FROM "+table+", city, commodity, market "+
-			"WHERE "+table+".citycode = city.code AND CAST ("+table+".commoditycode as INT) = commodity.code AND "+table+".gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND "+table+".marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST("+table+".marketcode AS INT) = market.code";
+				"FROM "+table+", city, commodity, market "+
+				"WHERE "+table+".citycode = city.code AND CAST ("+table+".commoditycode as INT) = commodity.code AND "+table+".gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND "+table+".marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST("+table+".marketcode AS INT) = market.code";
 		
 		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		//qString = qString + "limit 100";
@@ -865,7 +865,8 @@ $( document ).ready(function() {
 				qString += " AND date>='" + startDate + "'" +
 					" AND date<= '" + endDate + "'";
 
-			if (filterPolygonWKT) qString += " AND ST_contains(ST_GeomFromText('" + filterPolygonWKT + "',4326),geo)";
+			if (filterPolygonWKT)
+				qString += " AND ST_contains(ST_GeomFromText('" + filterPolygonWKT + "',4326),geo)";
 
 			qString += " GROUP BY marketcode ORDER BY marketcode";
 
@@ -881,51 +882,29 @@ $( document ).ready(function() {
 				},
 				success: function (response) {
 
-
 					var vendors = [];
-					var lats = [];
-					var lons = [];
 					var marketcode = [];
 					var addressPoints = [];
 
-
 					address = 0;
-
 					response = _.rest(response);
 
-					//console.log(response);		//xxx.marketcode
-					//console.log(globalMarkets);	//xxx.code
-
-var Cresponse = _.groupBy(response,'marketcode');
-var CglobalMarkets = _.groupBy(globalMarkets,'code');
-
-//console.log(Cresponse);
-//console.log(CglobalMarkets);
+					var Cresponse = _.groupBy(response,'marketcode');
+					var CglobalMarkets = _.groupBy(globalMarkets,'code');
 
 					$.each(globalMarkets, function (k, v) {
 
-v = _.extend(v, Cresponse[v.code] );
-
-//console.log(v);
-
+						v = _.extend(v, Cresponse[v.code] );
 
 						var avg = [],
-							avgS = "";
-
-							var noData = !!v[0];
+							avgS = "",
+							noData = !!v[0];
 
 							if (noData)
 								avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + currency + "\/" + munit;
-							else
-								avgS = "";
-
-							//console.log(avgS);
 
 							vendors.push(v.name);
 							marketcode.push(v.code);
-
-							lats.push(v.lat);
-							lons.push(v.lon);
 
 							var temp = [];
 							temp.push(v.lat);
@@ -1095,7 +1074,9 @@ v = _.extend(v, Cresponse[v.code] );
 	        else
 				filterPolygonWKT = toWKT(layer);
 			
-			drawnItems.clearLayers().addLayer(layer);
+			drawnItems.clearLayers()
+				.addLayer(layer);
+
 			drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
 			updateMap();
