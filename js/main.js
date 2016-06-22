@@ -23,11 +23,11 @@ $( document ).ready(function() {
 				"currency": "USD"
 			},
 			"90": {
-				"table": "data",
+				"table": "data_gambia",
 				"currency": "GMD"
 			},
 			"45": {
-				"table": "data",
+				"table": "data_cameroon",
 				"currency": "CFA"
 			}
 		};
