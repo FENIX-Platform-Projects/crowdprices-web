@@ -892,6 +892,7 @@ $( document ).ready(function() {
 					var Cresponse = _.groupBy(response,'marketcode');
 					var CglobalMarkets = _.groupBy(globalMarkets,'code');
 
+
 					$.each(globalMarkets, function (k, v) {
 
 						v = _.extend(v, Cresponse[v.code] );
@@ -899,7 +900,7 @@ $( document ).ready(function() {
 						var avg = [],
 							avgS = "",
 							noData = !!v[0];
-
+console.log(noData)
 							if (noData)
 								avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + currency + "\/" + munit;
 
@@ -912,7 +913,8 @@ $( document ).ready(function() {
 							temp.push(v.name + avgS);
 							temp.push(noData);
 
-							addressPoints.push(temp);
+							if(Cresponse[v.code])
+								addressPoints.push(temp);
 
 							address++;
 					});
