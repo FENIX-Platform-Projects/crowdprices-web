@@ -543,13 +543,13 @@ $( document ).ready(function() {
 		var table = countries_tables[ nations ].table,
 			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
 				"FROM "+table+", city, commodity, market "+
-				"WHERE "+table+".citycode = city.code AND CAST ("+table+".commoditycode as INT) = commodity.code AND "+table+".gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND "+table+".marketcode = ANY('{"+checkedMarkets.toString()+"}') AND CAST("+table+".marketcode AS INT) = market.code";
+				"WHERE "+table+".citycode = city.code AND CAST ("+table+".commoditycode as INT) = commodity.code AND "+table+".gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND "+table+".marketcode = ANY('{"+_.compact(checkedMarkets).join(",").toString()+"}') AND CAST("+table+".marketcode AS INT) = market.code";
 		
 		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		//console.log("Q:"+qString);
+		console.log("Q:"+qString);
 
 		$.ajax({
 
