@@ -14,7 +14,8 @@ $( document ).ready(function() {
 	
 	// WDS
 		WDSURI = 'http://fenixapps2.fao.org/wds-5.2.1/rest/crud/',
-		WDSURI5 = 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
+		WDSURI5 = WDSURI,
+		//WDSURI5 = 'http://fenixapps2.fao.org/wds_5/rest/fenix/query/',
 		DATASOURCE = "CROWD",
 		countries_tables = {
 			"1": { // afganistan demo
@@ -139,7 +140,7 @@ $( document ).ready(function() {
 				var sel = $("#commodity");
 				var first = "";
 				$.each(response, function() {
-					if(this.code == 38)
+					if(this.code == 36)
 						first = "selected";
 					sel.append($("<option "+first+" />").val(this.code).text(this.name));
 					first = "";
@@ -421,6 +422,7 @@ $( document ).ready(function() {
 				sQuery = sQuery + " ORDER BY fulldate";
 			
 				$.ajax({
+					/*
 					url: WDSURI5,
 					type: 'POST',
 					data: {
@@ -428,11 +430,21 @@ $( document ).ready(function() {
 						query: sQuery,
 						outputType: 'array'
 					},
+					*/
+					type: 'GET',
+					url: WDSURI,
+					data: {
+						payload: '{"query": "'+sQuery+'"}',
+						datasource: DATASOURCE,
+						outputType: 'array'
+					},
+
 					success: function (response) {
 						
 						//console.log(response);
 
-						var data = JSON.parse(response);
+						//var data = JSON.parse(response);
+						var data = _.rest(response);
 						var resultdata = [];
 						var averagedata = [];
 						var j = 0;
@@ -445,24 +457,24 @@ $( document ).ready(function() {
 						$.each(data, function(index,element){
 
 							output.datas.push({
-								"id": element[0],
-								"gaul0code": element[1],
-								"citycode": element[2],
-								"marketcode": element[3],
-								"munitcode": element[4],
-								"currencycode": element[5],
-								"commoditycode": element[6],
-								"varietycode": element[7],
-								"price": element[8],
-								"untouchedprice": element[9],
-								"fulldate": element[10],
-								"note": element[11],
-								"userid": element[12],
-								"vendorname": element[13],
-								"vendorcode": element[14],
-								"lat": element[15],
-								"lon": element[16],
-								"geo": element[17]
+								"id": element["id"],
+								"gaul0code": element["gaul0code"],
+								"citycode": element["citycode"],
+								"marketcode": element["marketcode"],
+								"munitcode": element["munitcode"],
+								"currencycode": element["currencycode"],
+								"commoditycode": element["commoditycode"],
+								"varietycode": element["varietycode"],
+								"price": element["price"],
+								"untouchedprice": element["untouchedprice"],
+								"fulldate": element["fulldate"],
+								"note": element["note"],
+								"userid": element["userid"],
+								"vendorname": element["vendorname"],
+								"vendorcode": element["vendorcode"],
+								"lat": element["lat"],
+								"lon": element["lon"],
+								"geo": element["geo"]
 							});
 							//console.log(element)
 						});
@@ -552,7 +564,7 @@ $( document ).ready(function() {
 		console.log("Q:"+qString);
 
 		$.ajax({
-
+/*
 			url: WDSURI5,
 			type: 'POST',
 			data: {
@@ -560,29 +572,40 @@ $( document ).ready(function() {
 				query: qString,
 				outputType: 'array'
 			},
+*/
+			type: 'GET',
+			url: WDSURI,
+			data: {
+				payload: '{"query": "'+qString+'"}',
+				datasource: DATASOURCE,
+				outputType: 'object'
+			},
 
 			success: function (response) {
-				//console.log("createTable success");
-				allDatas = JSON.parse(response);
+				//console.log(response);
+				//allDatas = JSON.parse(response);
+				response = _.rest(response);
 				var output = {table:[]};
-				$.each(allDatas, function(index,element){
+				//console.log("createTable success", response);
+
+				$.each(response, function(index,element){
 
 					output.table.push({
-						"gaul0code": element[0],
-						"vendorname": element[1],
-						"citycode": element[2],
-						"code": parseInt(element[3]),
-						"price": parseFloat(element[4]),
-						"fulldate": element[5],
-						"cityname": element[6],
-					//	"code": element[7],
-						"commodityname": element[8],
-						"commoditycode": element[9],
-						"code": element[10],
-						"marketname": element[11],
-						"marketcode": element[12],
-						"quantity": parseFloat(element[13]),
-						"userid": element[14]
+						"gaul0code": element["gaul0code"],
+						"vendorname": element["vendorname"],
+						"citycode": element["citycode"],
+						"code": parseInt(element["code"]),
+						"price": parseFloat(element["price"]),
+						"fulldate": element["fulldate"],
+						"cityname": element["cityname"],
+					//	"code": element["code"],
+						"commodityname": element["commodityname"],
+						"commoditycode": element["commoditycode"],
+						"code": element["code"],
+						"marketname": element["marketname"],
+						"marketcode": element["marketcode"],
+						"quantity": parseFloat(element["quantity"]),
+						"userid": element["userid"]
 					});
 				});
 
