@@ -1094,6 +1094,8 @@ console.log(noData)
 			console.log('DRAW deleted')
 			drawnItems.clearLayers();
 			filterPolygonWKT = '';
+			updateMap();
+			updateChart();
 		});
 	}
 
