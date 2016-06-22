@@ -410,9 +410,9 @@ $( document ).ready(function() {
 				sQuery = "SELECT id, gaul0code, citycode, marketcode, munitcode, currencycode, commoditycode, varietycode, price, quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, geo "+
 					"FROM "+ table + " "+
 					"WHERE gaul0code = '"+nations.toString()+"' AND marketcode='"+marketcode+"' AND commoditycode='"+commodityItem[i]+"' ";
-				 */
+				*/
 
-				if (filterPolygonWKT)
+				if(filterPolygonWKT)
 					sQuery += " AND ST_contains(ST_GeomFromText('" + filterPolygonWKT + "',4326),geo)";
 
 
@@ -480,8 +480,6 @@ $( document ).ready(function() {
 						tmpArray[0] = dateObject.getTime();
 						tmpArray[1] = parseFloat(this[8])/parseFloat(this[9]);
 						tmpArray[2] = this[14];
-
-
 						resultdata.push(tmpArray);
 						j++;
 						aggregated = aggregated + parseFloat(this[8]);
