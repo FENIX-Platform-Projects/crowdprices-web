@@ -848,8 +848,6 @@ $( document ).ready(function() {
 		
 	function updateMap() {
 
-		//console.log('updateMap',nations)
-
 		if (markers != null) {
 			map.removeLayer(markers);
 			markers = L.markerClusterGroup({
@@ -905,7 +903,9 @@ $( document ).ready(function() {
 						var avg = [],
 							avgS = "",
 							noData = !!v[0];
-console.log(noData)
+							
+							//console.log(noData);
+
 							if (noData)
 								avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + currency + "\/" + munit;
 
