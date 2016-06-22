@@ -7350,7 +7350,7 @@ input[type="checkbox"]:checked + label {
     margin-top: 10px; }
   .home-content .home-tile.map {
     position: relative;
-    min-height: 500px; }
+    min-height: 350px; }
   .home-content .country-welcome {
     padding-bottom: 100px; }
   .home-content .home-detail-pointer {
