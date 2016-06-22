@@ -443,7 +443,9 @@ $( document ).ready(function() {
 					if(data.length===0)
 						return;
 
-					var output = {datas:[]};
+					var output = {
+						datas: []
+					};
 
 					$.each(data, function(k,v){
 
@@ -554,7 +556,7 @@ $( document ).ready(function() {
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		console.log("createTable: "+qString);
+		//console.log("createTable: "+qString);
 
 		$.ajax({
 			type: 'GET',
@@ -679,7 +681,7 @@ $( document ).ready(function() {
 				" AND commoditycode IN ('"+_.compact(commodityItem).join("','")+"') "+
 				" AND gaul0code = "+nations.toString()+" ";
 
-		console.log("updateDates()", sQuery);
+		//console.log("updateDates()", sQuery);
 
 		$.ajax({
 			type: 'GET',
@@ -691,7 +693,7 @@ $( document ).ready(function() {
 			},
 			success: function (response) {
 
-				console.log("Dates defined",response);
+				//console.log("Dates defined",response);
 				//console.log(startDate,endDate);
 				//console.log(new Date(response[0]),new Date(response[1]));
 				if(response[1]) {
@@ -700,10 +702,8 @@ $( document ).ready(function() {
 						d1 = (s1.substring(0,10)),
 						d2 = (s2.substring(0,10));
 
-
 					startDate = d1;
 					endDate = d2;
-					console.log(startDate,endDate);
 					if (isInit) updateSlider();
 				}
 			},
@@ -917,8 +917,6 @@ $( document ).ready(function() {
 						var avg = [],
 							avgS = "",
 							noData = !!v[0];
-							
-							//console.log(noData);
 
 							if (noData)
 								avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + currency + "\/" + munit;
@@ -1102,10 +1100,8 @@ $( document ).ready(function() {
 			drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
 			updateView();
-			
 		})
 		.on('draw:deleted', function (e) {
-			console.log('DRAW deleted')
 			drawnItems.clearLayers();
 			filterPolygonWKT = '';
 			updateView();
