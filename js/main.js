@@ -52,22 +52,6 @@ $( document ).ready(function() {
 	var isInit = false;
 
 
-	function initUI() {
-
-
-		// console.log("initUI");		
-		populateUI();
-		Highcharts.setOptions({
-			chart: {
-				style: {
-					fontFamily: "Roboto",
-					fontSize: '10px'
-				}
-			}
-		});
-	}
-
-
 	var months = [
 			"01", "02", "03",
 			"04", "05", "06", "07",
@@ -84,7 +68,8 @@ $( document ).ready(function() {
 		return ret;
 	}
 
-	function updateValues() {					
+	function updateValues() {
+
 		var items = $("#commodity").chosen().val(),
 			markets = $("#markets").chosen().val(),
 			checkedNames = [],
@@ -147,17 +132,18 @@ $( document ).ready(function() {
 				});
 				$('#commodity').chosen({max_selected_options: 10});
 
-				//updateValues();
-
 				$('#commodity').on('change', function(evt, params) {
-					//console.log("udadas");
+					
 					updateDates();
 					updateValues();
+
 				}).trigger('chosen:updated');
 
 				counterUI++;
 
 				getCountries(false);
+				updateValues();
+				updateDates();
 			},
 			error: function (a) {
 				console.log("populateUI Error");
@@ -203,6 +189,7 @@ $( document ).ready(function() {
 
 					nations = evt.currentTarget.value;
 					getMarkets(true);
+
 					updateValues();
 					resizeChosen();
 
@@ -216,10 +203,12 @@ $( document ).ready(function() {
 	}
 
 	function getMarkets(clearall){
+		
 		if (clearall) {
 			$("#markets").empty();
 			$('#markets').chosen("destroy");
 		}
+
 		$.ajax({
 			type: 'GET',
 			url: WDSURI,
@@ -241,11 +230,15 @@ $( document ).ready(function() {
 				});
 
 				$('#markets').on('change', function () {
+					
 					updateDates();
 					updateValues();
+
 				}).trigger('chosen:updated');
 
 				updateValues();
+				updateDates();
+
 				counterUI++;
 
 				if(mapInit===false)
@@ -264,7 +257,6 @@ $( document ).ready(function() {
 			seriesOptions2 = [],
 			seriesOptions3 = [],
 			seriesCounter = 0,
-			items = commodityItem,
 			createChart1 = function (item) {
 				item.highcharts('StockChart', {
 					
@@ -404,18 +396,12 @@ $( document ).ready(function() {
 			//	$.each(checkedMarkets, function(h,marketcode){
 			//		indexName--;
 					//console.log("allMarketName: "+allMarketName[indexName]);
-
-			$.each(items, function (i, name) {
-				commodityALL += items[i]+", ";
-			});
-
-			console.log(commodityALL.length);
-			commodityALL = commodityALL.substr(0, commodityALL.length-2);
-
 			var table  = countries_tables[nations].table,
 				sQuery = "SELECT id, gaul0code, citycode, marketcode, munitcode, currencycode, commoditycode, varietycode, price, quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, geo " +
 					"FROM "+ table + " "+
-					"WHERE gaul0code = '"+nations.toString()+"' AND marketcode IN ('" + _.compact(checkedMarkets).join("','") + "') AND commoditycode IN ("+commodityALL+") ";
+					"WHERE gaul0code = '"+nations.toString()+"' "+
+						" AND marketcode IN ('"+_.compact(checkedMarkets).join("','")+"') "+
+						" AND commoditycode IN ('"+_.compact(commodityItem).join("','")+"') ";
 				/*
 				 FROM data
 				 WHERE gaul0code = '1'
@@ -450,16 +436,17 @@ $( document ).ready(function() {
 					//console.log(response);
 
 					//var data = JSON.parse(response);
-					var data = _.rest(response);
-					var resultdata = [];
-					var averagedata = [];
-					var j = 0;
-					var aggregated = 0;
-
+					var data = _.rest(response),
+						averagedata = [],
+						resultdata = [],
+						aggregated = 0,
+						j = 0;
+						
 					if(data.length===0)
 						return;
 
 					var output = {datas:[]};
+
 					$.each(data, function(index,element){
 
 						output.datas.push({
@@ -512,19 +499,21 @@ $( document ).ready(function() {
 					temArray[1] = ( aggregated / j );
 					if (temArray[1] >1) averagedata.push(temArray);
 
-					//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
-					index++;
+					_.each(checkedMarkets, function(value, key) {
+						//console.log("h:"+h+" - "+allMarketName[indexName],indexName);
+						index++;
 
-					seriesOptions1[index] = {
-						name: name + " @ " + allMarketName[h],
-						data: resultdata
-					};
+						seriesOptions1[index] = {
+							name: name + " @ ",//+ allMarketName[h],
+							data: resultdata
+						};
 
-					seriesOptions2[index] = {
-						name: name +" (Avg)" + " @ " + allMarketName[h],
-						data: averagedata,
-						type: 'column'
-					};
+						seriesOptions2[index] = {
+							name: name +" (Avg)" + " @ ",// + allMarketName[h],
+							data: averagedata,
+							type: 'column'
+						};
+					});
 
 
 				},
@@ -560,24 +549,20 @@ $( document ).ready(function() {
 		var table = countries_tables[ nations ].table,
 			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
 				"FROM "+table+", city, commodity, market "+
-				"WHERE "+table+".citycode = city.code AND CAST ("+table+".commoditycode as INT) = commodity.code AND "+table+".gaul0code = '"+nations.toString()+"' AND commodity.code = ANY('{"+commodityItem.toString()+"}') AND "+table+".marketcode = ANY('{"+_.compact(checkedMarkets).join(",").toString()+"}') AND CAST("+table+".marketcode AS INT) = market.code";
+				"WHERE "+table+".citycode = city.code "+
+				" AND CAST ("+table+".commoditycode as INT) = commodity.code "+
+				" AND "+table+".gaul0code = '"+nations.toString()+"' "+
+				" AND commodity.code = ANY('{"+commodityItem.toString()+"}') "+
+				" AND "+table+".marketcode = ANY('{"+_.compact(checkedMarkets).join(",").toString()+"}') "+
+				" AND CAST("+table+".marketcode AS INT) = market.code";
 		
 		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		//console.log("Q:"+qString);
+		console.log("createTable: "+qString);
 
 		$.ajax({
-/*
-			url: WDSURI5,
-			type: 'POST',
-			data: {
-				datasource: 'CROWD',
-				query: qString,
-				outputType: 'array'
-			},
-*/
 			type: 'GET',
 			url: WDSURI,
 			data: {
@@ -686,33 +671,40 @@ $( document ).ready(function() {
 			error: function (a) {
 				console.log("KO:"+a.responseText);
 			}
-
-
 		});
 	}
 
 
 	function updateDates() {
-		console.log(" updateDates "+isInit);
 
-		var squery = "select min(fulldate) as startDate, max(fulldate) as endDate from data WHERE marketcode=("+checkedMarkets.toString()+")&commoditycode=("+commodityItem.toString()+")&gaul0code=("+nations.toString()+ ")";
+		var table = countries_tables[ nations ].table,
+			sQuery =
+			" SELECT min(fulldate) as startDate, max(fulldate) as endDate "+
+			" FROM "+table+" "+
+			" WHERE marketcode IN ('"+_.compact(checkedMarkets).join("','")+"') "+
+				" AND commoditycode IN ('"+_.compact(commodityItem).join("','")+"') "+
+				" AND gaul0code = "+nations.toString()+" ";
+
+		console.log("updateDates()", sQuery);
+
 		$.ajax({
 			type: 'GET',
 			url: WDSURI,
 			data: {
-				payload: '{"query": "'+squery+'"}',
+				payload: '{"query": "'+sQuery+'"}',
 				datasource: DATASOURCE,
 				outputType: 'array'
 			},
 			success: function (response) {
+
 				console.log("Dates defined",response);
 				//console.log(startDate,endDate);
 				//console.log(new Date(response[0]),new Date(response[1]));
 				if(response[1]) {
-					var s1 = response[1][0];
-					var s2 = response[1][1];
-					var d1 = (s1.substring(0,10));
-					var d2 = (s2.substring(0,10));
+					var s1 = response[1][0],
+						s2 = response[1][1],
+						d1 = (s1.substring(0,10)),
+						d2 = (s2.substring(0,10));
 
 
 					startDate = d1;
@@ -1115,25 +1107,31 @@ $( document ).ready(function() {
 
 			drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
-			updateMap();
-			//updateChart();
+			updateView();
 			
 		})
 		.on('draw:deleted', function (e) {
 			console.log('DRAW deleted')
 			drawnItems.clearLayers();
 			filterPolygonWKT = '';
-			updateMap();
-			//updateChart();
+			updateView();
 		});
 	}
 
-
-	initUI();
+	populateUI();
+	
+	Highcharts.setOptions({
+		chart: {
+			style: {
+				fontFamily: "Roboto",
+				fontSize: '10px'
+			}
+		}
+	});
 
 	function updateView() {
 		updateMap();	
-		//updateChart();
+		updateChart();
 		createTable();
 	}
 	
