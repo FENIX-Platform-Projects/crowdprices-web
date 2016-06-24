@@ -1,12 +1,10 @@
 $( document ).ready(function() {
-	var itemToInit = 3,
-		counterUI = 0,
+	var counterUI = 0,
 		map = null,
 		mapInit = false,
 		markers = null,
 		munit = "Kg",
 		currency = "USD",
-		allAddressPoints = [],
 		globalMarkets;
 	
 	var globalURI = "http://fenix.fao.org/restsql-0.8.8/res/",
@@ -126,7 +124,7 @@ $( document ).ready(function() {
 				var sel = $("#commodity");
 				var first = "";
 				$.each(response, function() {
-					if(this.code == 36)
+					if(this.code == 0)
 						first = "selected";
 					sel.append($("<option "+first+" />").val(this.code).text(this.name));
 					first = "";
@@ -146,7 +144,7 @@ $( document ).ready(function() {
 
 				counterUI++;
 
-				getCountries(false);
+				getCountries();
 				updateValues();
 				updateDates();
 			},
@@ -196,6 +194,7 @@ $( document ).ready(function() {
 					getMarkets(true);
 
 					updateValues();
+
 					resizeChosen();
 
 				}).trigger('chosen:updated').trigger("changed");
@@ -210,8 +209,10 @@ $( document ).ready(function() {
 	function getMarkets(clearall){
 		
 		if (clearall) {
+			checkedMarkets = [];
 			$("#markets").empty();
 			$('#markets').chosen("destroy");
+			console.log("checkedMarkets",checkedMarkets);
 		}
 
 		$.ajax({
@@ -228,7 +229,7 @@ $( document ).ready(function() {
 
 				globalMarkets = _.rest(data);
 
-console.log(data, globalMarkets)
+				//console.log(data, globalMarkets)
 
 				var sel = $("#markets");
 				$.each(data, function () {
@@ -259,7 +260,7 @@ console.log(data, globalMarkets)
 	
 	function updateChart() {
 		
-		console.log("updateChart");
+		//console.log("updateChart");
 
 		var seriesOptions1 = [],
 			seriesOptions2 = [],
@@ -419,7 +420,7 @@ console.log(data, globalMarkets)
 
 				sQuery = sQuery + " ORDER BY commoditycode, marketcode, fulldate";
 
-				console.log ("sQuery: "+sQuery);
+				//console.log ("sQuery: "+sQuery);
 
 			$.ajax({
 				type: 'GET',
@@ -562,7 +563,7 @@ console.log(data, globalMarkets)
 		var allDatas = [];
 
 		var table = countries_tables[ nations ].table,
-			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
+			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, "+table+".price, "+table+".fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, "+table+".commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
 				"FROM "+table+", city, commodity, market "+
 				"WHERE "+table+".citycode = city.code "+
 				" AND CAST ("+table+".commoditycode as INT) = commodity.code "+
@@ -574,6 +575,8 @@ console.log(data, globalMarkets)
 		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
+
+		console.log("updateTableDaily", qString);
 
 		$.ajax({
 			type: 'GET',
@@ -695,8 +698,7 @@ console.log(data, globalMarkets)
 		var allDatas = [];
 
 		var table = countries_tables[ nations ].table,
-			datesDefined = ((startDate !== undefined)&&(endDate !== undefined)) ?			
-				" AND date>='"+startDate+"' AND date<= '"+endDate+"'" : '';
+			datesDefined = ((startDate !== undefined)&&(endDate !== undefined)) ? " AND date>='"+startDate+"' AND date<= '"+endDate+"'" : '';
 			qString = 
 			"SELECT t.cityname,t.marketname,t.vendorname,t.commodityname, min(t.price)min, max(t.price)max, round (avg(t.price)::numeric,2) avg "+
 			"FROM "+
@@ -721,6 +723,8 @@ console.log(data, globalMarkets)
 			") t "+
 			"GROUP BY t.cityname,t.marketname,t.vendorname,t.commodityname "+
 			"ORDER BY commodityname";
+
+		//console.log(qString);
 
 		$.ajax({
 			type: 'GET',
@@ -827,11 +831,12 @@ console.log(data, globalMarkets)
 				" AND commoditycode IN ('"+_.compact(commodityItem).join("','")+"') "+
 				" AND gaul0code = "+nations.toString()+" ";
 
-		//console.log("updateDates()", sQuery);
+		console.log("updateDates()", sQuery);
 
 		$.ajax({
 			type: 'GET',
 			url: WDSURI,
+			async: false,
 			data: {
 				payload: '{"query": "'+sQuery+'"}',
 				datasource: DATASOURCE,
@@ -839,9 +844,10 @@ console.log(data, globalMarkets)
 			},
 			success: function (response) {
 
-				//console.log("Dates defined",response);
-				//console.log(startDate,endDate);
+				console.log("Dates defined",response);
+				console.log(startDate,endDate);
 				//console.log(new Date(response[0]),new Date(response[1]));
+
 				if(response[1]) {
 					var s1 = response[1][0],
 						s2 = response[1][1],
@@ -1250,12 +1256,12 @@ console.log(data, globalMarkets)
 
 			drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
-			updateView();
+			updateValues();
 		})
 		.on('draw:deleted', function (e) {
 			drawnItems.clearLayers();
 			filterPolygonWKT = '';
-			updateView();
+			updateValues();
 		});
 	}
 
