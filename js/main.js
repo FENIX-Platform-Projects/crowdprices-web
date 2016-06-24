@@ -47,6 +47,7 @@ $( document ).ready(function() {
 	var filterPolygonWKT;
 
 	var tableIsInit = false;	
+	var tableIsInitAgg = false;	
 	var isInit = false;
 
 
@@ -538,8 +539,10 @@ $( document ).ready(function() {
 	}	
 	
 
-	function createTable() {
-		//console.log("createTable");
+	function createTableDaily() {
+		//console.log("createTableDaily");
+
+		var $table = $('#tableDaily');
 
 		var allDatas = [];
 
@@ -557,7 +560,7 @@ $( document ).ready(function() {
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		//console.log("createTable: "+qString);
+		//console.log("createTableDaily: "+qString);
 
 		$.ajax({
 			type: 'GET',
@@ -572,8 +575,10 @@ $( document ).ready(function() {
 				//console.log(response);
 				//allDatas = JSON.parse(response);
 				response = _.rest(response);
-				var output = {table:[]};
-				//console.log("createTable success", response);
+				var output = {
+					table:[]
+				};
+				//console.log("createTableDaily success", response);
 
 				$.each(response, function(index,element){
 
@@ -597,11 +602,11 @@ $( document ).ready(function() {
 				});
 
 				if (tableIsInit) {
-				//	console.log("!createTable");
-					$('#table').bootstrapTable('removeAll');
-					$('#table').bootstrapTable('append', output.table);
+				//	console.log("!createTableDaily");
+					$table.bootstrapTable('removeAll');
+					$table.bootstrapTable('append', output.table);
 				} else {
-					$('#table').bootstrapTable({
+					$table.bootstrapTable({
 						columns: [{
 							field: 'cityname',
 							title: 'City',
@@ -647,21 +652,23 @@ $( document ).ready(function() {
 						sortable: true
 
 					});
+					
 					tableIsInit = true;
+
 					$("#tblExportCSV").on("click", function(){
-						$('#table').bootstrapTable('togglePagination');
-						$('#table').tableExport({type:'csv'});
-						$('#table').bootstrapTable('togglePagination');
+						$table.bootstrapTable('togglePagination');
+						$table.tableExport({type:'csv'});
+						$table.bootstrapTable('togglePagination');
 					});
 					$("#tblExportXLS").on("click", function(){
-						$('#table').bootstrapTable('togglePagination');
-						$('#table').tableExport({type:'xls'});
-						$('#table').bootstrapTable('togglePagination');
+						$table.bootstrapTable('togglePagination');
+						$table.tableExport({type:'xls'});
+						$table.bootstrapTable('togglePagination');
 					});
 					$("#tblExportJSON").on("click", function(){
-						$('#table').bootstrapTable('togglePagination');
-						$('#table').tableExport({type:'json'});
-						$('#table').bootstrapTable('togglePagination');
+						$table.bootstrapTable('togglePagination');
+						$table.tableExport({type:'json'});
+						$table.bootstrapTable('togglePagination');
 					});
 				}
 			},
@@ -671,6 +678,145 @@ $( document ).ready(function() {
 		});
 	}
 
+
+	function createTableAgg() {
+		//console.log("createTableDaily");
+
+		var $table = $('#tableAgg');
+
+		var allDatas = [];
+
+		var table = countries_tables[ nations ].table,
+			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
+				"FROM "+table+", city, commodity, market "+
+				"WHERE "+table+".citycode = city.code "+
+				" AND CAST ("+table+".commoditycode as INT) = commodity.code "+
+				" AND "+table+".gaul0code = '"+nations.toString()+"' "+
+				" AND commodity.code = ANY('{"+commodityItem.toString()+"}') "+
+				" AND "+table+".marketcode = ANY('{"+_.compact(checkedMarkets).join(",").toString()+"}') "+
+				" AND CAST("+table+".marketcode AS INT) = market.code";
+		
+		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
+		//qString = qString + "limit 100";
+		qString = qString + " ORDER BY "+table+".fulldate DESC ";
+
+		//console.log("createTableDaily: "+qString);
+
+		$.ajax({
+			type: 'GET',
+			url: WDSURI,
+			data: {
+				payload: '{"query": "'+qString+'"}',
+				datasource: DATASOURCE,
+				outputType: 'object'
+			},
+
+			success: function (response) {
+				//console.log(response);
+				//allDatas = JSON.parse(response);
+				response = _.rest(response);
+				var output = {
+					table:[]
+				};
+				//console.log("createTableDaily success", response);
+
+				$.each(response, function(index,element){
+
+					output.table.push({
+						"gaul0code": element["gaul0code"],
+						"vendorname": element["vendorname"],
+						"citycode": element["citycode"],
+						"code": parseInt(element["code"]),
+						"price": parseFloat(element["price"]),
+						"fulldate": element["fulldate"],
+						"cityname": element["cityname"],
+					//	"code": element["code"],
+						"commodityname": element["commodityname"],
+						"commoditycode": element["commoditycode"],
+						"code": element["code"],
+						"marketname": element["marketname"],
+						"marketcode": element["marketcode"],
+						"quantity": parseFloat(element["quantity"]),
+						"userid": element["userid"]
+					});
+				});
+
+				if (tableIsInitAgg) {
+				//	console.log("!createTableDaily");
+					$table.bootstrapTable('removeAll');
+					$table.bootstrapTable('append', output.table);
+				} else {
+					$table.bootstrapTable({
+						columns: [{
+							field: 'cityname',
+							title: 'City',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'marketname',
+							title: 'Market',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'vendorname',
+							title: 'Vendor',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'commodityname',
+							title: 'Commodity',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'price',
+							title: 'Price ('+currency+')',
+							sortable: true
+						}, {
+							field: 'quantity',
+							title: 'Quantity ('+munit+')',
+							sortable: true
+						}, {
+							field: 'fulldate',
+							title: 'Date',
+							sortable: true,
+							searchable: true
+						}, {
+							field: 'userid',
+							title: 'User',
+							sortable: true,
+							searchable: true
+						}],
+						data: output.table,
+						pagination: true,
+						search: true,
+						sortable: true
+
+					});
+					
+					tableIsInitAgg = true;
+
+					$("#tblExportCSV").on("click", function(){
+						$table.bootstrapTable('togglePagination');
+						$table.tableExport({type:'csv'});
+						$table.bootstrapTable('togglePagination');
+					});
+					$("#tblExportXLS").on("click", function(){
+						$table.bootstrapTable('togglePagination');
+						$table.tableExport({type:'xls'});
+						$table.bootstrapTable('togglePagination');
+					});
+					$("#tblExportJSON").on("click", function(){
+						$table.bootstrapTable('togglePagination');
+						$table.tableExport({type:'json'});
+						$table.bootstrapTable('togglePagination');
+					});
+				}
+			},
+			error: function (a) {
+				console.log("KO:"+a.responseText);
+			}
+		});
+	}
 
 	function updateDates() {
 
@@ -1123,7 +1269,8 @@ $( document ).ready(function() {
 	function updateView() {
 		updateMap();	
 		updateChart();
-		createTable();
+		createTableDaily();
+		createTableAgg();
 	}
 	
 	
