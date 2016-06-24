@@ -497,20 +497,39 @@ $( document ).ready(function() {
 					if(temArray[1]>1)
 						averagedata.push(temArray);
 
-					_.each(checkedMarkets, function(value, key) {
+					var resultdataG = _.groupBy(resultdata, function(v) {
+						return v[2];//market name
+					});
+					var resultdataA = [];
+					_.each(resultdataG, function(v,k) {	
+						resultdataA.push( v );
+					});
 
-						seriesOptions1[key] = {
-							name: name + " @ "+ allMarketName[key],
-							data: resultdata
+
+					_.each(resultdataA, function(vals, k) {
+						
+						var sum = 0,
+							avgs = []
+
+						_.map(vals, function(val) {
+							sum += val[1]
+						});
+
+						avgs.push( sum / vals.length );
+
+						seriesOptions1[k] = {
+							name: name + " @ "+ allMarketName[k],
+							data: vals
 						};
 
-						seriesOptions2[key] = {
-							name: name +" (Avg)" + " @ "+ allMarketName[key],
-							data: averagedata,
+						seriesOptions2[k] = {
+							name: name +" (Avg)" + " @ "+ allMarketName[k],
+							data: avgs,
 							type: 'column'
 						};
 					});
 
+						console.log("EBBASTACOSTORUMORE",seriesOptions1,seriesOptions2);
 
 				},
 				error: function (a) {
