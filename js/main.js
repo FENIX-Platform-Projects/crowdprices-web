@@ -540,7 +540,6 @@ $( document ).ready(function() {
 	
 
 	function createTableDaily() {
-		//console.log("createTableDaily");
 
 		var $table = $('#tableDaily');
 
@@ -560,8 +559,6 @@ $( document ).ready(function() {
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		//console.log("createTableDaily: "+qString);
-
 		$.ajax({
 			type: 'GET',
 			url: WDSURI,
@@ -572,13 +569,10 @@ $( document ).ready(function() {
 			},
 
 			success: function (response) {
-				//console.log(response);
-				//allDatas = JSON.parse(response);
 				response = _.rest(response);
 				var output = {
 					table:[]
 				};
-				//console.log("createTableDaily success", response);
 
 				$.each(response, function(index,element){
 
@@ -602,7 +596,6 @@ $( document ).ready(function() {
 				});
 
 				if (tableIsInit) {
-				//	console.log("!createTableDaily");
 					$table.bootstrapTable('removeAll');
 					$table.bootstrapTable('append', output.table);
 				} else {
@@ -680,27 +673,54 @@ $( document ).ready(function() {
 
 
 	function createTableAgg() {
-		//console.log("createTableDaily");
 
 		var $table = $('#tableAgg');
 
 		var allDatas = [];
 
 		var table = countries_tables[ nations ].table,
-			qString = "SELECT "+table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
+			datesdefined = ((startDate !== undefined)&&(endDate !== undefined)) ?			
+			" AND date>='"+startDate+"' AND date<= '"+endDate+"'" : '',		
+			qString = 
+				/*"SELECT MIN("+table+".price) AS min, MAX("+table+".price) AS max, "+
+						table+".gaul0code, "+table+".vendorname as vendorname, "+table+".citycode, city.code, data.price, data.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, data.commoditycode, market.code, market.name as marketname, "+table+".marketcode, "+table+".quantity, "+table+".userid "+
+				
 				"FROM "+table+", city, commodity, market "+
+
 				"WHERE "+table+".citycode = city.code "+
 				" AND CAST ("+table+".commoditycode as INT) = commodity.code "+
 				" AND "+table+".gaul0code = '"+nations.toString()+"' "+
 				" AND commodity.code = ANY('{"+commodityItem.toString()+"}') "+
-				" AND "+table+".marketcode = ANY('{"+_.compact(checkedMarkets).join(",").toString()+"}') "+
+				" AND "+table+".marketcode = ANY('{"+_.compact(checkedMarkets).join(",")+"}') "+
 				" AND CAST("+table+".marketcode AS INT) = market.code";
-		
-		if ((startDate !== undefined)&&(endDate !== undefined)) qString = qString +" AND date>='"+startDate+"' AND date<= '"+endDate+"'";
-		//qString = qString + "limit 100";
-		qString = qString + " ORDER BY "+table+".fulldate DESC ";
+				*/
+qString = 
+"SELECT t.cityname,t.marketname,t.vendorname,t.commodityname, min(t.price)min, max(t.price)max, round (avg(t.price)::numeric,2) avg "+
+"FROM "+
+"(SELECT  "+
+	""+table+".gaul0code, "+table+".vendorname as vendorname,  "+
+	""+table+".citycode, city.code, "+table+".price, "+table+".fulldate,  "+
+	"city.name as cityname, commodity.code, commodity.name as commodityname,  "+
+	""+table+".commoditycode, market.code, market.name as marketname,  "+
+	""+table+".marketcode, "+table+".quantity, "+table+".userid  "+
+	"FROM 	"+table+", "+
+		"city, "+
+		"commodity, "+
+		"market  "+
+	"WHERE "+table+".citycode = city.code "+
+		datesdefined+
+		"AND CAST ("+table+".commoditycode as INT) = commodity.code "+
+		"AND "+table+".gaul0code = '"+nations.toString()+"'   "+
+		"AND commodity.code = ANY('{"+commodityItem.toString()+"}') "+
+		"AND "+table+".marketcode = ANY('{"+_.compact(checkedMarkets).join(",")+"}')   "+
+		"AND CAST("+table+".marketcode AS INT) = market.code  "+
+	"ORDER BY "+table+".fulldate DESC "+
+") t "+
 
-		//console.log("createTableDaily: "+qString);
+"GROUP BY t.cityname,t.marketname,t.vendorname,t.commodityname "+
+"ORDER BY commodityname";
+
+		console.log("createTableAgg: "+qString);
 
 		$.ajax({
 			type: 'GET',
@@ -712,14 +732,12 @@ $( document ).ready(function() {
 			},
 
 			success: function (response) {
-				//console.log(response);
-				//allDatas = JSON.parse(response);
+
 				response = _.rest(response);
 				var output = {
 					table:[]
 				};
-				//console.log("createTableDaily success", response);
-
+				
 				$.each(response, function(index,element){
 
 					output.table.push({
@@ -737,12 +755,15 @@ $( document ).ready(function() {
 						"marketname": element["marketname"],
 						"marketcode": element["marketcode"],
 						"quantity": parseFloat(element["quantity"]),
-						"userid": element["userid"]
+						"userid": element["userid"],
+						"min": element["min"],
+						"max": element["max"],
+						"avg": element["avg"]
 					});
 				});
 
 				if (tableIsInitAgg) {
-				//	console.log("!createTableDaily");
+				//	console.log("!createTableAgg");
 					$table.bootstrapTable('removeAll');
 					$table.bootstrapTable('append', output.table);
 				} else {
@@ -768,23 +789,17 @@ $( document ).ready(function() {
 							sortable: true,
 							searchable: true
 						}, {
-							field: 'price',
-							title: 'Price ('+currency+')',
+							field: 'avg',
+							title: 'Average ('+currency+')',
 							sortable: true
 						}, {
-							field: 'quantity',
-							title: 'Quantity ('+munit+')',
+							field: 'min',
+							title: 'Minimum ('+currency+')',
 							sortable: true
 						}, {
-							field: 'fulldate',
-							title: 'Date',
-							sortable: true,
-							searchable: true
-						}, {
-							field: 'userid',
-							title: 'User',
-							sortable: true,
-							searchable: true
+							field: 'max',
+							title: 'Maximum ('+currency+')',
+							sortable: true
 						}],
 						data: output.table,
 						pagination: true,
@@ -794,22 +809,6 @@ $( document ).ready(function() {
 					});
 					
 					tableIsInitAgg = true;
-
-					$("#tblExportCSV").on("click", function(){
-						$table.bootstrapTable('togglePagination');
-						$table.tableExport({type:'csv'});
-						$table.bootstrapTable('togglePagination');
-					});
-					$("#tblExportXLS").on("click", function(){
-						$table.bootstrapTable('togglePagination');
-						$table.tableExport({type:'xls'});
-						$table.bootstrapTable('togglePagination');
-					});
-					$("#tblExportJSON").on("click", function(){
-						$table.bootstrapTable('togglePagination');
-						$table.tableExport({type:'json'});
-						$table.bootstrapTable('togglePagination');
-					});
 				}
 			},
 			error: function (a) {
@@ -1059,6 +1058,8 @@ $( document ).ready(function() {
 
 					$.each(globalMarkets, function (k, v) {
 
+					//console.log(v);
+
 						v = _.extend(v, Cresponse[v.code] );
 
 						var avg = [],
@@ -1072,10 +1073,10 @@ $( document ).ready(function() {
 							marketcode.push(v.code);
 
 							var temp = [];
-							temp.push(v.lat);
-							temp.push(v.lon);
-							temp.push(v.name + avgS);
-							temp.push(noData);
+							temp.push(v.lat);			//0
+							temp.push(v.lon);			//1
+							temp.push(v.name + avgS);	//2
+							temp.push(noData);			//3
 
 							if(Cresponse[v.code])
 								addressPoints.push(temp);
