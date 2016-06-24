@@ -400,23 +400,12 @@ $( document ).ready(function() {
 					"WHERE gaul0code = '"+nations.toString()+"' "+
 						" AND marketcode IN ('"+_.compact(checkedMarkets).join("','")+"') "+
 						" AND commoditycode IN ('"+_.compact(commodityItem).join("','")+"') ";
-				/*
-				 FROM data
-				 WHERE gaul0code = '1'
-				 AND marketcode IN ('95','96','97','98','99','100','101','102','103','104')
-				 AND commoditycode IN ('36','35')
-				 ORDER BY marketcode, fulldate
-
-				sQuery = "SELECT id, gaul0code, citycode, marketcode, munitcode, currencycode, commoditycode, varietycode, price, quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, geo "+
-					"FROM "+ table + " "+
-					"WHERE gaul0code = '"+nations.toString()+"' AND marketcode='"+marketcode+"' AND commoditycode='"+commodityItem[i]+"' ";
-				*/
 
 				if(filterPolygonWKT)
 					sQuery += " AND ST_contains(ST_GeomFromText('" + filterPolygonWKT + "',4326),geo)";
 
 
-				sQuery = sQuery + " ORDER BY fulldate";
+				sQuery = sQuery + " ORDER BY commoditycode, marketcode, fulldate";
 
 				//console.log ("sQuery: "+sQuery);
 
@@ -443,34 +432,28 @@ $( document ).ready(function() {
 					if(data.length===0)
 						return;
 
-					var output = {
-						datas: []
-					};
-
-					$.each(data, function(k,v){
-
-						output.datas.push({
-							"id": v["id"],
-							"gaul0code": v["gaul0code"],
-							"citycode": v["citycode"],
-							"marketcode": v["marketcode"],
-							"munitcode": v["munitcode"],
-							"currencycode": v["currencycode"],
-							"commoditycode": v["commoditycode"],
-							"varietycode": v["varietycode"],
-							"price": v["price"],
-							"untouchedprice": v["untouchedprice"],
-							"fulldate": v["fulldate"],
-							"note": v["note"],
-							"userid": v["userid"],
-							"vendorname": v["vendorname"],
-							"vendorcode": v["vendorcode"],
-							"lat": v["lat"],
-							"lon": v["lon"],
-							"geo": v["geo"]
-						});
-						//console.log(element)
-					});
+					/*		data			
+					{
+						"id": v["id"],
+						"gaul0code": v["gaul0code"],
+						"citycode": v["citycode"],
+						"marketcode": v["marketcode"],
+						"munitcode": v["munitcode"],
+						"currencycode": v["currencycode"],
+						"commoditycode": v["commoditycode"],
+						"varietycode": v["varietycode"],
+						"price": v["price"],
+						"untouchedprice": v["untouchedprice"],
+						"fulldate": v["fulldate"],
+						"note": v["note"],
+						"userid": v["userid"],
+						"vendorname": v["vendorname"],
+						"vendorcode": v["vendorcode"],
+						"lat": v["lat"],
+						"lon": v["lon"],
+						"geo": v["geo"]
+					}
+					*/
 
 					$.each(data, function() {
 						tmpArray = new Array(2)
@@ -505,7 +488,6 @@ $( document ).ready(function() {
 						resultdataA.push( v );
 					});
 
-
 					_.each(resultdataA, function(vals, k) {
 						
 						var sum = 0,
@@ -529,7 +511,7 @@ $( document ).ready(function() {
 						};
 					});
 
-						console.log("EBBASTACOSTORUMORE",seriesOptions1,seriesOptions2);
+					console.log("EBBASTACOSTORUMORE",seriesOptions1,seriesOptions2);
 
 				},
 				error: function (a) {
