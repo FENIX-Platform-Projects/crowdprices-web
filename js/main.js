@@ -1,21 +1,34 @@
 $( document ).ready(function() {
+
 	var counterUI = 0,
 		map = null,
 		mapInit = false,
 		markers = null,
 		munit = "Kg",
 		currency = "USD",
-		globalMarkets;
-	
-	var globalURI = "http://fenix.fao.org/restsql-0.8.8/res/",
-	//PROD globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/";
-	
-	// WDS
+		globalMarkets,
+		globalURI = "http://fenix.fao.org/restsql-0.8.8/res/",
+		//PROD globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/",
 		WDSURI = 'http://fenixapps2.fao.org/wds-5.2.1/rest/crud/',
 		DATASOURCE = "CROWD",
+		initGauls = [90,1,45],
+		nations = 1,
+		commodityMaps = "",
+		commodityItem = [],
+		commodityName = [],
+		commodityNameIndexed = {},
+		allMarketName = [],
+		checkedMarkets = [],
+		startDate,
+		endDate,
+		filterPolygonWKT,
+		emptyMarketLayer,
+		tableIsInit = false,
+		tableIsInitAgg = false,
+		isInit = false,
 		countries_tables = {
-			"1": { // afganistan demo
-				"name": "Demo",
+			"1": {
+				"name": "Demo",	//Afganistan
 				"table": "data",
 				"currency": "USD"
 			},
@@ -27,36 +40,11 @@ $( document ).ready(function() {
 				"table": "data_cameroon",
 				"currency": "CFA"
 			}
-		};
-	var initGauls = [90,1,45];
-	var nations = 1;
-
-	var allMarketName = [];
-
-	var commodityMaps = "";
-	var commodityItem = [];
-	var commodityName = [];
-
-	var commodityNameIndexed = {};
-
-	var checkedMarkets = [];
-	
-	var startDate;
-	var endDate;
-
-	var filterPolygonWKT;
-
-	var tableIsInit = false;	
-	var tableIsInitAgg = false;	
-	var isInit = false;
-
-
-	var months = [
-			"01", "02", "03",
-			"04", "05", "06", "07",
-			"08", "09", "10",
-			"11", "12"
-		];
+		},
+		months = [
+			"01", "02", "03","04", "05", "06",
+			"07", "08", "09", "10","11", "12"
+		];		
 	
 	function formatDate ( date ) {
 		//console.log("formatDate: "+date);
@@ -212,7 +200,7 @@ $( document ).ready(function() {
 			checkedMarkets = [];
 			$("#markets").empty();
 			$('#markets').chosen("destroy");
-			console.log("checkedMarkets",checkedMarkets);
+			//console.log("checkedMarkets",checkedMarkets);
 		}
 
 		$.ajax({
@@ -229,7 +217,7 @@ $( document ).ready(function() {
 
 				globalMarkets = _.rest(data);
 
-				//console.log(data, globalMarkets)
+				console.log('getMarkets', globalMarkets);
 
 				var sel = $("#markets");
 				$.each(data, function () {
@@ -576,7 +564,7 @@ $( document ).ready(function() {
 		//qString = qString + "limit 100";
 		qString = qString + " ORDER BY "+table+".fulldate DESC ";
 
-		console.log("updateTableDaily", qString);
+		//console.log("updateTableDaily", qString);
 
 		$.ajax({
 			type: 'GET',
@@ -831,7 +819,7 @@ $( document ).ready(function() {
 				" AND commoditycode IN ('"+_.compact(commodityItem).join("','")+"') "+
 				" AND gaul0code = "+nations.toString()+" ";
 
-		console.log("updateDates()", sQuery);
+		//console.log("updateDates()", sQuery);
 
 		$.ajax({
 			type: 'GET',
@@ -1183,6 +1171,9 @@ $( document ).ready(function() {
 		    provider: new L.GeoSearch.Provider.Google(),
 			showMarker: false,
         }) );
+
+
+		emptyMarketLayer = L.layerGroup([]).addTo(map);
 
 		// Initialise the FeatureGroup to store editable layers
 		var drawnItems = new L.FeatureGroup();
