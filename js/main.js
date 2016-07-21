@@ -45,6 +45,31 @@ $( document ).ready(function() {
 			"01", "02", "03","04", "05", "06",
 			"07", "08", "09", "10","11", "12"
 		];		
+
+		var desatIcon = L.icon({
+				iconUrl: 'img/marker-icon-none.png',
+				shadowUrl: 'img/marker-shadow.png',
+				iconSize: L.point(28, 28),
+				iconAnchor: L.point(28, 28),
+				popupAnchor: L.point(-14, -14)
+			});
+
+		var desatIconBig = L.icon({
+				iconUrl: 'img/marker-icon-none-big.png',
+				shadowUrl: 'img/marker-shadow.png',
+				iconSize: L.point(109, 109),
+				iconAnchor: L.point(109, 109),
+				popupAnchor: L.point(-54, -54)
+			});
+
+		var foundIcon = L.icon({
+				iconUrl: 'img/marker-icon.png',
+				shadowUrl: 'img/marker-shadow.png',
+				iconSize: L.point(109, 109),
+				iconAnchor: L.point(70, 70),
+				popupAnchor: L.point(-14, -14)
+			});
+
 	
 	function formatDate ( date ) {
 		//console.log("formatDate: "+date);
@@ -207,7 +232,9 @@ $( document ).ready(function() {
 			type: 'GET',
 			url: WDSURI,
 			data: {
-				payload: '{"query": "SELECT parentcode, code, name, lang, shown, lat, lon, gaul0 FROM market WHERE gaul0='+nations.toString()+' ORDER BY code"}',
+				payload: '{"query": "SELECT parentcode, code, name, lang, shown, lat, lon, gaul0 '+
+									'FROM market '+
+									'WHERE gaul0='+nations.toString()+' ORDER BY code"}',
 				datasource: DATASOURCE,
 				outputType: 'object'
 			},
@@ -1002,13 +1029,11 @@ $( document ).ready(function() {
 		
 	function updateMap() {
 
-		if (markers != null) {
-			map.removeLayer(markers);
-			markers = L.markerClusterGroup({
-				showCoverageOnHover: false
-			});
-			markers.clearLayers()
-		}
+		if (markers != null)
+			markers.clearLayers();
+
+		//if (emptyMarketLayer != null)
+		//	emptyMarketLayer.clearLayers();
 		
 		if (commodityMaps != "") {
 			//console.log(checkedMarkets);
@@ -1028,8 +1053,6 @@ $( document ).ready(function() {
 			qString += "GROUP BY marketcode "+
 					   "ORDER BY marketcode ";
 
-			//console.log('qString: ',qString);
-
 			$.ajax({
 				type: 'GET',
 				url: WDSURI,
@@ -1047,95 +1070,85 @@ $( document ).ready(function() {
 					address = 0;
 					response = _.rest(response);
 
-					var Cresponse = _.groupBy(response,'marketcode'),
-						CglobalMarkets = _.groupBy(globalMarkets,'code');
+					var Cresponse = _.groupBy(response, 'marketcode'),
+						CglobalMarkets = _.groupBy(globalMarkets, 'code');
 
 					$.each(globalMarkets, function (k, v) {
 
-						//console.log(v.code);
+						if(!v[0]) {
+							L.marker([v.lat,v.lon], {
+								icon: desatIcon
+							})
+							.bindPopup('<div class="notValued">' + v.name + ' </div>')
+							.on('mouseover', function (e) {
+								e.target.openPopup();
+							})
+							.addTo(emptyMarketLayer);
+						}
 
 						v = _.extend(v, Cresponse[v.code] );
 
-						var avg = [],
-							avgS = "",
-							noData = !!v[0];
+						var avgS = "",
+							hasData = v[0] && _.has(v[0],'avg');
 
-							if(noData)
-								avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + currency + "\/" + munit;
+						if(hasData) {
+							avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + currency + "\/" + munit;
+						}
+			
+						vendors.push(v.name);
+						marketcode.push(v.code);
 
-							vendors.push(v.name);
-							marketcode.push(v.code);
+						if(Cresponse[v.code]) {
 
-							var temp = [];
-							temp.push(v.lat);         //0
-							temp.push(v.lon);         //1
-							temp.push(v.name + avgS); //2
-							temp.push(noData);        //3
+							addressPoints.push([
+								v.lat,
+								v.lon,
+								v.name+avgS,
+								hasData
+							]);
+						}
 
-							if(Cresponse[v.code])
-								addressPoints.push(temp);
-
-							address++;
+						address++;
 					});
-
-
-
-					refreshCluster();
 
 					function refreshCluster() {
 						//console.log("refreshCluster inside UpdateMap");
-						var desatIcon = L.icon({
-							iconUrl: 'img/marker-icon-none.png',
-							shadowUrl: 'img/marker-shadow.png',
-							iconSize: L.point(109, 109),
-							iconAncho: L.point(109, 109)
-						});
 
-						var foundIcon = L.icon({
-							iconUrl: 'img/marker-icon.png',
-							shadowUrl: 'img/marker-shadow.png',
-							iconSize: L.point(109, 109),
-							iconAncho: L.point(109, 109)
-						});
+						var existingPoints = [],
+							latlngs = [];
 
-						var existingPoints = [];
-
-						//console.log('refreshCluster',addressPoints)
-
-						var latlngs = [];
 						for (var i = 0; i < addressPoints.length; i++) {
-							//console.log ("pop!");
-							var a = addressPoints[i];
+							
+							var point = addressPoints[i];
 
-							var title = a[2],
-								cIcon = desatIcon,
-								loc = new L.LatLng(a[0], a[1]);
+							var title = point[2],
+								hasData = point[3],
+								loc = new L.LatLng(point[0], point[1]);
 
-							var temp = [];
-							temp.push(loc);
-							temp.push(title);
+							existingPoints.push([
+								loc,
+								title
+							]);
 
-							existingPoints.push(temp);
-
-							var marker = L.marker(loc, {icon: a[3] ? foundIcon : desatIcon});
-
-							marker.bindPopup('<div class="' + (!a[3] && 'notValued') + '">' + title + '</div>');
-
-							marker.on('mouseover', function (e) {
+							var marker = L.marker(loc, {
+								icon: !!hasData ? foundIcon : desatIconBig
+							})
+							.bindPopup('<div class="' + (!hasData && 'notValued') + '">' + title + '</div>')
+							.on('mouseover', function (e) {
 								e.target.openPopup();
 							});
 
-							markers.addLayer(marker);
-
-							if (a[3])
+							if(hasData) {
+								markers.addLayer(marker);
 								latlngs.push(loc);
+							}
 						}
-
-						map.addLayer(markers)
 						
 						if(latlngs.length>0)
 							map.fitBounds(L.latLngBounds(latlngs).pad(0.2));
 					}
+
+					refreshCluster();
 				}
 			});
 
@@ -1151,10 +1164,6 @@ $( document ).ready(function() {
 				subdomains: 'abcd',
 				maxZoom: 19
 			});
-
-		markers = L.markerClusterGroup({
-			showCoverageOnHover: false
-		});
 
 		map = L.map('map-cluster', {
 			attributionControl: false,
@@ -1173,9 +1182,19 @@ $( document ).ready(function() {
         }) );
 
 
-		emptyMarketLayer = L.layerGroup([]).addTo(map);
+		
+		/*markers = L.markerClusterGroup({
+			showCoverageOnHover: false
+		}).addTo(map);*/
+		markers = L.layerGroup().addTo(map);
 
-		// Initialise the FeatureGroup to store editable layers
+		emptyMarketLayer = L.layerGroup().addTo(map);
+		//emptyMarketLayer = L.featureGroup([]).addTo(map);
+		//emptyMarketLayer = L.markerClusterGroup({
+		//	showCoverageOnHover: false
+		//});
+		
+	// Initialise the FeatureGroup to store editable layers
 		var drawnItems = new L.FeatureGroup();
 
 		map.addLayer(drawnItems);
