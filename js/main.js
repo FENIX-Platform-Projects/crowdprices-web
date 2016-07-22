@@ -10,6 +10,7 @@ $( document ).ready(function() {
 		globalURI = "http://fenix.fao.org/restsql-0.8.8/res/",
 		//PROD globalURI = "http://fenixapps2.fao.org/restsql-0.8.8/res/",
 		WDSURI = 'http://fenixapps2.fao.org/wds-5.2.1/rest/crud/',
+		ZOOM_TO_BBOX = 'http://fenix.fao.org/geo/fenix/spatialquery/db/spatial/bbox/layer/',
 		DATASOURCE = "CROWD",
 		initGauls = [90,1,45],
 		nations = 1,
@@ -204,6 +205,9 @@ $( document ).ready(function() {
 				$('#countries').on('change', function(evt, params) {
 
 					nations = evt.currentTarget.value;
+
+					zoomToCountry(nations);
+
 					getMarkets(true);
 
 					updateValues();
@@ -1026,7 +1030,20 @@ $( document ).ready(function() {
 	        return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
 	    }
 	}
-		
+
+	function zoomToCountry(code) {
+
+        var url = ZOOM_TO_BBOX+'country/adm0_code/'+code;
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function(response) {
+                map.fitBounds(response);
+            }
+        });
+    }
+
 	function updateMap() {
 
 		if (markers != null)
