@@ -1,7 +1,3 @@
-/* Bootstrap */
-//@import 'bootstrap';
-
-/* Uneca Theme */
 $fx-ui-common: '../submodules/fenix-ui-common/css/';
 
 @import 'themes/variables';
@@ -12,10 +8,19 @@ $fx-ui-common: '../submodules/fenix-ui-common/css/';
 /* Pages */
 @import 'pages/home';
 
-//
-///* Components */
-//@import "components/bootstrap-fixed-height";
-
 /* Theme */
 @import "themes/side-menu";
 @import 'themes/theme';
+
+
+
+
+
+
+
+//Temp to check
+
+.container-fluid {
+  position: relative;
+  z-index: 0;
+}
