@@ -1,0 +1,81 @@
+<!-- Selectors -->
+<div class="container-fluid">
+
+    <div class="row row-same-height row-full-height">
+
+        <div class="col-sm-4  col-full-height home-tile aims">
+            <div id="nation-selector" class="fx-home-content-grid-top">
+                <h2>Countries</h2>
+                <div data-selector="countries"></div>
+            </div>
+        </div>
+        <div class="col-sm-4  col-full-height home-tile gray">
+            <div id="market-selector" class="fx-home-content-grid-top">
+                <h2>Markets</h2>
+                <div data-selector="markets"></div>
+            </div>
+        </div>
+        <div class="col-sm-4 col-full-height home-tile">
+            <div id="commodity-selector" class="fx-home-content-grid-top">
+                <h2>Commodities</h2>
+                <div data-selector="commodities"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 partners-holder">
+
+            <h2>Date Range</h2>
+
+            <div data-selector="time"></div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Visualization -->
+<div class="container-fluid">
+
+    <!-- Map -->
+    <div class="row">
+
+        <div id='country-details' class="col-xs-12 country-details home-tile map">
+            <div id="map-cluster" class="content-item"></div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-xs-12 charts-holder">
+            <div class="content">
+
+                <h2>Daily Prices</h2>
+
+                <div id="hi-stock1" class="content-item"></div>
+                <h2>Average Prices</h2>
+
+                <div id="hi-stock2" class="content-item"></div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="row">
+        <div class="col-xs-12 charts-holder">
+            <h2>Daily Data</h2>
+            <table id="tableDaily"></table>
+            Export this table to <a id="tblExportCSV" href="#">CSV</a> <a id="tblExportJSON" href="#">JSON</a>
+            <a id="tblExportXLS" href="#">XLS</a>
+
+            <h2>Aggregated Data</h2>
+            <table id="tableAgg"></table>
+
+        </div>
+    </div>
+
+</div>

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Crowd Prices</title>
@@ -7,9 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-    <link rel="icon" href="img/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Oswald:400,300,700" type="text/css"/>
-
     <link rel="stylesheet" href="//fenixrepo.fao.org/cdn/js/bootstrap/3.3.4/css/bootstrap.min.css"/>
 
     <!--
@@ -36,187 +34,9 @@
 </head>
 <body>
 
-<div id="wrapper">
-
-    <!-- #sidebar-wrapper -->
-    <div id="sidebar-wrapper">
-
-        <div class="fx-menu sidemenu">
-
-            <ul class="sidebar-nav fx-ul">
-
-                <li id="home">
-                    <a href="./"> Price Monitoring </a>
-                </li>
-                <li id="analysis">
-                    <a href="http://fenixrepo.fao.org/apk/CrowdPricesLatest.apk">Download App (APK)</a>
-                </li>
-                <li id="createdataset">
-                    <a href="http://fenixrepo.fao.org/apk/changelog.txt">Latest Updates</a>
-                </li>
-            </ul>
-
-            <!-- Quick stats -->
-            <div class="spark-holder">
-
-                <h2>QUICK STATS</h2>
-
-                <div class="spark-item">
-                    <h1 class="spark-number">20</h1>
-
-                    <p> ACTIVE USERS </p>
-
-                    <div class="sparkline" data-sparkline="0, 400, 10, 600, 12, 800,400,1000 "></div>
-                </div>
-
-                <div class="spark-item">
-                    <h1 class="spark-number">140.000</h1>
-
-                    <p> VISITS SO FAR </p>
-
-                    <div class="sparkline" data-sparkline="0, 100,  200, 12, 300,400,600"></div>
-                </div>
-
-                <br><br>
-
-            </div>
-
-        </div>
-
-    </div> <!-- /#sidebar-wrapper -->
-
-    <!-- #page-content-wrapper -->
-    <div id="page-content-wrapper" class="home-content">
-
-        <!-- Header -->
-        <header class="page-content-toolbar">
-
-            <!-- Logo-->
-            <div class="brand-logo">
-                <h4 class="title">CROWD PRICES</h4>
-                <div class="subtitle">
-                    <p>Real time</p>
-                    <p>Price monitoring system</p>
-                </div>
-            </div>
-
-            <!-- Side menu toggle button-->
-            <a href="#menu-toggle" class="btn btn-default page-content-toolbar-btn" id="menu-toggle">
-                <span class="sr-only"></span>
-                <span class="icon-bar top-bar"></span>
-                <span class="icon-bar middle-bar"></span>
-                <span class="icon-bar bottom-bar"></span>
-            </a>
-
-        </header>
-
-        <!-- Selectors -->
-        <div class="container-fluid">
-
-            <div class="row row-same-height row-full-height">
-
-                <div class="col-sm-4  col-full-height home-tile aims">
-                    <div id="nation-selector" class="fx-home-content-grid-top">
-                        <h2>Countries</h2>
-                        <div data-selector="countries"></div>
-                    </div>
-                </div>
-                <div class="col-sm-4  col-full-height home-tile gray">
-                    <div id="market-selector" class="fx-home-content-grid-top">
-                        <h2>Markets</h2>
-                        <div data-selector="markets"></div>
-                    </div>
-                </div>
-                <div class="col-sm-4 col-full-height home-tile">
-                    <div id="commodity-selector" class="fx-home-content-grid-top">
-                        <h2>Commodities</h2>
-                        <div data-selector="commodities"></div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="row">
-                <div class="col-xs-12 partners-holder">
-
-                    <h2>Date Range</h2>
-
-                    <div data-selector="time"></div>
-
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Visualization -->
-        <div class="container-fluid">
-
-            <!-- Map -->
-            <div class="row">
-
-                <div id='country-details' class="col-xs-12 country-details home-tile map">
-                    <div id="map-cluster" class="content-item"></div>
-                </div>
-            </div>
-
-            <!-- Charts -->
-            <div class="row">
-                <div class="col-xs-12 charts-holder">
-                    <div class="content">
-
-                        <h2>Daily Prices</h2>
-
-                        <div id="hi-stock1" class="content-item"></div>
-                        <h2>Average Prices</h2>
-
-                        <div id="hi-stock2" class="content-item"></div>
-
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Tables -->
-            <div class="row">
-                <div class="col-xs-12 charts-holder">
-                    <h2>Daily Data</h2>
-                    <table id="tableDaily"></table>
-                    Export this table to <a id="tblExportCSV" href="#">CSV</a> <a id="tblExportJSON" href="#">JSON</a>
-                    <a id="tblExportXLS" href="#">XLS</a>
-
-                    <h2>Aggregated Data</h2>
-                    <table id="tableAgg"></table>
-
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Footer -->
-        <footer class="row">
-
-            <div class="col-xs-12 afg-footer">
-                <div class="afg-footer-text">
-                    <p>2016 ® Central Statistic Organization</p>
-                    <p class="pull-right">POWERED BY FENIX <img src="css/img/fenix-logo.jpg"></p>
-                </div>
-
-            </div>
-
-        </footer>
-
-        <br><br><br><br>
-
-    </div>
-    <!-- /#page-content-wrapper -->
-
-</div>
-<!-- /#wrapper -->
-
-<!--<script src="js/main.js"></script>-->
+<script data-main="main" src="//fenixrepo.fao.org/cdn/js/requirejs/2.1.15/require.min.js"></script>
 
 </body>
-
 
 <!--
 
@@ -251,23 +71,6 @@
 
         //$(window).on('resize', onResize);
 
-
-        $("#menu-toggle").click(function (e) {
-
-            e.preventDefault();
-
-            $("#slider").dateRangeSlider("resize");
-
-
-            $("#wrapper").toggleClass("toggled");
-
-            onResize();
-
-            setTimeout(function () {
-                onResize()
-            }, 500);
-
-        });
 
     });
 
