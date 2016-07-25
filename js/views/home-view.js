@@ -2,15 +2,21 @@
 define([
     'jquery',
     'views/base/view',
+    'fx-filter/start',
     'config/config',
     'config/events',
+    'config/submodules/fx-filter/config',
     'text!templates/home/template.hbs',
     'i18n!nls/labels',
     'handlebars',
     'amplify'
-], function ($, View, C, EVT, template, i18nLabels) {
+], function ($, View, Filter,  C, EVT, Items, template, i18nLabels) {
 
     'use strict';
+
+    var s = {
+        FILTER : "#selectors-el"
+    };
 
     var HomeView = View.extend({
 
@@ -35,6 +41,8 @@ define([
 
             this._bindEventListeners();
 
+            this._initFilter();
+
         },
 
         _initVariables: function () {
@@ -42,6 +50,15 @@ define([
         },
 
         _bindEventListeners: function () {
+
+        },
+
+        _initFilter: function () {
+
+            this.filter = new Filter({
+                el: s.FILTER,
+                items: Items
+            });
 
         },
 

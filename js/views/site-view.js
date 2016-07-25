@@ -111,7 +111,7 @@ define([
         },
 
         _initQuickStats: function () {
-            
+
         },
 
         _onMenuRendered: function () {
