@@ -17,8 +17,16 @@ define(function () {
         TOP_MENU_TEMPLATE: 'fx-menu/html/blank-fluid.html',
 
         TOP_MENU_AUTH_MODE_HIDDEN_ITEMS: ['login'],
-        TOP_MENU_PUBLIC_MODE_HIDDEN_ITEMS: ['logout', "download"]
+        TOP_MENU_PUBLIC_MODE_HIDDEN_ITEMS: ['logout', "download"],
 
+        DB_NAME: "CROWD",
+        WDS_URL: 'http://fenixapps2.fao.org/wds-5.2.1/rest/crud',
+        WDS_OUTPUT_TYPE: 'object',
+
+        from : "2016-05-01 00:00:00",
+        format : "LL",
+
+        downloadUrl : "http://fenix.fao.org/crowd/export/csv"
 
     };
 });

@@ -80,7 +80,17 @@ require([
 
                     loglevel: "{FENIX_CDN}/js/loglevel/1.4.0/loglevel",
 
+                    moment : '{FENIX_CDN}/js/moment/2.12.0/min/moment.min',
+
                     'fx-common/config/auth_users': '../../config/auth_users.json',
+
+                    //Map
+                    'leaflet'                 :'{FENIX_CDN}/js/leaflet/0.7.7/leaflet-src',
+                    'leaflet.markercluster'   :'{FENIX_CDN}/js/leaflet/plugins/leaflet.markecluster/1.1/leaflet.markercluster',
+                    'leaflet.draw'            :'{FENIX_CDN}/js/leaflet/plugins/leaflet.draw/0.2.4/leaflet.draw',
+                    'leaflet.geosearch'       :'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.control.geosearch',
+                    'leaflet.geosearch.google':'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.geosearch.provider.google',
+
 
                     //nls: "../i18n",
                     config: "../config",
@@ -94,9 +104,24 @@ require([
                 // so we need to use the AMD wrapping of RequireJS
                 shim: {
 
-                    underscore: {
-                        exports: '_'
-                    },
+                    'underscore'  : { exports: '_' },
+
+                    'chosen'                :['jquery'],
+                    'jquery-ui'             :['jquery'],
+                    'bootstrap'             :['jquery'],
+                    'bootstrap-table'       :['jquery','bootstrap'],
+
+                    'highstock'             :['jquery'],
+                    'highstock.exporting'   :['jquery','highstock'],
+
+                    'jquery.nouislider'     :['jquery'],
+                    'jQAllRangeSliders-min' :['jquery'],
+
+                    'leaflet.markercluster'    :['leaflet'],
+                    'leaflet.draw'             :['leaflet'],
+                    'leaflet.geosearch'        :['leaflet'],
+                    'leaflet.geosearch.google' :['leaflet','leaflet.geosearch'],
+
                     handlebars: {
                         exports: 'Handlebars'
                     }
@@ -119,7 +144,7 @@ require([
     ], function (log, Application, routes, C) {
 
         //trace, debug, info, warn, error, silent
-        log.setLevel('trace');
+        log.setLevel('silent');
 
         var app = new Application({
             routes: routes,

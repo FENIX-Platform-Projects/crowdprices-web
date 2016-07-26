@@ -7,7 +7,7 @@ define(function () {
     return function (match) {
         match('', 'home#show');
         match('home', 'home#show');
-        match('download', 'download#show');
+        //match('download', 'download#show');
         match('*anything', '404#show');
     };
 });
