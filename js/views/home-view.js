@@ -8,6 +8,7 @@ define([
     'config/events',
     'config/country2table',
     'config/charts',
+    'config/tables',
     'config/submodules/fx-filter/config',
     'text!templates/home/template.hbs',
     'i18n!nls/labels',
@@ -17,8 +18,10 @@ define([
     'fx-common/utils',
     'moment',
     'leaflet',
+    'highstock',
+    'bootstrap-table',
     'amplify'
-], function (log, $, View, Filter, C, EVT, Country2Table, ChartConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L) {
+], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L) {
 
     'use strict';
 
@@ -244,8 +247,21 @@ define([
 
         _preloadTimeRange: function () {
 
+            var country = Utils.getNestedProperty("countries.selector.default", this.filterItems)[0],
+                commodities = Utils.getNestedProperty("commodities.selector.default", this.filterItems),
+                markets = Utils.getNestedProperty("markets.selector.default", this.filterItems),
+                query = this._compile({
+                    source: Q.time,
+                    context: {
+                        table: Country2Table["country_" + country],
+                        country: country,
+                        commodities: _.compact(commodities).join("','"),
+                        markets: _.compact(markets).join("','")
+                    }
+                });
+
             this._retrieveResource({
-                query: Q.time,
+                query: query,
                 success: _.bind(this._preloadTimeRangeSuccess, this),
                 error: _.bind(this._preloadTimeRangeError, this)
             });
@@ -281,6 +297,8 @@ define([
 
         _onFilterReady: function () {
 
+            this.current.values = this.filter.getValues();
+
             this._buildUI();
 
         },
@@ -305,7 +323,7 @@ define([
 
             //this._updateCharts();
 
-            //this._updateTables();
+            this._updateTables();
 
         },
 
@@ -456,7 +474,8 @@ define([
             this._retrieveResource({
                 query: Q.charts,
                 success: _.bind(this._updateChartsSuccess, this),
-                error: _.bind(this._updateChartsError, this)
+                error: _.bind(this._updateChartsError, this),
+                outputType: 'array'
             });
 
         },
@@ -467,7 +486,8 @@ define([
 
         _buildChartsSeries: function (response) {
 
-            var data = _.rest(response),
+            var self = this,
+                data = _.rest(response),
                 averagedata = [],
                 resultdata = [],
                 aggregated = 0,
@@ -476,11 +496,11 @@ define([
                 j = 0;
 
             if (data.length === 0) {
+                alert("Chart data is empty");
                 return;
             }
 
-            $.each(data, function (index, d) {
-
+            _.each(data, function (d) {
                 var tmpArray = new Array(2);
                 //tmpArray[0] = new Date(this.fulldate).getTime();
                 var str = d[11];
@@ -488,13 +508,13 @@ define([
                 str = str.replace(/-/g, "/");
                 var dateObject = new Date(str);
                 tmpArray[0] = dateObject.getTime();
-                tmpArray[1] = parseFloat(this[8]) / parseFloat(this[9]);
-                tmpArray[2] = this[14];
-                tmpArray[3] = this[19];
+                tmpArray[1] = parseFloat(d[8]) / parseFloat(d[9]);
+                tmpArray[2] = d[14];
+                tmpArray[3] = d[19];
 
                 resultdata.push(tmpArray);
                 j++;
-                aggregated = aggregated + parseFloat(this[8]);
+                aggregated = aggregated + parseFloat(d[8]);
             });
 
             //TODO
@@ -530,7 +550,7 @@ define([
 
                     if (m.length > 0) {
 
-                        var commodity = Utils.getNestedProperty("labels.commodities", this.current.values)[comId],
+                        var commodity = Utils.getNestedProperty("labels.commodities", self.current.values)[comId],
                             label = +' @ ' + m[0][2];
                         var data = m.map(function (i) {
                             return [i[0], i[1]]
@@ -573,9 +593,9 @@ define([
                 dailyPricesSeries = series.dailyPrices,
                 averagePricesSeries = series.averagePrices;
 
-            this.$chartDailyPrices.highcharts('StockChart', $.extend(true, {}, ChartConfig.dailyPrices, {series: dailyPricesSeries}));
+            this.$chartDailyPrices.highcharts('StockChart', $.extend(true, {}, ChartsConfig.dailyPrices, {series: dailyPricesSeries}));
 
-            this.$chartAveragePrices.highcharts($.extend(true, {}, ChartConfig.averagePrices, {series: averagePricesSeries}));
+            this.$chartAveragePrices.highcharts($.extend(true, {}, ChartsConfig.averagePrices, {series: averagePricesSeries}));
 
         },
 
@@ -620,9 +640,43 @@ define([
             log.error(e);
         },
 
-        _updateAggregatedDataTableSuccess: function ( ) {
+        _updateAggregatedDataTableSuccess: function (d ) {
 
-            console.log("123")
+            console.log(d)
+
+            var response = _.rest(d);
+            var data = [];
+
+            _.each(response, function (element) {
+
+                data.push({
+                    gaul0code: element["gaul0code"],
+                    vendorname: element["vendorname"],
+                    citycode: element["citycode"],
+                    code: parseInt(element["code"]),
+                    price: parseFloat(element["price"]),
+                    fulldate: element["fulldate"],
+                    cityname: element["cityname"],
+                    commodityname: element["commodityname"],
+                    commoditycode: element["commoditycode"],
+                    marketname: element["marketname"],
+                    marketcode: element["marketcode"],
+                    quantity: parseFloat(element["quantity"]),
+                    userid: element["userid"],
+                    min: element["min"],
+                    max: element["max"],
+                    avg: element["avg"]
+                });
+            });
+
+/*            if (tableIsInitAgg) {
+                //	console.log("!updateTableAgg");
+                $table.bootstrapTable('removeAll');
+                $table.bootstrapTable('append', output.table);
+            } else {*/
+                this.$tableAggregatedData.bootstrapTable($.extend(true, {}, TablesConfig.aggregatedData, { data: data }));
+/*
+            }*/
 
         },
 
@@ -647,7 +701,9 @@ define([
                 countries = Utils.getNestedProperty("values.countries", values),
                 country = Array.isArray(countries) ? countries[0] : "",
                 markets = Utils.getNestedProperty("values.markets", values),
+                anyMarkets = _.reduce(markets, function(memo, num){ return memo + "," + num; }, ""),
                 commodities = Utils.getNestedProperty("values.commodities", values),
+                anyCommodities = _.reduce(commodities, function(memo, num){ return memo + "," + num; }, ""),
                 time = Utils.getNestedProperty("values.time", values),
                 fromValue = _.findWhere(time, {parent: 'from'}) ? _.findWhere(time, {parent: 'from'}).value : null,
                 toValue = _.findWhere(time, {parent: 'to'}) ? _.findWhere(time, {parent: 'to'}).value : null,
@@ -661,9 +717,13 @@ define([
                         markets: _.compact(markets).join("','"),
                         commodities: _.compact(commodities).join("','"),
                         from: from,
-                        to: to
+                        to: to,
+                        anyCommodities : anyCommodities.substring(1),
+                        anyMarkets : anyMarkets.substring(1)
                     }
                 });
+
+            console.log(anyMarkets)
 
             //Check if resource is cached otherwise retrieve
             var stored = amplify.store.sessionStorage(query);
@@ -674,8 +734,11 @@ define([
 
             } else {
 
+                console.log(query)
+
                 this.WDSClient.retrieve({
                     payload: {query: query},
+                    outputType : obj.outputType || "object",
                     success: function (response) {
                         amplify.store.sessionStorage(query, response);
                         obj.success(response)

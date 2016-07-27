@@ -55,7 +55,7 @@ require([
     var filterConfig = Filter;
     filterConfig.baseUrl = submodules_path + 'fenix-ui-filter/src/js';
 
-    Compiler.resolve([commonConfig, menuConfig, filterConfig,],
+    Compiler.resolve([commonConfig, menuConfig, filterConfig],
         {
             placeholders: {"FENIX_CDN": "http://fenixrepo.fao.org/cdn"},
 
@@ -97,6 +97,9 @@ require([
                     json: "../json",
                     nls: "../nls",
 
+                    highstock : '{FENIX_CDN}/js/highstock/2.1.9/js/highstock',
+                    //'highstock.exporting' : '{FENIX_CDN}/js/highstock/2.1.9/js/highstock-all',
+                    'bootstrap-table' : '{FENIX_CDN}/js/bootstrap-table/1.10.1/docs/dist/bootstrap-table.min',
 
                 },
 
