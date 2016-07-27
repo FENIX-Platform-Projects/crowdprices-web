@@ -1,11 +1,13 @@
 /*global define, _:false, $, console, amplify, FM, THREE*/
 define([
+    'loglevel',
     'jquery',
     'views/base/view',
     'fx-filter/start',
     'config/config',
     'config/events',
     'config/country2table',
+    'config/charts',
     'config/submodules/fx-filter/config',
     'text!templates/home/template.hbs',
     'i18n!nls/labels',
@@ -16,39 +18,18 @@ define([
     'moment',
     'leaflet',
     'amplify'
-], function ($, View, Filter, C, EVT, Country2Table, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L) {
+], function (log, $, View, Filter, C, EVT, Country2Table, ChartConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L) {
 
     'use strict';
 
     var s = {
         FILTER: "#selectors-el",
         DOWNLOAD_BTN: "#download-btn",
-        TABLE_DAILY_DATA : "#tableDaily"
+        TABLE_DAILY_DATA: "#table-daily-data",
+        TABLE_AGGREGATED_DATA: "#table-aggregated-data",
+        CHART_DAILY_PRICES: "#chart-daily-prices",
+        CHART_AVERAGE_PRICES: "#chart-average-prices",
     };
-
-    var desatIcon = L.icon({
-        iconUrl: 'img/marker-icon-none.png',
-        shadowUrl: 'img/marker-shadow.png',
-        iconSize: L.point(28, 28),
-        iconAnchor: L.point(28, 28),
-        popupAnchor: L.point(-14, -14)
-    });
-
-    var desatIconBig = L.icon({
-        iconUrl: 'img/marker-icon-none-big.png',
-        shadowUrl: 'img/marker-shadow.png',
-        iconSize: L.point(109, 109),
-        iconAnchor: L.point(109, 109),
-        popupAnchor: L.point(-54, -54)
-    });
-
-    var foundIcon = L.icon({
-        iconUrl: 'img/marker-icon.png',
-        shadowUrl: 'img/marker-shadow.png',
-        iconSize: L.point(109, 109),
-        iconAnchor: L.point(70, 70),
-        popupAnchor: L.point(-14, -14)
-    });
 
     var HomeView = View.extend({
 
@@ -62,36 +43,11 @@ define([
             return i18nLabels;
         },
 
-        attach: function () {
-
-            View.prototype.attach.call(this, arguments);
-
-            //update State
-            amplify.publish(EVT.stateChange, {menu: 'home'});
-
-            this._initVariables();
-
-            this._initComponents();
-
-            this._bindEventListeners();
-
-            this._preloadResources();
-
-        },
-
-        _initComponents: function () {
-
-            this.WDSClient = new WDSClient({
-                serviceUrl: C.WDS_URL,
-                datasource: C.DB_NAME,
-                outputType: C.WDS_OUTPUT_TYPE
-            });
-
-        },
-
         _initVariables: function () {
 
             var initialCountry = Items.countries.selector.default[0];
+
+            log.info("Initial country code: " + initialCountry);
 
             if (!initialCountry) {
                 alert("impossible to find default country. Please specify it in config/submodules/fx-filter/config.js");
@@ -115,16 +71,36 @@ define([
                 })
             };
 
+            log.info("Initial resource queries");
+            log.info(JSON.stringify(this.codelists));
+
+            //download
+
             this.$downloadBtn = this.$el.find(s.DOWNLOAD_BTN);
 
+            //charts
+
+            this.$chartDailyPrices = this.$el.find(s.CHART_DAILY_PRICES);
+            this.$chartAveragePrices = this.$el.find(s.CHART_AVERAGE_PRICES);
+
+            //tables
+
             this.$tableDailyData = this.$el.find(s.TABLE_DAILY_DATA);
+            this.$tableAggregatedData = this.$el.find(s.TABLE_AGGREGATED_DATA);
+
+
+            log.info("variable initialized successfully");
 
         },
 
-        _compile: function (obj) {
+        _initComponents: function () {
 
-            var template = Handlebars.compile(obj.source);
-            return template(obj.context);
+            this.WDSClient = new WDSClient({
+                serviceUrl: C.WDS_URL,
+                datasource: C.DB_NAME,
+                outputType: C.WDS_OUTPUT_TYPE
+            });
+
         },
 
         _bindEventListeners: function () {
@@ -132,6 +108,8 @@ define([
             this.$downloadBtn.on("click", _.bind(this._onDownloadClick, this))
 
         },
+
+        // handlers
 
         _onDownloadClick: function () {
 
@@ -147,7 +125,7 @@ define([
                 to = _.findWhere(time, {parent: 'to'}).value,
                 markets = Utils.getNestedProperty("values.markets", values);
 
-            var body ={
+            var body = {
                 country: country,
                 markets: markets,
                 commodities: commodities,
@@ -162,29 +140,35 @@ define([
                 url: C.downloadUrl,
                 contentType: "application/json",
                 data: JSON.stringify(body),
-                dataType:'json'
-            })
+                dataType: 'json'
+            });
 
         },
 
-        _retrieveResource: function (obj) {
+        // start
 
-            //Check if codelist is cached otherwise retrieve
-            var query = obj.query,
-                stored = amplify.store.sessionStorage(query);
+        attach: function () {
 
-            if (stored === undefined || stored.length < 2) {
+            log.info("view attached");
 
-                this.WDSClient.retrieve({
-                    payload: {query: query},
-                    success: obj.success,
-                    error: obj.error
-                });
+            View.prototype.attach.call(this, arguments);
 
-            } else {
-                obj.success(query, stored);
-            }
+            //update State
+            amplify.publish(EVT.stateChange, {menu: 'home'});
 
+            this._initVariables();
+
+            this._initComponents();
+
+            this._bindEventListeners();
+
+            this._preloadResources();
+
+        },
+
+        _onPreloadResourceError: function (e) {
+            alert("Impossible to retrieve initial resources");
+            log.error(e)
         },
 
         _preloadResources: function () {
@@ -200,20 +184,9 @@ define([
             }, this));
         },
 
-        _onPreloadResourceError: function (e) {
-            alert("Impossible to retrieve initial resources");
-        },
+        _onPreloadResourceSuccess: function (id, response) {
 
-        _onPreloadResourceSuccess: function (cd, response) {
-
-            amplify.store.sessionStorage(cd, response);
-
-            this._onResourceCached(cd, response);
-        },
-
-        _onResourceCached: function (cl, resource) {
-
-            this.cachedResources[cl] = resource;
+            this.cachedResources[id] = response;
 
             if (Object.keys(this.cachedResources).length === Object.keys(this.codelists).length) {
 
@@ -225,72 +198,61 @@ define([
 
         _onResourcesReady: function () {
 
-            this.filterItems = this._addCommoditiesCountriesMarketsModelsToFilter();
+            var self = this;
 
-            this._preloadTime();
+            this.filterItems = addCommoditiesCountriesMarketsModelsToFilter();
+
+            this._preloadTimeRange();
+
+            function addCommoditiesCountriesMarketsModelsToFilter() {
+
+                var commodities = self.cachedResources["commodities"] || [],
+                    countries = self.cachedResources["countries"] || [],
+                    markets = self.cachedResources["markets"] || [],
+                    items = $.extend(true, {}, Items);
+
+                // commodities
+                if (commodities.length > 1) {
+                    commodities.shift();
+                }
+                Utils.assign(items, "commodities.selector.source", commodities);
+
+                // countries
+                if (countries.length > 1) {
+                    countries.shift();
+                }
+                Utils.assign(items, "countries.selector.source", countries);
+
+                // markets
+                if (markets.length > 1) {
+                    markets.shift();
+                }
+                Utils.assign(items, "markets.selector.source", markets);
+                Utils.assign(items, "markets.selector.default", _.map(markets, function (m) {
+                    return m.value;
+                }));
+
+                return items;
+
+            }
 
         },
 
-        _addCommoditiesCountriesMarketsModelsToFilter: function () {
-
-            var commodities = amplify.store.sessionStorage("commodities") || [],
-                countries = amplify.store.sessionStorage("countries") || [],
-                markets = amplify.store.sessionStorage("markets") || [],
-                items = $.extend(true, {}, Items);
-
-            // commodities
-            if (commodities.length > 1) {
-                commodities.shift();
-            }
-            Utils.assign(items, "commodities.selector.source", commodities);
-
-            // countries
-            if (countries.length > 1) {
-                countries.shift();
-            }
-            Utils.assign(items, "countries.selector.source", countries);
-
-            // markets
-            if (markets.length > 1) {
-                markets.shift();
-            }
-            Utils.assign(items, "markets.selector.source", markets);
-            Utils.assign(items, "markets.selector.default", _.map(markets, function (m) {
-                return m.value;
-            }));
-
-            return items;
-
+        _preloadTimeRangeError: function (e) {
+            alert("Impossible to retrieve time range");
         },
 
-        _preloadTime: function () {
-
-            var country = Utils.getNestedProperty("countries.selector.default", this.filterItems)[0],
-                commodities = Utils.getNestedProperty("commodities.selector.default", this.filterItems),
-                markets = Utils.getNestedProperty("markets.selector.default", this.filterItems),
-                query = this._compile({
-                    source: Q.time,
-                    context: {
-                        table: Country2Table["country_" + country],
-                        country: country,
-                        commodities: _.compact(commodities).join("','"),
-                        markets: _.compact(markets).join("','")
-                    }
-                });
+        _preloadTimeRange: function () {
 
             this._retrieveResource({
-                query: query,
-                success: _.bind(this._preloadTimeSuccess, this),
-                error: _.bind(this._preloadTimeError, this)
+                query: Q.time,
+                success: _.bind(this._preloadTimeRangeSuccess, this),
+                error: _.bind(this._preloadTimeRangeError, this)
             });
 
         },
 
-        _preloadTimeError: function (e) {
-            alert("Impossible to retrieve time range");
-        },
-
-        _preloadTimeSuccess: function (response) {
+        _preloadTimeRangeSuccess: function (response) {
 
             response.shift();
 
@@ -329,19 +291,21 @@ define([
             this.$downloadBtn.attr("disabled", false);
         },
 
-        _buildUI: function () {
+        _updateStatistics : function () {},
 
-            this.current.values = this.filter.getValues();
+        _buildUI: function () {
 
             this._unlock();
 
             this.ready = true;
 
+            //this._updateStatistics();
+
             //this._updateMap();
 
             //this._updateCharts();
 
-            this._updateTables()
+            //this._updateTables();
 
         },
 
@@ -355,22 +319,8 @@ define([
 
             if (this.commodityMaps != "") {
 
-                var values = this.current.values,
-                    country = Utils.getNestedProperty("values.countries", values)[0],
-                    time = Utils.getNestedProperty("values.time", values),
-                    markets = Utils.getNestedProperty("values.markets", values),
-                    query = this._compile({
-                        source: Q.map,
-                        context: {
-                            table: Country2Table["country_" + country],
-                            from: Moment.unix(_.findWhere(time, {parent: 'from'}).value).format("YYYY-MM-DD"),
-                            to: Moment.unix(_.findWhere(time, {parent: 'to'}).value).format("YYYY-MM-DD"),
-                            markets: _.compact(markets).join("','")
-                        }
-                    });
-
                 this._retrieveResource({
-                    query: query,
+                    query: map,
                     success: _.bind(this._onUpdateMapSuccess, this),
                     error: _.bind(this._onUpdateMapError, this)
                 });
@@ -384,6 +334,30 @@ define([
         },
 
         _onUpdateMapSuccess: function (data) {
+
+            var desatIcon = L.icon({
+                iconUrl: 'img/marker-icon-none.png',
+                shadowUrl: 'img/marker-shadow.png',
+                iconSize: L.point(28, 28),
+                iconAnchor: L.point(28, 28),
+                popupAnchor: L.point(-14, -14)
+            });
+
+            var desatIconBig = L.icon({
+                iconUrl: 'img/marker-icon-none-big.png',
+                shadowUrl: 'img/marker-shadow.png',
+                iconSize: L.point(109, 109),
+                iconAnchor: L.point(109, 109),
+                popupAnchor: L.point(-54, -54)
+            });
+
+            var foundIcon = L.icon({
+                iconUrl: 'img/marker-icon.png',
+                shadowUrl: 'img/marker-shadow.png',
+                iconSize: L.point(109, 109),
+                iconAnchor: L.point(70, 70),
+                popupAnchor: L.point(-14, -14)
+            });
 
             var self = this,
                 addressPoints = [],
@@ -479,201 +453,19 @@ define([
 
         _updateCharts: function () {
 
-            var values = this.current.values,
-                country = Utils.getNestedProperty("values.countries", values)[0],
-                markets = Utils.getNestedProperty("values.markets", values),
-                commodities = Utils.getNestedProperty("values.commodities", values),
-                query = this._compile({
-                    source: Q.charts,
-                    context: {
-                        table: Country2Table["country_" + country],
-                        country: country,
-                        markets: _.compact(markets).join("','"),
-                        commodities: _.compact(commodities).join("','")
-
-                    }
-                });
-
             this._retrieveResource({
-                query: query,
+                query: Q.charts,
                 success: _.bind(this._updateChartsSuccess, this),
                 error: _.bind(this._updateChartsError, this)
             });
 
-            return;
-            /*
-
-
-
-             var seriesOptions1 = [],
-             seriesOptions2 = [],
-             seriesOptions3 = [],
-             seriesCounter = 0,
-             createChart1 = function (item) {
-             item.highcharts('StockChart'); // add series: seriesOptions1
-             //	console.log(seriesOptions1)
-             },
-             createChart2 = function (item) {
-
-             item.highcharts(); // series: seriesOptions2
-
-
-             }
-             var index = -1;
-             var commodityALL = "";
-             var indexName = allMarketName.length;
-
-             //	$.each(checkedMarkets, function(h,marketcode){
-             //		indexName--;
-             //console.log("allMarketName: "+allMarketName[indexName]);
-             var table = countries_tables[nations].table,
-             sQuery = "SELECT id, gaul0code, citycode, marketcode, " +
-             "munitcode, currencycode, commoditycode, varietycode, price, " +
-             "quantity, untouchedprice, fulldate, note, userid, vendorname, vendorcode, lat, lon, commodity.name, commodity.code " +
-             "FROM " + table + " , commodity " +
-             "WHERE gaul0code = '" + nations.toString() + "' " +
-             " AND marketcode IN ('" + _.compact(checkedMarkets).join("','") + "') " +
-             " AND commoditycode IN ('" + _.compact(commodityItem).join("','") + "') " +
-             " AND commoditycode::int = commodity.code ";
-
-             if (filterPolygonWKT)
-             sQuery += " AND ST_contains(ST_GeomFromText('" + filterPolygonWKT + "',4326),geo)";
-
-             sQuery = sQuery + " ORDER BY commoditycode, marketcode, fulldate";
-
-             //console.log ("sQuery: "+sQuery);
-
-             $.ajax({
-             type: 'GET',
-             url: WDSURI,
-             data: {
-             payload: '{"query": "' + sQuery + '"}',
-             datasource: DATASOURCE,
-             outputType: 'array'
-             },
-
-             success: function (response) {
-
-             //console.log(response);
-
-             //var data = JSON.parse(response);
-             var data = _.rest(response),
-             averagedata = [],
-             resultdata = [],
-             aggregated = 0,
-             j = 0;
-
-             if (data.length === 0)
-             return;
-
-             $.each(data, function () {
-             tmpArray = new Array(2)
-             //tmpArray[0] = new Date(this.fulldate).getTime();
-             var str = this[11];
-             str = str.substring(0, str.length - 2);
-             str = str.replace(/-/g, "/");
-             var dateObject = new Date(str);
-             tmpArray[0] = dateObject.getTime();
-             tmpArray[1] = parseFloat(this[8]) / parseFloat(this[9]);
-             tmpArray[2] = this[14];
-             tmpArray[3] = this[19];
-
-             resultdata.push(tmpArray);
-             j++;
-             aggregated = aggregated + parseFloat(this[8]);
-             });
-
-             startDate = data[0][11];
-             endDate = data[j - 1][11];
-
-             temArray = new Array(1);
-             //temArray[0] = new Date().getTime();
-             temArray[1] = ( aggregated / j );
-
-             if (temArray[1] > 1)
-             averagedata.push(temArray);
-
-             var resultdataGmark = _.groupBy(resultdata, function (v) {
-             return v[2];//market name
-             });
-
-             var resultdataGComm = _.groupBy(resultdata, function (v) {
-             return v[3];//commodity name
-             });
-
-             //console.log('resultdata', resultdata)
-
-             var markets = _.keys(resultdataGmark),
-             comodities = _.keys(resultdataGComm);
-
-             var res = [];
-             _.each(comodities, function (comId) {
-             //var c = resultdataGComm[marketname];
-
-             _.each(markets, function (marketName) {
-
-             var m = _.filter(resultdata, function (v) {
-
-
-             //console.log(typeof marketName, typeof comId, v);
-
-             return v[2] === marketName && v[3] === parseInt(comId);
-
-             });//resultdataGmark[marketname];
-
-             if (m.length > 0) {
-
-             var label = commodityNameIndexed[comId] + ' @ ' + m[0][2];
-             var data = m.map(function (i) {
-             return [i[0], i[1]]
-             });
-
-             seriesOptions1.push({
-             name: label,
-             data: data
-             });
-
-             var sum = 0,
-             avgs = [];
-
-             _.map(data, function (val) {
-             sum += val[1]
-             });
-
-             avgs.push(sum / data.length);
-
-             seriesOptions2.push({	//highchart
-             name: "Avg: " + label,
-             data: avgs,
-             type: 'column'
-             });
-             }
-
-             });
-             });
-
-             },
-             error: function (a) {
-             console.log("KO:" + a.responseText);
-             return null;
-             }
-             });
-
-             //	});
-
-
-             $(document).ajaxStop(function () {
-             createChart1($('#hi-stock1'));
-             createChart2($('#hi-stock2'));
-             if (!isInit) initSlider();
-             });*/
         },
 
         _updateChartsError: function () {
             alert("Impossible to _updateChartsError()")
         },
 
-        _updateChartsSuccess: function (response) {
+        _buildChartsSeries: function (response) {
 
             var data = _.rest(response),
                 averagedata = [],
@@ -692,7 +484,6 @@ define([
                 var tmpArray = new Array(2);
                 //tmpArray[0] = new Date(this.fulldate).getTime();
                 var str = d[11];
-                console.log(str)
                 str = str.substring(0, str.length - 2);
                 str = str.replace(/-/g, "/");
                 var dateObject = new Date(str);
@@ -769,186 +560,71 @@ define([
                 });
             });
 
+            return {
+                dailyPrices: seriesOptions1,
+                averagePrices: seriesOptions2
+            }
+
+        },
+
+        _updateChartsSuccess: function (response) {
+
+            var series = this._buildChartsSeries(response),
+                dailyPricesSeries = series.dailyPrices,
+                averagePricesSeries = series.averagePrices;
+
+            this.$chartDailyPrices.highcharts('StockChart', $.extend(true, {}, ChartConfig.dailyPrices, {series: dailyPricesSeries}));
+
+            this.$chartAveragePrices.highcharts($.extend(true, {}, ChartConfig.averagePrices, {series: averagePricesSeries}));
+
         },
 
         //Tables
 
-        _updateTables : function () {
+        _updateTables: function () {
 
             this._updateDailyDataTable();
 
             this._updateAggregatedDataTable();
         },
 
-        _updateDailyDataTable : function () {
+        _updateDailyDataTableError: function (e) {
+            alert("Impossible to _updateDailyDataTableError()");
+            log.error(e);
+        },
 
-            var values = this.current.values,
-                country = Utils.getNestedProperty("values.countries", values)[0],
-                time = Utils.getNestedProperty("values.time", values),
-                markets = Utils.getNestedProperty("values.markets", values),
-                query = this._compile({
-                source: Q.tableDailyData,
-                context: {
-                    table: Country2Table["country_" + country],
-                    from: Moment.unix(_.findWhere(time, {parent: 'from'}).value).format("YYYY-MM-DD"),
-                    to: Moment.unix(_.findWhere(time, {parent: 'to'}).value).format("YYYY-MM-DD"),
-                }
-            });
-
-            console.log(query)
+        _updateDailyDataTable: function () {
 
             this._retrieveResource({
-                query: query,
+                query: Q.tableDailyData,
                 success: _.bind(this._updateDailyDataTableSuccess, this),
                 error: _.bind(this._updateDailyDataTableError, this)
             });
-
-
-/*
-
-            var $table = $('#tableDaily');
-
-            var allDatas = [];
-
-            var table = countries_tables[nations].table,
-                qString = "SELECT " + table + ".gaul0code, " + table + ".vendorname as vendorname, " + table + ".citycode, city.code, " + table + ".price, " + table + ".fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, " + table + ".commoditycode, market.code, market.name as marketname, " + table + ".marketcode, " + table + ".quantity, " + table + ".userid " +
-                    "FROM " + table + ", city, commodity, market " +
-                    "WHERE " + table + ".citycode = city.code " +
-                    " AND CAST (" + table + ".commoditycode as INT) = commodity.code " +
-                    " AND " + table + ".gaul0code = '" + nations.toString() + "' " +
-                    " AND commodity.code = ANY('{" + commodityItem.toString() + "}') " +
-                    " AND " + table + ".marketcode = ANY('{" + _.compact(checkedMarkets).join(",").toString() + "}') " +
-                    " AND CAST(" + table + ".marketcode AS INT) = market.code";
-
-            if ((startDate !== undefined) && (endDate !== undefined)) qString = qString + " AND date>='" + startDate + "' AND date<= '" + endDate + "'";
-            //qString = qString + "limit 100";
-            qString = qString + " ORDER BY " + table + ".fulldate DESC ";
-
-
-
-            $.ajax({
-                type: 'GET',
-                url: WDSURI,
-                data: {
-                    payload: '{"query": "' + qString + '"}',
-                    datasource: DATASOURCE,
-                    outputType: 'object'
-                },
-
-                success: function (response) {
-                    response = _.rest(response);
-                    var output = {
-                        table: []
-                    };
-
-                    $.each(response, function (index, element) {
-
-                        output.table.push({
-                            "gaul0code": element["gaul0code"],
-                            "vendorname": element["vendorname"],
-                            "citycode": element["citycode"],
-                            "code": parseInt(element["code"]),
-                            "price": parseFloat(element["price"]),
-                            "fulldate": element["fulldate"],
-                            "cityname": element["cityname"],
-                            //	"code": element["code"],
-                            "commodityname": element["commodityname"],
-                            "commoditycode": element["commoditycode"],
-                            "code": element["code"],
-                            "marketname": element["marketname"],
-                            "marketcode": element["marketcode"],
-                            "quantity": parseFloat(element["quantity"]),
-                            "userid": element["userid"]
-                        });
-                    });
-
-                    if (tableIsInit) {
-                        $table.bootstrapTable('removeAll');
-                        $table.bootstrapTable('append', output.table);
-                    } else {
-                        $table.bootstrapTable({
-                            columns: [{
-                                field: 'cityname',
-                                title: 'City',
-                                sortable: true,
-                                searchable: true
-                            }, {
-                                field: 'marketname',
-                                title: 'Market',
-                                sortable: true,
-                                searchable: true
-                            }, {
-                                field: 'vendorname',
-                                title: 'Vendor',
-                                sortable: true,
-                                searchable: true
-                            }, {
-                                field: 'commodityname',
-                                title: 'Commodity',
-                                sortable: true,
-                                searchable: true
-                            }, {
-                                field: 'price',
-                                title: 'Price (' + currency + ')',
-                                sortable: true
-                            }, {
-                                field: 'quantity',
-                                title: 'Quantity (' + munit + ')',
-                                sortable: true
-                            }, {
-                                field: 'fulldate',
-                                title: 'Date',
-                                sortable: true,
-                                searchable: true
-                            }, {
-                                field: 'userid',
-                                title: 'User',
-                                sortable: true,
-                                searchable: true
-                            }],
-                            data: output.table,
-                            pagination: true,
-                            search: true,
-                            sortable: true
-
-                        });
-
-                        tableIsInit = true;
-
-                        $("#tblExportCSV").on("click", function () {
-                            $table.bootstrapTable('togglePagination');
-                            $table.tableExport({type: 'csv'});
-                            $table.bootstrapTable('togglePagination');
-                        });
-                        $("#tblExportXLS").on("click", function () {
-                            $table.bootstrapTable('togglePagination');
-                            $table.tableExport({type: 'xls'});
-                            $table.bootstrapTable('togglePagination');
-                        });
-                        $("#tblExportJSON").on("click", function () {
-                            $table.bootstrapTable('togglePagination');
-                            $table.tableExport({type: 'json'});
-                            $table.bootstrapTable('togglePagination');
-                        });
-                    }
-                },
-                error: function (a) {
-                    console.log("KO:" + a.responseText);
-                }
-            });*/
-
-        },
-
-        _updateDailyDataTableError: function () {
-            alert("Impossible to _updateDailyDataTableError()")
         },
 
         _updateDailyDataTableSuccess: function (response) {
 
-            console.log(response)
         },
 
-        _updateAggregatedDataTable : function () {},
+        _updateAggregatedDataTable: function () {
+
+            this._retrieveResource({
+                query: Q.tableAggregatedData,
+                success: _.bind(this._updateAggregatedDataTableSuccess, this),
+                error: _.bind(this._updateAggregatedDataTableError, this)
+            });
+        },
+
+        _updateAggregatedDataTableError: function (e) {
+            alert("Impossible to _updateAggregatedDataTableError()");
+            log.error(e);
+        },
+
+        _updateAggregatedDataTableSuccess: function ( ) {
+
+            console.log("123")
+
+        },
 
         // disposition
 
@@ -961,6 +637,58 @@ define([
             this._unbindEventListeners();
 
             View.prototype.dispose.call(this, arguments);
+        },
+
+        // commons
+
+        _retrieveResource: function (obj) {
+
+            var values = this.filter ? this.filter.getValues() : {},
+                countries = Utils.getNestedProperty("values.countries", values),
+                country = Array.isArray(countries) ? countries[0] : "",
+                markets = Utils.getNestedProperty("values.markets", values),
+                commodities = Utils.getNestedProperty("values.commodities", values),
+                time = Utils.getNestedProperty("values.time", values),
+                fromValue = _.findWhere(time, {parent: 'from'}) ? _.findWhere(time, {parent: 'from'}).value : null,
+                toValue = _.findWhere(time, {parent: 'to'}) ? _.findWhere(time, {parent: 'to'}).value : null,
+                from = Moment.unix(fromValue).format("YYYY-MM-DD"),
+                to = Moment.unix(toValue).format("YYYY-MM-DD"),
+                query = this._compile({
+                    source: obj.query,
+                    context: {
+                        table: Country2Table["country_" + country],
+                        country: country,
+                        markets: _.compact(markets).join("','"),
+                        commodities: _.compact(commodities).join("','"),
+                        from: from,
+                        to: to
+                    }
+                });
+
+            //Check if resource is cached otherwise retrieve
+            var stored = amplify.store.sessionStorage(query);
+
+            if (C.cache === true && stored) {
+
+                obj.success(query, stored);
+
+            } else {
+
+                this.WDSClient.retrieve({
+                    payload: {query: query},
+                    success: function (response) {
+                        amplify.store.sessionStorage(query, response);
+                        obj.success(response)
+                    },
+                    error: obj.error
+                });
+            }
+        },
+
+        _compile: function (obj) {
+
+            var template = Handlebars.compile(obj.source);
+            return template(obj.context);
         }
 
     });

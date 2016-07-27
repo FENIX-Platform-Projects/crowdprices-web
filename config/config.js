@@ -26,7 +26,11 @@ define(function () {
         from : "2016-05-01 00:00:00",
         format : "LL",
 
-        downloadUrl : "http://fenix.fao.org/crowd/export/csv"
+        downloadUrl : "http://fenix.fao.org/crowd/export/csv",
+        cache: false,
+
+        currency: "USD",
+        um : "Kg"
 
     };
 });
