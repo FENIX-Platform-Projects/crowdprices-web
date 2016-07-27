@@ -36,11 +36,11 @@ h2{
 
 .brand-logo{
   height: 100px;
-  position: fixed;
+  //position: fixed;
   top: 0;
   left: 0;
   padding: 8px 20px;
-  z-index: 1001;
+  //z-index: 1001;
   pointer-events: none;
 
 
@@ -151,7 +151,7 @@ h2{
 .page-content-toolbar{
   height: 100px;
   background-color: white;
-  z-index: 501;
+  z-index: 1001; //Because the sidebar is 1000
   top: 0;
   position: fixed;
   width: 100%;
@@ -182,37 +182,37 @@ h2{
   top: 8px;
 }
 
-#overlay{
-  position: absolute;
-  top: 0;left: 0;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  z-index: 500;
-  overflow-y: scroll;
-  background-color: rgba(0,0,0,0);
-  opacity: 0;
-  pointer-events: none;
-
-  .overlay-content{
-    width: 85%;
-    left: 50%;
-    position: relative;
-
-
-    @include fx-transfor-me(translate(-50%,-100%));
-
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
-  }
-
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-}
+//#overlay{
+//  position: absolute;
+//  top: 0;left: 0;
+//  width: 100%;
+//  height: 100%;
+//  overflow-x: hidden;
+//  z-index: 500;
+//  overflow-y: scroll;
+//  background-color: rgba(0,0,0,0);
+//  opacity: 0;
+//  pointer-events: none;
+//
+//  .overlay-content{
+//    width: 85%;
+//    left: 50%;
+//    position: relative;
+//
+//
+//    @include fx-transfor-me(translate(-50%,-100%));
+//
+//    -webkit-transition: all 0.5s ease;
+//    -moz-transition: all 0.5s ease;
+//    -o-transition: all 0.5s ease;
+//    transition: all 0.5s ease;
+//  }
+//
+//  -webkit-transition: all 0.5s ease;
+//  -moz-transition: all 0.5s ease;
+//  -o-transition: all 0.5s ease;
+//  transition: all 0.5s ease;
+//}
 
 #overlay.show{
   background-color: rgba(0,0,0,0.4);

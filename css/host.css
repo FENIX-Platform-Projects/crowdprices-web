@@ -13019,215 +13019,22 @@ input[type="radio"]:disabled + label {
 
 /* Pages */
 /* Afghanistan Home */
-.country-welcome {
-  background-color: #869c93; }
-
-.progressbar-text {
-  font-family: 'Roboto';
-  font-weight: 100;
-  font-size: 23px;
-  color: white !important; }
-  .progressbar-text:after {
-    content: '%';
-    position: relative;
-    right: -2px;
-    font-size: 16px;
-    top: -5px; }
-
 .home-content {
   background-color: #2b686a; }
   .home-content .home-tile {
     padding: 20px 15px;
-    position: relative;
-    min-height: 200px; }
-  .home-content .home-tiles-title {
-    font-size: 33px;
-    color: #333;
-    margin-top: 10px; }
-  .home-content .home-tile.map {
-    position: relative;
-    min-height: 350px; }
-  .home-content .country-welcome {
-    padding-bottom: 100px; }
-  .home-content .home-detail-pointer {
-    height: 100px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background-color: #f5e5bb; }
-    .home-content .home-detail-pointer:before {
-      content: '';
-      position: absolute;
-      right: -17px;
-      top: 38px;
-      z-index: 1;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 13.5px 0 13.5px 17px;
-      border-color: transparent transparent transparent #f5e5bb; }
-    .home-content .home-detail-pointer .afg-title {
-      position: absolute;
-      top: 50%;
-      right: 15px;
-      -ms-transform: translateY(-100%);
-      -webkit-transform: translateY(-100%);
-      transform: translateY(-100%); }
-  .home-content .country-details {
-    padding: 0; }
-    .home-content .country-details h1 {
-      font-size: 50px;
-      color: white;
-      font-weight: 100;
-      position: absolute;
-      top: 0; }
-    .home-content .country-details .home-stats-footer {
-      height: 100px;
-      width: 100%;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      padding: 15px 15px 15px 35px;
-      background-color: rgba(45, 50, 70, 0.5); }
-      .home-content .country-details .home-stats-footer h3 {
-        font-weight: 100;
-        font-size: 20px;
-        color: white;
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis; }
-      .home-content .country-details .home-stats-footer p.subtitle {
-        font-weight: 500;
-        font-size: 10px;
-        color: white;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis; }
-      .home-content .country-details .home-stats-footer .col-xs-2 {
-        padding-top: 12px;
-        position: relative; }
-        .home-content .country-details .home-stats-footer .col-xs-2:before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          -ms-transform: translateY(-50%);
-          -webkit-transform: translateY(-50%);
-          transform: translateY(-50%);
-          background-image: url(img/arrow-right.svg);
-          background-size: contain;
-          background-repeat: no-repeat;
-          width: 8px;
-          height: 20px;
-          right: 10px; }
-      .home-content .country-details .home-stats-footer .pie-holder {
-        position: relative;
-        padding-left: 90px;
-        padding-top: 12px; }
-        .home-content .country-details .home-stats-footer .pie-holder:before {
-          display: none; }
-      .home-content .country-details .home-stats-footer .afg-home-stats {
-        height: 65px;
-        width: 65px;
-        position: absolute !important;
-        left: 10px;
-        top: 0; }
+    position: relative; }
+  .home-content .home-tile.gray {
+    background-color: #d2d2d2; }
+  .home-content .home-tile.aims {
+    background-color: #f5f5f5; }
 
-.partners-holder {
-  background-color: #e0f1ee;
-  min-height: 120px; }
-  .partners-holder .slider-holder {
-    padding: 0 15px; }
-  .partners-holder h2 {
-    margin-bottom: 45px; }
-
-ol {
-  list-style: none;
-  padding-left: 40px;
-  counter-reset: numList; }
-
-ol li {
-  position: relative;
-  margin-bottom: 12px; }
-
-ol li:before {
-  counter-increment: numList;
-  content: counter(numList);
-  color: #b8d7da;
-  font-weight: 700;
-  font-size: 36px;
-  position: absolute;
-  left: -33px;
-  top: 7px;
-  text-align: center;
-  line-height: 19px;
-  width: 20px;
-  height: 20px; }
-
-.home-tile.gray {
-  background-color: #d2d2d2;
-  position: relative; }
-  .home-tile.gray .news-content {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    padding: 15px; }
-  .home-tile.gray h4 {
-    margin-bottom: 0; }
-  .home-tile.gray h2, .home-tile.gray h4, .home-tile.gray p {
-    border-color: white; }
-  .home-tile.gray p {
-    font-size: 10px;
-    text-transform: uppercase;
-    font-weight: 500; }
-  .home-tile.gray .more {
-    height: 30px;
-    width: 30px;
-    position: relative;
-    top: -15px;
-    border-color: transparent;
-    background-color: transparent;
-    border-top: none;
-    border-right: none;
-    border-bottom: none;
-    border-left: none;
-    border: none;
-    color: white;
-    font-size: 30px;
-    padding: 0; }
-  .home-tile.gray .news-image {
-    background-image: url(img/zam-working-group.jpg);
-    background-size: cover;
-    background-position: 50% 50%;
-    height: 50%;
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    left: 0; }
-
-.home-tile.map {
-  background-color: #f5f5f5;
-  position: relative; }
-  .home-tile.map .afg-title {
-    position: absolute;
-    background-color: #97bead;
-    top: 16px; }
-  .home-tile.map h3 {
-    color: #333;
-    font-size: 24px;
-    font-weight: 100;
-    display: inline-block;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    text-align: right;
-    right: 15px; }
-
-.home-tile.aims {
-  background-color: #f5f5f5; }
+.data-range-holder {
+  background-color: #e0f1ee; }
+  .data-range-holder [data-selector="time"] {
+    margin: 25px; }
+    .data-range-holder [data-selector="time"] .selector-header {
+      display: none; }
 
 .charts-holder {
   background-color: whitesmoke; }
@@ -13241,19 +13048,6 @@ ol li:before {
 #table-sparkline {
   margin: 0 auto;
   border-collapse: collapse; }
-
-th {
-  font-weight: bold;
-  text-align: left; }
-
-td, th {
-  padding: 5px;
-  border-bottom: 1px solid silver;
-  height: 20px; }
-
-thead th {
-  border-top: 2px solid gray;
-  border-bottom: 2px solid gray; }
 
 .highcharts-tooltip > span {
   background: white;
@@ -13424,7 +13218,6 @@ thead th {
   transition: all 0.5s ease; }
 
 #wrapper .brand-logo {
-  background-color: white;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -o-transition: all 0.5s ease;
@@ -13514,11 +13307,9 @@ h2 {
 
 .brand-logo {
   height: 100px;
-  position: fixed;
   top: 0;
   left: 0;
   padding: 8px 20px;
-  z-index: 1001;
   pointer-events: none; }
   .brand-logo h4 {
     font-size: 43px;
@@ -13591,7 +13382,7 @@ div[data-plugin="filter"] .fx-catalog-modular-form-content {
 .page-content-toolbar {
   height: 100px;
   background-color: white;
-  z-index: 501;
+  z-index: 1001;
   top: 0;
   position: fixed;
   width: 100%;
@@ -13612,34 +13403,6 @@ div[data-plugin="filter"] .fx-catalog-modular-form-content {
   position: relative;
   right: 20px;
   top: 8px; }
-
-#overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  z-index: 500;
-  overflow-y: scroll;
-  background-color: transparent;
-  opacity: 0;
-  pointer-events: none;
-  -webkit-transition: all 0.5s ease;
-  -moz-transition: all 0.5s ease;
-  -o-transition: all 0.5s ease;
-  transition: all 0.5s ease; }
-  #overlay .overlay-content {
-    width: 85%;
-    left: 50%;
-    position: relative;
-    -ms-transform: translate(-50%, -100%);
-    -webkit-transform: translate(-50%, -100%);
-    transform: translate(-50%, -100%);
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease; }
 
 #overlay.show {
   background-color: rgba(0, 0, 0, 0.4);
@@ -13729,6 +13492,33 @@ div[data-plugin="filter"] .fx-catalog-modular-form-content {
   color: #3faaaa; }
 
 /* Filter */
+.fx-selector.hideSwitch .fx-selector-title {
+  margin-right: 30px;
+  /* Small devices (tablets, 768px and up) */
+  /* Medium devices (desktops, 992px and up) */
+  /* Large devices (large desktops, 1200px and up) */ }
+  @media (min-width: 992px) {
+    .fx-selector.hideSwitch .fx-selector-title {
+      margin-right: 30px; } }
+
+.fx-selector.hideRemoveButton .fx-selector-title {
+  margin-right: 30px;
+  /* Small devices (tablets, 768px and up) */
+  /* Medium devices (desktops, 992px and up) */
+  /* Large devices (large desktops, 1200px and up) */ }
+  @media (min-width: 992px) {
+    .fx-selector.hideRemoveButton .fx-selector-title {
+      margin-right: 80px; } }
+
+.fx-selector.hideSwitch.hideRemoveButton .fx-selector-title {
+  margin-right: 0;
+  /* Small devices (tablets, 768px and up) */
+  /* Medium devices (desktops, 992px and up) */
+  /* Large devices (large desktops, 1200px and up) */ }
+  @media (min-width: 992px) {
+    .fx-selector.hideSwitch.hideRemoveButton .fx-selector-title {
+      margin-right: 0; } }
+
 [data-selector], [data-semantic] {
   /* Focused */
   /* Mandatory */
@@ -13921,9 +13711,5 @@ div[data-plugin="filter"] .fx-catalog-modular-form-content {
   background-color: white;
   background-image: none;
   border: 1px solid #d8d8d8; }
-
-.container-fluid {
-  position: relative;
-  z-index: 0; }
 
 /*# sourceMappingURL=host.css.map */
