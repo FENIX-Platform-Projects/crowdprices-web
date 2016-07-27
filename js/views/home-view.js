@@ -19,6 +19,7 @@ define([
     'moment',
     'leaflet',
     'highstock',
+    'highstock.no-data',
     'bootstrap-table',
     'amplify'
 ], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L) {
@@ -32,6 +33,7 @@ define([
         TABLE_AGGREGATED_DATA: "#table-aggregated-data",
         CHART_DAILY_PRICES: "#chart-daily-prices",
         CHART_AVERAGE_PRICES: "#chart-average-prices",
+        TABLE_DOWNLOAD_BUTTONS: "[data-download]"
     };
 
     var HomeView = View.extend({
@@ -46,18 +48,7 @@ define([
             return i18nLabels;
         },
 
-        _initVariables: function () {
-
-            var initialCountry = Items.countries.selector.default[0];
-
-            log.info("Initial country code: " + initialCountry);
-
-            if (!initialCountry) {
-                alert("impossible to find default country. Please specify it in config/submodules/fx-filter/config.js");
-                return;
-            }
-
-            this.current = {};
+        _resetCachedResources: function (country) {
 
             //Codelists
             this.cachedResources = {};
@@ -66,18 +57,34 @@ define([
                 countries: Q.countries,
                 markets: this._compile({
                     source: Q.markets,
-                    context: {country: initialCountry}
+                    context: {country: country}
                 }),
                 commodities: this._compile({
                     source: Q.commodities,
-                    context: {country: initialCountry}
+                    context: {country: country}
                 })
             };
 
-            log.info("Initial resource queries");
+            log.info("Resources reset");
             log.info(JSON.stringify(this.codelists));
 
-            //download
+        },
+
+        _initVariables: function () {
+
+            var initialCountry = C.country;
+
+            log.info("Initial country code: " + initialCountry);
+
+            if (!initialCountry) {
+                alert("impossible to find default country. Please specify it in config/config.js");
+                log.error("impossible to find default country. Please specify it in config/config.js");
+                return;
+            }
+
+            this.current = {};
+
+            //data download
 
             this.$downloadBtn = this.$el.find(s.DOWNLOAD_BTN);
 
@@ -91,8 +98,11 @@ define([
             this.$tableDailyData = this.$el.find(s.TABLE_DAILY_DATA);
             this.$tableAggregatedData = this.$el.find(s.TABLE_AGGREGATED_DATA);
 
+            this.$tableDownloadButtons = this.$el.find(s.TABLE_DOWNLOAD_BUTTONS);
 
-            log.info("variable initialized successfully");
+            this.searchTimeout = false;
+
+            log.info("Variables initialized successfully");
 
         },
 
@@ -109,7 +119,9 @@ define([
         _bindEventListeners: function () {
 
             this.$downloadBtn.on("click", _.bind(this._onDownloadClick, this))
+        },
 
+        _updateStatistics: function () {
         },
 
         // handlers
@@ -120,7 +132,7 @@ define([
                 return;
             }
 
-            var values = this.current.values,
+            var values = this.filter.getValues(),
                 country = Utils.getNestedProperty("values.countries", values)[0],
                 commodities = Utils.getNestedProperty("values.commodities", values),
                 time = Utils.getNestedProperty("values.time", values),
@@ -132,11 +144,9 @@ define([
                 country: country,
                 markets: markets,
                 commodities: commodities,
-                from: from,
-                to: to
+                from: parseInt(from) * 1000,
+                to: parseInt(to) * 1000
             };
-
-            console.log(body);
 
             $.ajax({
                 type: 'POST',
@@ -165,7 +175,9 @@ define([
 
             this._bindEventListeners();
 
-            this._preloadResources();
+            this._buildUI(C.country);
+
+            this._updateStatistics();
 
         },
 
@@ -174,7 +186,9 @@ define([
             log.error(e)
         },
 
-        _preloadResources: function () {
+        _preloadResources: function (country) {
+
+            this._resetCachedResources(country);
 
             _.each(this.codelists, _.bind(function (query, cd) {
 
@@ -203,7 +217,7 @@ define([
 
             var self = this;
 
-            this.filterItems = addCommoditiesCountriesMarketsModelsToFilter();
+            this.filterConfig = addCommoditiesCountriesMarketsModelsToFilter();
 
             this._preloadTimeRange();
 
@@ -212,31 +226,31 @@ define([
                 var commodities = self.cachedResources["commodities"] || [],
                     countries = self.cachedResources["countries"] || [],
                     markets = self.cachedResources["markets"] || [],
-                    items = $.extend(true, {}, Items);
+                    items = {};
 
                 // commodities
                 if (commodities.length > 1) {
                     commodities.shift();
                 }
-                Utils.assign(items, "commodities.selector.source", commodities);
+                Utils.assign(items, "commodities.source", commodities);
 
                 // countries
                 if (countries.length > 1) {
                     countries.shift();
                 }
-                Utils.assign(items, "countries.selector.source", countries);
+                Utils.assign(items, "countries.source", countries);
+                Utils.assign(items, "countries.default", [C.country]);
 
                 // markets
                 if (markets.length > 1) {
                     markets.shift();
                 }
-                Utils.assign(items, "markets.selector.source", markets);
-                Utils.assign(items, "markets.selector.default", _.map(markets, function (m) {
+                Utils.assign(items, "markets.source", markets);
+                Utils.assign(items, "markets.default", _.map(markets, function (m) {
                     return m.value;
                 }));
 
                 return items;
-
             }
 
         },
@@ -247,9 +261,9 @@ define([
 
         _preloadTimeRange: function () {
 
-            var country = Utils.getNestedProperty("countries.selector.default", this.filterItems)[0],
-                commodities = Utils.getNestedProperty("commodities.selector.default", this.filterItems),
-                markets = Utils.getNestedProperty("markets.selector.default", this.filterItems),
+            var country = Utils.getNestedProperty("countries.default", this.filterConfig)[0],
+                commodities = Utils.getNestedProperty("commodities.default", this.filterConfig),
+                markets = Utils.getNestedProperty("markets.default", this.filterConfig),
                 query = this._compile({
                     source: Q.time,
                     context: {
@@ -276,9 +290,9 @@ define([
                 from = range.from || C.from,
                 to = range.to || new Date();
 
-            Utils.assign(this.filterItems, "time.selector.config.min", Moment(from).format("X"));
-            Utils.assign(this.filterItems, "time.selector.config.max", Moment(to).format("X"));
-            Utils.assign(this.filterItems, "time.selector.config.prettify", function (num) {
+            Utils.assign(this.filterConfig, "time.min", Moment(from).format("X"));
+            Utils.assign(this.filterConfig, "time.max", Moment(to).format("X"));
+            Utils.assign(this.filterConfig, "time.prettify", function (num) {
                 return Moment(num, "X").format(C.format);
             });
 
@@ -288,10 +302,102 @@ define([
 
         _initFilter: function () {
 
-            this.filter = new Filter({
-                el: s.FILTER,
-                items: this.filterItems
-            }).on("ready", _.bind(this._onFilterReady, this));
+            var self = this;
+
+            if (this.filter) {
+
+                var sources = buildFilterSources();
+
+                this.filter.setSources(sources);
+
+                var values = buildFilterDefaultValues();
+
+                this.filter.setValues(values);
+
+            } else {
+
+                var items = buildFilterItems();
+
+                this.filter = new Filter({
+                    el: s.FILTER,
+                    items: items
+                })
+                    .on("ready", _.bind(this._onFilterReady, this))
+                    .on("change", _.bind(this._onFilterChange, this))
+
+            }
+
+            this._unlock();
+
+            function buildFilterItems() {
+
+                var items = $.extend(true, {}, Items),
+                    conf = self.filterConfig;
+
+                //commodities
+
+                Utils.assign(items, "commodities.selector.source", Utils.getNestedProperty("commodities.source", conf));
+
+                // countries
+
+                Utils.assign(items, "countries.selector.source", Utils.getNestedProperty("countries.source", conf));
+                Utils.assign(items, "countries.selector.default", Utils.getNestedProperty("countries.default", conf));
+
+                // markets
+
+                Utils.assign(items, "markets.selector.source", Utils.getNestedProperty("markets.source", conf));
+                Utils.assign(items, "markets.selector.default", Utils.getNestedProperty("markets.default", conf));
+
+                // time
+
+                Utils.assign(items, "time.selector.config.min", Utils.getNestedProperty("time.min", conf));
+                Utils.assign(items, "time.selector.config.max", Utils.getNestedProperty("time.max", conf));
+                Utils.assign(items, "time.selector.config.prettify", Utils.getNestedProperty("time.prettify", conf));
+
+                return items;
+            }
+
+            function buildFilterSources() {
+
+                var sources = {},
+                    conf = self.filterConfig;
+
+                //commodities
+
+                Utils.assign(sources, "commodities", Utils.getNestedProperty("commodities.source", conf));
+
+                // markets
+
+                Utils.assign(sources, "markets", Utils.getNestedProperty("markets.source", conf));
+
+                // time
+
+                var timeSource = [];
+
+                timeSource.push({value : Utils.getNestedProperty("time.min", conf), parent : "from"});
+                timeSource.push({value : Utils.getNestedProperty("time.min", conf), parent : "to"});
+
+                Utils.assign(sources, "time", timeSource);
+
+                return sources;
+            }
+
+            function buildFilterDefaultValues(){
+
+                var values = {},
+                    conf = self.filterConfig;
+
+                // markets
+
+                var c =  Utils.getNestedProperty("markets.source", conf),
+                    array = _.map(c, function (m) {
+                        return m.value;
+                    });
+
+                Utils.assign(values, "values.markets", array);
+
+                return values;
+            }
 
         },
 
@@ -299,35 +405,246 @@ define([
 
             this.current.values = this.filter.getValues();
 
-            this._buildUI();
+            this._buildVisualizationObjects();
+
+        },
+
+        _onFilterChange: function () {
+
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+                log.info("Abort search timeout");
+            }
+
+            this.searchTimeout = window.setTimeout(_.bind(function () {
+                this._refresh();
+            }, this), C.refreshTimeoutInterval);
+
+        },
+
+        _refresh: function () {
+
+            var values = this.filter.getValues(),
+                counties = Utils.getNestedProperty("values.countries", values);
+
+            if (_.isEqual(counties, Utils.getNestedProperty("values.countries", this.current.values))) {
+
+                this._updateUI();
+
+            } else {
+
+                this._rebuildUi(counties[0]);
+            }
+
+            this.current.values = values;
+        },
+
+        _buildVisualizationObjects: function () {
+
+            this._buildCharts();
+
+            //this._buildMap();
+
+            this._buildTables();
+        },
+
+        _rebuildUi: function (country) {
+
+            this._disposeUI();
+
+            this._resetCachedResources(country);
+
+            this._buildUI(country);
 
         },
 
         // UI
 
+        _disposeUI: function () {
+
+            this._lock();
+
+            this._disposeCharts();
+
+            this._disposeMap();
+
+            this._disposeTables();
+        },
+
+        _lock: function () {
+            this.$downloadBtn.attr("disabled", true);
+        },
+
         _unlock: function () {
             this.$downloadBtn.attr("disabled", false);
         },
 
-        _updateStatistics : function () {},
+        _buildUI: function (country) {
 
-        _buildUI: function () {
+            if (!country) {
+                alert("Impossible to build UI. Please specify country.");
+                return;
+            }
 
-            this._unlock();
+            log.info("Build interface for country: " + country);
 
-            this.ready = true;
+            this._lock();
 
-            //this._updateStatistics();
-
-            //this._updateMap();
-
-            //this._updateCharts();
-
-            this._updateTables();
+            this._preloadResources(country);
 
         },
 
+        _updateUI: function () {
+
+            log.info("Update UI");
+
+            this._updatedCharts();
+        },
+
         // Map
+
+        _buildMap: function () {
+
+            var self = this,
+                tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                });
+
+            this.map = L.map('map-cluster', {
+                attributionControl: false,
+                markerZoomAnimation: true,
+                layers: [tiles],
+                zoom: 9,
+                maxZoom: 9,
+                scrollWheelZoom: false
+            });
+
+            window.map = this.map;
+
+            map.addControl(new L.Control.GeoSearch({
+                provider: new L.GeoSearch.Provider.Google(),
+                showMarker: false,
+            }));
+
+
+            /*markers = L.markerClusterGroup({
+             showCoverageOnHover: false
+             }).addTo(map);*/
+            this.markers = L.layerGroup().addTo(this.map);
+
+            this.emptyMarketLayer = L.layerGroup().addTo(this.map);
+            //emptyMarketLayer = L.featureGroup([]).addTo(map);
+            //emptyMarketLayer = L.markerClusterGroup({
+            //	showCoverageOnHover: false
+            //});
+
+            // Initialise the FeatureGroup to store editable layers
+            var drawnItems = new L.FeatureGroup();
+
+            map.addLayer(drawnItems);
+
+            var drawOpts = {
+                position: 'bottomleft',
+                draw: {
+                    marker: false,
+                    polyline: false,
+                    polygon: {
+                        allowIntersection: false,
+                        drawError: {
+                            color: '#399BCC',
+                            timeout: 1000
+                        },
+                        shapeOptions: {
+                            color: '#3FAAA9',
+                            fillColor: '#3FAAA9',
+                            fillOpacity: 0.1
+                        },
+                        showArea: true
+                    },
+                    circle: {
+                        shapeOptions: {
+                            color: '#3FAAA9',
+                            fillColor: '#3FAAA9',
+                            fillOpacity: 0.1
+                        }
+                    }
+                },
+                edit: {
+                    featureGroup: drawnItems,
+                    edit: false
+                }
+            };
+
+            var drawControl = new L.Control.Draw(drawOpts);
+
+            this.map.addControl(drawControl);
+
+            this.map.on('draw:created', function (e) {
+                var type = e.layerType,
+                    layer = e.layer;
+
+                if (type === 'circle') {
+                    var origin = layer.getLatLng(); //center of drawn circle
+                    var radius = layer.getRadius(); //radius of drawn circle
+                    var projection = L.CRS.EPSG4326;
+                    var polys = createGeodesicPolygon(origin, radius, 10, 0, projection); //these are the points that make up the circle
+                    var coords = [];
+                    for (var i = 0; i < polys.length; i++) {
+                        var geometry = [
+                            parseFloat(polys[i].lat.toFixed(3)),
+                            parseFloat(polys[i].lng.toFixed(3))
+                        ];
+                        coords.push(geometry);
+                    }
+
+                    var polyCircle = L.polygon(coords);
+
+                    self.filterPolygonWKT = self._toWKT(polyCircle);
+                }
+                else
+                    self.filterPolygonWKT = self._toWKT(layer);
+
+                drawnItems.clearLayers()
+                    .addLayer(layer);
+
+                drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
+
+                updateValues();
+            })
+                .on('draw:deleted', function (e) {
+                    drawnItems.clearLayers();
+                    self.filterPolygonWKT = '';
+
+                });
+        },
+
+        _toWKT: function (layer) {
+
+            var lng, lat, coords = [];
+
+            if (layer instanceof L.Polygon || layer instanceof L.Polyline) {
+                var latlngs = layer.getLatLngs();
+
+                for (var i = 0; i < latlngs.length; i++) {
+                    coords.push(latlngs[i].lng + " " + latlngs[i].lat);
+                    if (i === 0) {
+                        lng = latlngs[i].lng;
+                        lat = latlngs[i].lat;
+                    }
+                }
+
+                if (layer instanceof L.Polygon) {
+                    return "POLYGON((" + coords.join(",") + "," + lng + " " + lat + "))";
+
+                } else if (layer instanceof L.Polyline) {
+                    return "LINESTRING(" + coords.join(",") + ")";
+                }
+            }
+            else if (layer instanceof L.Marker) {
+                return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
+            }
+        },
 
         _updateMap: function () {
 
@@ -338,7 +655,7 @@ define([
             if (this.commodityMaps != "") {
 
                 this._retrieveResource({
-                    query: map,
+                    query: Q.map,
                     success: _.bind(this._onUpdateMapSuccess, this),
                     error: _.bind(this._onUpdateMapError, this)
                 });
@@ -387,8 +704,6 @@ define([
             var Cresponse = _.groupBy(response, 'marketcode'),
                 globalMarkets = Utils.getNestedProperty("values.markets", this.current.values);
 
-            //console.log(globalMarkets)
-            return;
             $.each(globalMarkets, function (k, v) {
 
                 if (!v[0]) {
@@ -408,7 +723,7 @@ define([
                     hasData = v[0] && _.has(v[0], 'avg');
 
                 if (hasData) {
-                    avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + currency + "\/" + munit;
+                    avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + C.currency + "\/" + C.um;
                 }
 
                 vendors.push(v.name);
@@ -467,21 +782,28 @@ define([
 
         },
 
-        // Charts
-
-        _updateCharts: function () {
-
-            this._retrieveResource({
-                query: Q.charts,
-                success: _.bind(this._updateChartsSuccess, this),
-                error: _.bind(this._updateChartsError, this),
-                outputType: 'array'
-            });
+        _disposeMap: function (data) {
 
         },
 
-        _updateChartsError: function () {
-            alert("Impossible to _updateChartsError()")
+        // Charts
+
+        _buildCharts: function () {
+
+            this._retrieveChartsResources({
+                success: _.bind(this._buildChartsSuccess, this),
+                error: _.bind(this._buildChartsError, this)
+            });
+        },
+
+        _updatedCharts: function () {
+
+            this._disposeCharts();
+
+            this._retrieveChartsResources({
+                success: _.bind(this._buildChartsSuccess, this),
+                error: _.bind(this._buildChartsError, this)
+            });
         },
 
         _buildChartsSeries: function (response) {
@@ -495,90 +817,92 @@ define([
                 seriesOptions2 = [],
                 j = 0;
 
-            if (data.length === 0) {
-                alert("Chart data is empty");
-                return;
-            }
+            if (data.length !== 0) {
 
-            _.each(data, function (d) {
-                var tmpArray = new Array(2);
-                //tmpArray[0] = new Date(this.fulldate).getTime();
-                var str = d[11];
-                str = str.substring(0, str.length - 2);
-                str = str.replace(/-/g, "/");
-                var dateObject = new Date(str);
-                tmpArray[0] = dateObject.getTime();
-                tmpArray[1] = parseFloat(d[8]) / parseFloat(d[9]);
-                tmpArray[2] = d[14];
-                tmpArray[3] = d[19];
+                _.each(data, function (d) {
+                    var tmpArray = new Array(2);
+                    //tmpArray[0] = new Date(this.fulldate).getTime();
+                    var str = d[11];
+                    str = str.substring(0, str.length - 2);
+                    str = str.replace(/-/g, "/");
+                    var dateObject = new Date(str);
+                    tmpArray[0] = dateObject.getTime();
+                    tmpArray[1] = parseFloat(d[8]) / parseFloat(d[9]);
+                    tmpArray[2] = d[14];
+                    tmpArray[3] = d[19];
 
-                resultdata.push(tmpArray);
-                j++;
-                aggregated = aggregated + parseFloat(d[8]);
-            });
-
-            //TODO
-            //startDate = data[0][11];
-            //endDate = data[j - 1][11];
-
-            var temArray = new Array(1);
-
-            temArray[1] = ( aggregated / j );
-
-            if (temArray[1] > 1)
-                averagedata.push(temArray);
-
-            var resultdataGmark = _.groupBy(resultdata, function (v) {
-                return v[2];//market name
-            });
-
-            var resultdataGComm = _.groupBy(resultdata, function (v) {
-                return v[3];//commodity name
-            });
-
-            var markets = _.keys(resultdataGmark),
-                comodities = _.keys(resultdataGComm);
-
-            _.each(comodities, function (comId) {
-
-                _.each(markets, function (marketName) {
-
-                    var m = _.filter(resultdata, function (v) {
-                        return v[2] === marketName && v[3] === parseInt(comId);
-
-                    });//resultdataGmark[marketname];
-
-                    if (m.length > 0) {
-
-                        var commodity = Utils.getNestedProperty("labels.commodities", self.current.values)[comId],
-                            label = +' @ ' + m[0][2];
-                        var data = m.map(function (i) {
-                            return [i[0], i[1]]
-                        });
-
-                        seriesOptions1.push({
-                            name: label,
-                            data: data
-                        });
-
-                        var sum = 0,
-                            avgs = [];
-
-                        _.map(data, function (val) {
-                            sum += val[1]
-                        });
-
-                        avgs.push(sum / data.length);
-
-                        seriesOptions2.push({	//highchart
-                            name: "Avg: " + label,
-                            data: avgs,
-                            type: 'column'
-                        });
-                    }
-
+                    resultdata.push(tmpArray);
+                    j++;
+                    aggregated = aggregated + parseFloat(d[8]);
                 });
-            });
+
+                //TODO
+                //startDate = data[0][11];
+                //endDate = data[j - 1][11];
+
+                var temArray = new Array(1);
+
+                temArray[1] = ( aggregated / j );
+
+                if (temArray[1] > 1)
+                    averagedata.push(temArray);
+
+                var resultdataGmark = _.groupBy(resultdata, function (v) {
+                    return v[2];//market name
+                });
+
+                var resultdataGComm = _.groupBy(resultdata, function (v) {
+                    return v[3];//commodity name
+                });
+
+                var markets = _.keys(resultdataGmark),
+                    comodities = _.keys(resultdataGComm);
+
+                _.each(comodities, function (comId) {
+
+                    _.each(markets, function (marketName) {
+
+                        var m = _.filter(resultdata, function (v) {
+                            return v[2] === marketName && v[3] === parseInt(comId);
+
+                        });//resultdataGmark[marketname];
+
+                        if (m.length > 0) {
+
+                            var commodity = Utils.getNestedProperty("labels.commodities", self.current.values)[comId],
+                                label = +' @ ' + m[0][2];
+                            var data = m.map(function (i) {
+                                return [i[0], i[1]]
+                            });
+
+                            seriesOptions1.push({
+                                name: label,
+                                data: data
+                            });
+
+                            var sum = 0,
+                                avgs = [];
+
+                            _.map(data, function (val) {
+                                sum += val[1]
+                            });
+
+                            avgs.push(sum / data.length);
+
+                            seriesOptions2.push({	//highchart
+                                name: "Avg: " + label,
+                                data: avgs,
+                                type: 'column'
+                            });
+                        }
+
+                    });
+                });
+
+            }
+            else {
+                log.warn("Chart data is empty");
+            }
 
             return {
                 dailyPrices: seriesOptions1,
@@ -587,7 +911,7 @@ define([
 
         },
 
-        _updateChartsSuccess: function (response) {
+        _buildChartsSuccess: function (response) {
 
             var series = this._buildChartsSeries(response),
                 dailyPricesSeries = series.dailyPrices,
@@ -599,13 +923,36 @@ define([
 
         },
 
-        //Tables
+        _retrieveChartsResources: function (obj) {
 
-        _updateTables: function () {
+            this._retrieveResource({
+                query: Q.charts,
+                success: obj.success,
+                error: obj.error,
+                outputType: 'array'
+            });
+        },
+
+        _buildChartsError: function () {
+            alert("Impossible to _updateChartsError()")
+        },
+
+        _disposeCharts: function () {
+
+            this.$chartDailyPrices.highcharts("destroy");
+
+            this.$chartAveragePrices.highcharts("destroy");
+        },
+
+        // Tables
+
+        _buildTables: function () {
 
             this._updateDailyDataTable();
 
             this._updateAggregatedDataTable();
+
+            this._bindTableDownloadButtonsEvents();
         },
 
         _updateDailyDataTableError: function (e) {
@@ -622,8 +969,31 @@ define([
             });
         },
 
-        _updateDailyDataTableSuccess: function (response) {
+        _updateDailyDataTableSuccess: function (d) {
 
+            var response = _.rest(d);
+            var data = [];
+
+            _.each(response, function (element) {
+
+                data.push({
+                    gaul0code: element["gaul0code"],
+                    vendorname: element["vendorname"],
+                    citycode: element["citycode"],
+                    code: parseInt(element["code"]),
+                    price: parseFloat(element["price"]),
+                    fulldate: element["fulldate"],
+                    cityname: element["cityname"],
+                    commodityname: element["commodityname"],
+                    commoditycode: element["commoditycode"],
+                    marketname: element["marketname"],
+                    marketcode: element["marketcode"],
+                    quantity: parseFloat(element["quantity"]),
+                    userid: element["userid"]
+                });
+            });
+
+            this.$tableDailyData.bootstrapTable($.extend(true, {}, TablesConfig.dailyData, {data: data}));
         },
 
         _updateAggregatedDataTable: function () {
@@ -640,9 +1010,7 @@ define([
             log.error(e);
         },
 
-        _updateAggregatedDataTableSuccess: function (d ) {
-
-            console.log(d)
+        _updateAggregatedDataTableSuccess: function (d) {
 
             var response = _.rest(d);
             var data = [];
@@ -669,14 +1037,42 @@ define([
                 });
             });
 
-/*            if (tableIsInitAgg) {
-                //	console.log("!updateTableAgg");
-                $table.bootstrapTable('removeAll');
-                $table.bootstrapTable('append', output.table);
-            } else {*/
-                this.$tableAggregatedData.bootstrapTable($.extend(true, {}, TablesConfig.aggregatedData, { data: data }));
-/*
-            }*/
+            this.$tableAggregatedData.bootstrapTable($.extend(true, {}, TablesConfig.aggregatedData, {data: data}));
+
+        },
+
+        _bindTableDownloadButtonsEvents: function () {
+
+            this.$tableDownloadButtons.on("click", function () {
+
+                var $this = $(this),
+                    table = $this.data('table'),
+                    format = $this.data('download');
+
+                switch (table) {
+                    case "daily" :
+                        this.$tableDailyData.bootstrapTable('togglePagination');
+                        this.$tableDailyData.tableExport({type: format});
+                        this.$tableDailyData.bootstrapTable('togglePagination');
+                        break;
+                    case "aggregated" :
+                        this.$tableAggregatedData.bootstrapTable('togglePagination');
+                        this.$tableAggregatedData.tableExport({type: format});
+                        this.$tableAggregatedData.bootstrapTable('togglePagination');
+                        break;
+                }
+
+            })
+        },
+
+        _unbindTableDownloadButtonsEvents: function () {
+
+            this.$tableDownloadButtons.off();
+        },
+
+        _disposeTables: function () {
+
+            this._unbindTableDownloadButtonsEvents();
 
         },
 
@@ -701,9 +1097,13 @@ define([
                 countries = Utils.getNestedProperty("values.countries", values),
                 country = Array.isArray(countries) ? countries[0] : "",
                 markets = Utils.getNestedProperty("values.markets", values),
-                anyMarkets = _.reduce(markets, function(memo, num){ return memo + "," + num; }, ""),
+                anyMarkets = _.reduce(markets, function (memo, num) {
+                    return memo + "," + num;
+                }, ""),
                 commodities = Utils.getNestedProperty("values.commodities", values),
-                anyCommodities = _.reduce(commodities, function(memo, num){ return memo + "," + num; }, ""),
+                anyCommodities = _.reduce(commodities, function (memo, num) {
+                    return memo + "," + num;
+                }, ""),
                 time = Utils.getNestedProperty("values.time", values),
                 fromValue = _.findWhere(time, {parent: 'from'}) ? _.findWhere(time, {parent: 'from'}).value : null,
                 toValue = _.findWhere(time, {parent: 'to'}) ? _.findWhere(time, {parent: 'to'}).value : null,
@@ -718,12 +1118,10 @@ define([
                         commodities: _.compact(commodities).join("','"),
                         from: from,
                         to: to,
-                        anyCommodities : anyCommodities.substring(1),
-                        anyMarkets : anyMarkets.substring(1)
+                        anyCommodities: "{" + anyCommodities.substring(1) + "}",
+                        anyMarkets: "{" + anyMarkets.substring(1) + "}"
                     }
                 });
-
-            console.log(anyMarkets)
 
             //Check if resource is cached otherwise retrieve
             var stored = amplify.store.sessionStorage(query);
@@ -734,11 +1132,11 @@ define([
 
             } else {
 
-                console.log(query)
+                log.warn(query);
 
                 this.WDSClient.retrieve({
                     payload: {query: query},
-                    outputType : obj.outputType || "object",
+                    outputType: obj.outputType || "object",
                     success: function (response) {
                         amplify.store.sessionStorage(query, response);
                         obj.success(response)

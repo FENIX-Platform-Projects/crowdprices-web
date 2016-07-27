@@ -30,7 +30,11 @@ define(function () {
         cache: false,
 
         currency: "USD",
-        um : "Kg"
+        um : "Kg",
+
+        country : 1,
+
+        refreshTimeoutInterval : 500
 
     };
 });

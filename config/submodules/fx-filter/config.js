@@ -10,7 +10,6 @@ define(function () {
 
             selector: {
                 id: "dropdown",
-                default : ["1"],
                 config: {
                     maxItems: 1
                 }
