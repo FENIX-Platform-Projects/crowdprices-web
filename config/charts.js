@@ -13,7 +13,8 @@ define([
                 style: {
                     fontFamily: 'FrutigerLTW02-45Light',
 
-                }
+                },
+                backgroundColor:'rgba(255, 255, 255, 0)'
             },
 
             rangeSelector: {
@@ -30,7 +31,7 @@ define([
                 '#DF3328'
             ],
             title: {
-                text: 'Daily Prices',
+                text: null
 
             },
 
@@ -76,7 +77,9 @@ define([
                 style: {
                     fontFamily: 'FrutigerLTW02-45Light',
                     fontSize: '1px'
-                }
+                },
+                backgroundColor:'rgba(255, 255, 255, 0)'
+
             },
 
             colors: [ //Colori delle charts
@@ -90,7 +93,7 @@ define([
                 '#DF3328'
             ],
             title: {
-                text: 'Average Prices',
+                text: null
 
 
 

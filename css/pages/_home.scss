@@ -1,15 +1,27 @@
 /* Afghanistan Home */
 
+.cw-selectors{
 
+  .fx-selector{
+    display: none;
+
+  }
+
+}
 
 .home-content{
 
-background-color: $afg-home-background;
+
 
 
   .home-tile{
     padding: 20px 15px;
     position: relative;
+    background-color: $light-green;
+  }
+
+  .nation-tile{
+    background-color: $light-green;
   }
 
   
@@ -18,7 +30,7 @@ background-color: $afg-home-background;
 }
 
 .data-range-holder{
-  background-color: #e0f1ee;
+  background-color: $light-green;
 
   [data-selector="time"]{
 
@@ -38,7 +50,7 @@ background-color: $afg-home-background;
 
 
 .charts-holder{
-  background-color: whitesmoke;
+
 }
 
 

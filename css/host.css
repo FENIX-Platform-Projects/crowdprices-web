@@ -5311,7 +5311,7 @@ input[type="button"]::-moz-focus-inner {
   text-align: center;
   background-color: #f8f8f8; }
   .fx-catalog-header em {
-    font: normal normal 400 10px/normal "Roboto"; }
+    font: normal normal 400 10px/normal '"FrutigerLTW02-45Light"'; }
 
 .fx-catalog-header-btn {
   cursor: pointer; }
@@ -5932,7 +5932,7 @@ div[data-module="sector"] .fx-catalog-modular-form-content {
   padding-top: 5px; }
   .obj-box-title h4 {
     color: #3faaaa;
-    font: normal normal 500 14px/normal "Roboto"; }
+    font: normal normal 500 14px/normal '"FrutigerLTW02-45Light"'; }
 
 /* Fenix - Panel Component */
 .panel-group {
@@ -6205,7 +6205,7 @@ input[type="radio"]:disabled + label {
   color: #3faaaa;
   padding-left: 15px;
   padding-top: 5px;
-  font: normal normal 400 10px/normal "Roboto";
+  font: normal normal 400 10px/normal '"FrutigerLTW02-45Light"';
   position: absolute;
   top: 0; }
 
@@ -6241,7 +6241,7 @@ input[type="radio"]:disabled + label {
     width: 20%;
     padding-left: 15px; }
     .fx-resume-item-selected .fx-resume-module-title em {
-      font: normal normal 400 10px/normal "Roboto";
+      font: normal normal 400 10px/normal '"FrutigerLTW02-45Light"';
       color: #3faaaa;
       font-size: 12px;
       /* Not expected */
@@ -6838,7 +6838,7 @@ input[type="radio"]:disabled + label {
 
 .fx-sessionstore-item-title {
   text-transform: uppercase;
-  font: normal normal 700 12px/normal "Roboto"; }
+  font: normal normal 700 12px/normal '"FrutigerLTW02-45Light"'; }
 
 .fx-sessionstore-item-info {
   min-height: 50px;
@@ -6847,7 +6847,7 @@ input[type="radio"]:disabled + label {
 .fx-sessionstore-item-movemetodesk {
   float: left;
   text-transform: uppercase;
-  font: normal normal 700 12px/normal "Roboto";
+  font: normal normal 700 12px/normal '"FrutigerLTW02-45Light"';
   cursor: pointer;
   margin-top: 10px;
   position: relative; }
@@ -6855,7 +6855,7 @@ input[type="radio"]:disabled + label {
 .fx-sessionstore-item-removeme {
   float: right;
   text-transform: uppercase;
-  font: normal normal 700 12px/normal "Roboto";
+  font: normal normal 700 12px/normal '"FrutigerLTW02-45Light"';
   cursor: pointer;
   margin-top: 10px;
   position: relative; }
@@ -13019,11 +13019,15 @@ input[type="radio"]:disabled + label {
 
 /* Pages */
 /* Afghanistan Home */
-.home-content {
-  background-color: #2b686a; }
-  .home-content .home-tile {
-    padding: 20px 15px;
-    position: relative; }
+.cw-selectors .fx-selector {
+  display: none; }
+
+.home-content .home-tile {
+  padding: 20px 15px;
+  position: relative;
+  background-color: #e0f1ee; }
+.home-content .nation-tile {
+  background-color: #e0f1ee; }
 
 .data-range-holder {
   background-color: #e0f1ee; }
@@ -13031,9 +13035,6 @@ input[type="radio"]:disabled + label {
     margin: 25px; }
     .data-range-holder [data-selector="time"] .selector-header {
       display: none; }
-
-.charts-holder {
-  background-color: whitesmoke; }
 
 /* Sparkline Charts */
 #result {
