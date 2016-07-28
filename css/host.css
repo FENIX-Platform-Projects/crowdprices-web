@@ -13389,13 +13389,6 @@ h2 {
     bottom: -6px;
     left: 0; }
 
-.country-details.map .leaflet-container:hover .marker-desat-icon,
-.country-details.map .leaflet-container:hover .marker-found-icon {
-  -webkit-animation: none;
-  -moz-animation: none;
-  -ms-animation: none;
-  animation: none; }
-
 .marker-desat-icon,
 .marker-found-icon {
   width: 20px !important;
@@ -13425,7 +13418,10 @@ h2 {
   to {
     box-shadow: 0 0 0 45px rgba(63, 170, 170, 0); } }
 .marker-desat-icon {
-  background-color: red;
+  background-color: gray;
+  z-index: 0 !important;
+  width: 18px !important;
+  height: 18px !important;
   -webkit-animation: none;
   -moz-animation: none;
   -ms-animation: none;
