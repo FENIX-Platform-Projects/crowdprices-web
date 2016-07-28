@@ -23,7 +23,9 @@ define([
     'leaflet.draw',
     'highstock',
     'highstock.no-data',
+    'highstock.exporting',
     'bootstrap-table',
+    'bootstrap-table.exoport',
     'amplify'
 ], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L) {
 
@@ -328,6 +330,7 @@ define([
 
         _preloadTimeRangeError: function (e) {
             alert("Impossible to retrieve time range");
+            log.error(e);
         },
 
         _preloadTimeRange: function () {
@@ -514,7 +517,7 @@ define([
 
             log.info("Build visualization objects");
 
-            this._buildMap();
+            //this._buildMap();
 
             this._buildCharts();
 
@@ -571,9 +574,11 @@ define([
 
             log.info("Update UI");
 
-            this._updatedCharts();
+            //this._updatedCharts();
 
-            this._updateMap();
+            //this._updateMap();
+
+            this._updateTables();
         },
 
         // Map
@@ -683,7 +688,7 @@ define([
 
                     self.filterPolygonWKT = self._toWKT(polyCircle);
                 }
-                else{
+                else {
                     self.filterPolygonWKT = self._toWKT(layer);
                 }
 
@@ -1018,7 +1023,7 @@ define([
                         if (m.length > 0) {
 
                             var commodity = Utils.getNestedProperty("labels.commodities", self.current.values)[comId],
-                                label = +' @ ' + m[0][2];
+                                label = commodity +' @ ' + m[0][2];
                             var data = m.map(function (i) {
                                 return [i[0], i[1]]
                             });
@@ -1094,17 +1099,41 @@ define([
 
         // Tables
 
-        _buildTables: function () {
+        _updateTables: function () {
 
             this._updateDailyDataTable();
 
             this._updateAggregatedDataTable();
 
+        },
+
+        _buildTables: function () {
+
+            this._buildDailyDataTable();
+
+            this._buildAggregatedDataTable();
+
             this._bindTableDownloadButtonsEvents();
         },
 
-        _updateDailyDataTableError: function (e) {
-            alert("Impossible to _updateDailyDataTableError()");
+        _buildDailyDataTable: function () {
+
+            this._retrieveResource({
+                query: Q.tableDailyData,
+                success: _.bind(this._buildDailyDataTableSuccess, this),
+                error: _.bind(this._buildDailyDataTableError, this)
+            });
+        },
+
+        _buildDailyDataTableSuccess: function (response) {
+
+            var data = this._buildDailyDataTableData(response);
+
+            this.$tableDailyData.bootstrapTable($.extend(true, {}, TablesConfig.dailyData, {data: data}));
+        },
+
+        _buildDailyDataTableError: function (e) {
+            alert("Impossible retrieve data for Table daily data.");
             log.error(e);
         },
 
@@ -1113,11 +1142,19 @@ define([
             this._retrieveResource({
                 query: Q.tableDailyData,
                 success: _.bind(this._updateDailyDataTableSuccess, this),
-                error: _.bind(this._updateDailyDataTableError, this)
+                error: _.bind(this._buildDailyDataTableError, this)
             });
         },
 
-        _updateDailyDataTableSuccess: function (d) {
+        _updateDailyDataTableSuccess: function (response) {
+
+            var data = this._buildDailyDataTableData(response);
+
+            this.$tableDailyData.bootstrapTable('removeAll');
+            this.$tableDailyData.bootstrapTable('append', data);
+        },
+
+        _buildDailyDataTableData: function (d) {
 
             var response = _.rest(d);
             var data = [];
@@ -1141,25 +1178,52 @@ define([
                 });
             });
 
-            this.$tableDailyData.bootstrapTable($.extend(true, {}, TablesConfig.dailyData, {data: data}));
+            return data;
+
+        },
+
+        _buildAggregatedDataTable: function () {
+
+            this._retrieveResource({
+                query: Q.tableAggregatedData,
+                success: _.bind(this._buildAggregatedDataTableSuccess, this),
+                error: _.bind(this._buildAggregatedDataTableError, this)
+            });
+        },
+
+        _buildAggregatedDataTableError: function (e) {
+            alert("Impossible retrieve data for Table aggregated data.");
+            log.error(e);
+        },
+
+        _buildAggregatedDataTableSuccess: function (d) {
+
+            var data = this._buildAggregatedDataTableData(d);
+
+            this.$tableAggregatedData.bootstrapTable($.extend(true, {}, TablesConfig.aggregatedData, {data: data}));
+
         },
 
         _updateAggregatedDataTable: function () {
 
             this._retrieveResource({
-                query: Q.tableAggregatedData,
+                query: Q.tableDailyData,
                 success: _.bind(this._updateAggregatedDataTableSuccess, this),
-                error: _.bind(this._updateAggregatedDataTableError, this)
+                error: _.bind(this._buildAggregatedDataTableError, this)
             });
+
         },
 
-        _updateAggregatedDataTableError: function (e) {
-            alert("Impossible to _updateAggregatedDataTableError()");
-            log.error(e);
+        _updateAggregatedDataTableSuccess: function (response) {
+
+            var data = this._buildAggregatedDataTableData(response);
+
+            this.$tableAggregatedData.bootstrapTable('removeAll');
+            this.$tableAggregatedData.bootstrapTable('append', data);
+
         },
 
-        _updateAggregatedDataTableSuccess: function (d) {
-
+        _buildAggregatedDataTableData: function (d) {
             var response = _.rest(d);
             var data = [];
 
@@ -1185,13 +1249,15 @@ define([
                 });
             });
 
-            this.$tableAggregatedData.bootstrapTable($.extend(true, {}, TablesConfig.aggregatedData, {data: data}));
+            return data;
 
         },
 
         _bindTableDownloadButtonsEvents: function () {
 
-            this.$tableDownloadButtons.on("click", function () {
+            var self = this;
+
+            this.$tableDownloadButtons.on("click",function () {
 
                 var $this = $(this),
                     table = $this.data('table'),
@@ -1199,14 +1265,19 @@ define([
 
                 switch (table) {
                     case "daily" :
-                        this.$tableDailyData.bootstrapTable('togglePagination');
-                        this.$tableDailyData.tableExport({type: format});
-                        this.$tableDailyData.bootstrapTable('togglePagination');
+                        self.$tableDailyData.bootstrapTable('togglePagination');
+                        self.$tableDailyData.tableExport({
+                            type: format
+                        });
+                        self.$tableDailyData.bootstrapTable('togglePagination');
                         break;
+
                     case "aggregated" :
-                        this.$tableAggregatedData.bootstrapTable('togglePagination');
-                        this.$tableAggregatedData.tableExport({type: format});
-                        this.$tableAggregatedData.bootstrapTable('togglePagination');
+                        self.$tableAggregatedData.bootstrapTable('togglePagination');
+                        self.$tableAggregatedData.tableExport({
+                            type: format
+                        });
+                        self.$tableAggregatedData.bootstrapTable('togglePagination');
                         break;
                 }
 
@@ -1268,7 +1339,7 @@ define([
                         to: to,
                         anyCommodities: "{" + anyCommodities.substring(1) + "}",
                         anyMarkets: "{" + anyMarkets.substring(1) + "}",
-                        wkt : this.filterPolygonWKT
+                        wkt: this.filterPolygonWKT
                     }
                 });
 
