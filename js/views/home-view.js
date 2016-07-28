@@ -971,7 +971,7 @@ define([
             log.info("Lat and longs", latlngs);
 
             if (latlngs.length > 0) {
-                this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2));
+                this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
             }
         },
 
