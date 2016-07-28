@@ -64,12 +64,12 @@ define([
         popupAnchor: L.point(-14, -14)
     });*/
 
-    var desatIcon = L.icon({
+    var desatIcon = L.divIcon({
         className: 'marker-desat-icon',
         html: '<div><span><span></div>'
     });
 
-    var desatIconBig = L.icon({
+    var desatIconBig = L.divIcon({
         className: 'marker-desat-icon',
         html: '<div><span><span></div>'
     });
