@@ -331,12 +331,12 @@ define([
         },
 
         _onResourcesReady: function () {
-
+/*
             if (this.cachedResources["commodities"] || this.cachedResources["countries"] || this.cachedResources["markets"]){
                 $('body').attr("data-status", "error");
                 return;
-            }
-
+            }*/
+console.log(this.cachedResources)
             var self = this;
 
             this.filterConfig = addCommoditiesCountriesMarketsModelsToFilter();
