@@ -3,6 +3,7 @@
 
 html, body, #wrapper, #page-content-wrapper {
   height: 100%;
+  font-family: "FrutigerLTW02-45Light", Arial, Helvetica, Verdana, sans-serif;
 }
 
 
@@ -11,6 +12,11 @@ body {
   background-color: white;
   padding-top: $host-menu-height;
 }
+
+.charts-holder{
+  font-family: "FrutigerLTW02-45Light", Arial, Helvetica, Verdana, sans-serif !important;
+}
+
 
 p{
   //text-align: justify;

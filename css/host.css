@@ -5398,7 +5398,7 @@ input[type="button"]::-moz-focus-inner {
 .fx-circle-number {
   color: white;
   display: inline-block;
-  font: normal normal 500 14px/normal "Roboto Condensed";
+  font: normal normal 500 14px/normal '"FrutigerLTW02-45Light"';
   height: 20px;
   width: 20px;
   line-height: 20px;
@@ -5745,7 +5745,7 @@ input[type=text]::-ms-clear {
 
 /* Fenix - Labels Component */
 label {
-  font: normal normal 300 12px/normal "Roboto"; }
+  font: normal normal 300 12px/normal '"FrutigerLTW02-45Light"'; }
 
 /* Fenix - Legend Component */
 legend {
@@ -5959,7 +5959,7 @@ div[data-module="sector"] .fx-catalog-modular-form-content {
     border-radius: 0;
     padding: 10px; }
     .panel-group .panel-heading .panel-title {
-      font: normal normal 300 16px/normal "Roboto Condensed"; }
+      font: normal normal 300 16px/normal '"FrutigerLTW02-45Light"'; }
       .panel-group .panel-heading .panel-title a {
         color: #333;
         text-transform: uppercase; }
@@ -5975,7 +5975,7 @@ div[data-module="sector"] .fx-catalog-modular-form-content {
     background-color: transparent;
     color: #333;
     border-color: transparent;
-    font: normal normal 300 12px/normal "Roboto";
+    font: normal normal 300 12px/normal '"FrutigerLTW02-45Light"';
     text-align: left;
     position: relative; }
     .panel-group .panel-body .btn:hover {
@@ -6874,7 +6874,7 @@ input[type="radio"]:disabled + label {
   background: none;
   color: white;
   display: inline-block;
-  font: normal normal 500 14px/normal "Roboto Condensed";
+  font: normal normal 500 14px/normal '"FrutigerLTW02-45Light"';
   height: 20px;
   width: 20px;
   line-height: 20px;
@@ -6903,7 +6903,7 @@ input[type="radio"]:disabled + label {
 
 /* Fenix - JQwidgets */
 .jqx-widget {
-  font: normal normal 300 12px/normal "Roboto"; }
+  font: normal normal 300 12px/normal '"FrutigerLTW02-45Light"'; }
 
 .jqx-widget-content {
   color: #333;
@@ -13024,10 +13024,6 @@ input[type="radio"]:disabled + label {
   .home-content .home-tile {
     padding: 20px 15px;
     position: relative; }
-  .home-content .home-tile.gray {
-    background-color: #d2d2d2; }
-  .home-content .home-tile.aims {
-    background-color: #f5f5f5; }
 
 .data-range-holder {
   background-color: #e0f1ee; }
@@ -13070,7 +13066,8 @@ input[type="radio"]:disabled + label {
 .spark-number {
   color: whitesmoke;
   font-size: 32px;
-  margin-bottom: 0; }
+  margin-bottom: 0;
+  font-weight: 100; }
 
 .spark-item {
   padding: 0 15px;
@@ -13160,7 +13157,6 @@ input[type="radio"]:disabled + label {
       line-height: 50px;
       background-color: #364048;
       margin-bottom: 1px;
-      font-family: 'Roboto';
       font-size: 14px; }
       #sidebar-wrapper .sidebar-nav li.active a {
         color: #e0e9f0;
@@ -13286,11 +13282,15 @@ input[type="radio"]:disabled + label {
 /* Large devices (large desktops, 1200px and up) */
 /* Base */
 html, body, #wrapper, #page-content-wrapper {
-  height: 100%; }
+  height: 100%;
+  font-family: "FrutigerLTW02-45Light", Arial, Helvetica, Verdana, sans-serif; }
 
 body {
   background-color: white;
   padding-top: 0; }
+
+.charts-holder {
+  font-family: "FrutigerLTW02-45Light", Arial, Helvetica, Verdana, sans-serif !important; }
 
 hr {
   border-color: #e5e5e5; }

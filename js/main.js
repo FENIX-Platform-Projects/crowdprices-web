@@ -252,11 +252,7 @@ $(document).ready(function () {
                         '#DF3328'
                     ],
                     title: {
-                        text: 'Daily Prices',
-                        style: {
-                            fontFamily: "Roboto",
-                            fontSize: '12px'
-                        }
+                        text: 'Daily Prices'
                     },
 
                     credits: false,
@@ -265,10 +261,6 @@ $(document).ready(function () {
                         labels: {
                             formatter: function () {
                                 return (this.value > 0 ? ' + ' : '') + this.value + '%'
-                            },
-                            style: {
-                                fontFamily: "Roboto",
-                                fontSize: '10px'
                             }
 
                         },
@@ -314,10 +306,7 @@ $(document).ready(function () {
                     title: {
                         text: 'Average Prices',
 
-                        style: {
-                            fontFamily: "Roboto",
-                            fontSize: '12px'
-                        }
+
 
                     },
                     xAxis: {
@@ -335,11 +324,8 @@ $(document).ready(function () {
                         labels: {
                             formatter: function () {
                                 return this.value + ' ';
-                            },
-                            style: {
-                                fontFamily: "Roboto",
-                                fontSize: '10px'
                             }
+
                         },
                         plotLines: [{
                             value: 0,
@@ -1287,8 +1273,7 @@ $(document).ready(function () {
     Highcharts.setOptions({
         chart: {
             style: {
-                fontFamily: "Roboto",
-                fontSize: '10px'
+                fontFamily: "FrutigerLTW02-45Light"
             }
         }
     });

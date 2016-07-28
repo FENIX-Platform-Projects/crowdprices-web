@@ -12,14 +12,7 @@ background-color: $afg-home-background;
     position: relative;
   }
 
-  .home-tile.gray{
-    background-color: $center-color;
-  }
-
-  .home-tile.aims{
-    background-color: $superlight-gray;
-
-  }
+  
 
 
 }
@@ -94,6 +87,8 @@ background-color: $afg-home-background;
   color: whitesmoke;
   font-size: 32px;
   margin-bottom: 0;
+  font-weight: 100;
+
 }
 
 .spark-item{

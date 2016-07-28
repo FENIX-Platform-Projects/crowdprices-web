@@ -9,6 +9,13 @@ define([
 
         dailyPrices: {
 
+            chart: {
+                style: {
+                    fontFamily: 'FrutigerLTW02-45Light',
+
+                }
+            },
+
             rangeSelector: {
                 selected: 4
             },
@@ -24,10 +31,7 @@ define([
             ],
             title: {
                 text: 'Daily Prices',
-                style: {
-                    fontFamily: "Roboto",
-                    fontSize: '12px'
-                }
+
             },
 
             credits: false,
@@ -36,11 +40,8 @@ define([
                 labels: {
                     formatter: function () {
                         return (this.value > 0 ? ' + ' : '') + this.value + '%'
-                    },
-                    style: {
-                        fontFamily: "Roboto",
-                        fontSize: '10px'
                     }
+
 
                 },
                 plotLines: [{
@@ -48,6 +49,13 @@ define([
                     width: 2,
                     color: 'silver'
                 }]
+            },
+            xAxis: {
+                labels: {
+
+
+
+                }
             },
 
             plotOptions: {
@@ -64,8 +72,13 @@ define([
 
         averagePrices: {
             chart: {
-                type: 'column'
+                type: 'column',
+                style: {
+                    fontFamily: 'FrutigerLTW02-45Light',
+                    fontSize: '1px'
+                }
             },
+
             colors: [ //Colori delle charts
                 '#3faaaa',
                 '#76BE94',
@@ -79,10 +92,7 @@ define([
             title: {
                 text: 'Average Prices',
 
-                style: {
-                    fontFamily: "Roboto",
-                    fontSize: '12px'
-                }
+
 
             },
             xAxis: {
@@ -94,23 +104,35 @@ define([
                 }
             },
 
+
+
+
             credits: false,
 
             yAxis: {
+
+                title: {
+
+
+                },
+
                 labels: {
                     formatter: function () {
                         return this.value + ' ';
                     },
-                    style: {
-                        fontFamily: "Roboto",
-                        fontSize: '10px'
-                    }
+
                 },
                 plotLines: [{
                     value: 0,
                     width: 2,
                     color: 'silver'
                 }]
+            },
+            legend: {
+
+                itemMarginTop: 5,
+                itemMarginBottom: 5
+
             },
             tooltip: {
                 pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} ' + C.currency + '/' + C.um + '</b> <br/>',
