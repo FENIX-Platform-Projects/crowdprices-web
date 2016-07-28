@@ -39,7 +39,8 @@ define([
         CHART_DAILY_PRICES: "#chart-daily-prices",
         CHART_AVERAGE_PRICES: "#chart-average-prices",
         TABLE_DOWNLOAD_BUTTONS: "[data-download]",
-        NO_DATA_ALERT: "#no-data-alert"
+        NO_DATA_ALERT: "#no-data-alert",
+        PROTECTED : "[data-protected]"
     };
 
 /*    var desatIcon = L.icon({
@@ -167,11 +168,18 @@ define([
             //hide no data alert
             this.$noDataAlert.hide();
 
+            //hide protected elements
+            $(s.PROTECTED).hide();
+
         },
 
         _bindEventListeners: function () {
 
-            this.$downloadBtn.on("click", _.bind(this._onDownloadClick, this))
+            this.$downloadBtn.on("click", _.bind(this._onDownloadClick, this));
+
+            amplify.subscribe("resize", this, this._onResizeEvent);
+            amplify.subscribe("login", this, this._onLoginEvent);
+            amplify.subscribe("logout", this, this._onLogoutEvent);
         },
 
         // handlers
@@ -229,6 +237,39 @@ define([
                     self.$noDataAlert.hide();
                 })
             }
+        },
+
+        _onResizeEvent: function () {
+            log.info("Listening to resize event");
+
+            if (this.ready !== true) {
+                return;
+            }
+
+            this.map.invalidateSize();
+            log.info("map invalidateSize");
+
+            this.$chartDailyPrices.highcharts().reflow();
+            log.info("chartDailyPrices reflow");
+
+            this.$chartAveragePrices.highcharts().reflow();
+            log.info("chartAveragePrices reflow");
+
+        },
+
+        _onLoginEvent : function () {
+
+            log.warn("Login event");
+
+            $(s.PROTECTED).show()
+
+        },
+
+        _onLogoutEvent : function () {
+
+            log.war("Logout");
+
+            $(s.PROTECTED).hide();
         },
 
         // start
@@ -517,7 +558,7 @@ define([
 
             log.info("Build visualization objects");
 
-            //this._buildMap();
+            this._buildMap();
 
             this._buildCharts();
 
@@ -823,7 +864,7 @@ define([
 
         _updateMap: function () {
 
-            log.info("update map")
+            log.info("update map");
 
             if (this.markers != null) {
                 this.markers.clearLayers();
@@ -842,7 +883,6 @@ define([
 
         _onUpdateMapSuccess: function (data) {
 
-            log.info("Map data: " + JSON.stringify(data));
             log.info("Map data: " + JSON.stringify(data));
 
             var self = this,
@@ -1298,6 +1338,11 @@ define([
         // disposition
 
         _unbindEventListeners: function () {
+            this.$downloadBtn.off();
+
+            amplify.unsubscribe("resize", this._onResizeEvent);
+            amplify.unsubscribe("login", this._onLoginEvent);
+            amplify.unsubscribe("logout", this._onLogoutEvent);
 
         },
 

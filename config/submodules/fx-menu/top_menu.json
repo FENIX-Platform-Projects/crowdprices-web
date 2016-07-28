@@ -12,15 +12,6 @@
     },
     {
       "attrs": {
-        "id": "download"
-      },
-      "target": "#download",
-      "label": {
-        "EN": "Data Download"
-      }
-    },
-    {
-      "attrs": {
         "rel": "external"
       },
       "target": "http://fenixrepo.fao.org/apk/CrowdPricesLatest.apk",

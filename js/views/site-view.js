@@ -139,6 +139,10 @@ define([
 
             this.$wrapper.toggleClass("toggled");
 
+            window.setTimeout(function () {
+                amplify.publish("resize");
+            }, 550);
+
         },
 
         _initMenu: function () {
@@ -165,12 +169,14 @@ define([
             this.authManager = AuthManager.init({
                 onLogin: _.bind(function () {
                     self.topMenu.refresh(menuConfAuth);
+                    amplify.publish("login");
                 }, this),
                 onLogout: _.bind(function () {
 
                     amplify.publish(E.notAuthorized);
 
                     self.topMenu.refresh(menuConfPub);
+                    amplify.publish("logout");
                 }, this)
             });
 
