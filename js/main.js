@@ -947,6 +947,19 @@ $(document).ready(function () {
         return points;
     }
 
+    function zoomToCountry(code) {
+
+        var url = ZOOM_TO_BBOX + 'country/adm0_code/' + code;
+
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (response) {
+                map.fitBounds(response);
+            }
+        });
+    }
+
     function toWKT(layer) {
 
         var lng, lat, coords = [];
@@ -973,19 +986,6 @@ $(document).ready(function () {
         else if (layer instanceof L.Marker) {
             return "POINT(" + layer.getLatLng().lng + " " + layer.getLatLng().lat + ")";
         }
-    }
-
-    function zoomToCountry(code) {
-
-        var url = ZOOM_TO_BBOX + 'country/adm0_code/' + code;
-
-        $.ajax({
-            type: "GET",
-            url: url,
-            success: function (response) {
-                map.fitBounds(response);
-            }
-        });
     }
 
     function updateMap() {

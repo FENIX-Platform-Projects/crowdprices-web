@@ -100,6 +100,7 @@ require([
                     highstock : '{FENIX_CDN}/js/highstock/2.1.9/js/highstock',
                     //'highstock.exporting' : '{FENIX_CDN}/js/highstock/2.1.9/js/highstock-all',
                     'highstock.no-data' : '{FENIX_CDN}/js/highstock/2.1.9/js/modules/no-data-to-display',
+                    'highstock.sparkline' : '{FENIX_CDN}/js/highstock/2.1.9/js/modules/sparkilne-charts',
                     'bootstrap-table' : '{FENIX_CDN}/js/bootstrap-table/1.10.1/docs/dist/bootstrap-table.min',
 
                 },
@@ -118,9 +119,7 @@ require([
                     'highstock'             :['jquery'],
                     'highstock.exporting'   :['jquery','highstock'],
                     'highstock.no-data'   :['jquery','highstock'],
-
-                    'jquery.nouislider'     :['jquery'],
-                    'jQAllRangeSliders-min' :['jquery'],
+                    'highstock.sparkline'   :['jquery','highstock'],
 
                     'leaflet.markercluster'    :['leaflet'],
                     'leaflet.draw'             :['leaflet'],

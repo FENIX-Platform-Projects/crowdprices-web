@@ -10,7 +10,8 @@ define([
     'globals/AuthManager',
     'globals/State',
     'i18n!nls/labels',
-    'text!templates/site.hbs'
+    'text!templates/site.hbs',
+    'highstock.sparkline',
 ], function ($, Chaplin, _, C, E, View, Menu, AuthManager, State, i18nLabels, template) {
 
     'use strict';
@@ -18,7 +19,8 @@ define([
     var s = {
         LATERAL_MENU_CONTAINER: '#lateral-menu',
         MENU_TOGGLE_BTN : "#menu-toggle",
-        WRAPPER: "#wrapper"
+        WRAPPER: "#wrapper",
+        SPARK_LINES: "[data-sparkline]"
     };
 
     var SiteView = View.extend({
@@ -48,6 +50,73 @@ define([
             this._initMenu();
 
             this._initQuickStats();
+
+            this._initSparkline();
+
+            // spark lines
+            //this.$el.find(s.SPARK_LINES).highcharts('SparkLine');
+            //console.log($.fn.highcharts)
+            //alert(this.$el.find(s.SPARK_LINES).length)
+        },
+
+        _initSparkline : function () {
+
+            var start = +new Date(),
+                $tds = $(s.SPARK_LINES),
+                fullLen = $tds.length,
+                n = 0;
+
+            alert(fullLen)
+
+            function doChunk() {
+                var time = +new Date(),
+                    i,
+                    len = $tds.length,
+                    $td,
+                    stringdata,
+                    arr,
+                    data,
+                    chart;
+
+                for (i = 0; i < len; i += 1) {
+                    $td = $($tds[i]);
+                    stringdata = $td.data('sparkline');
+                    arr = stringdata.split('; ');
+                    data = $.map(arr[0].split(', '), parseFloat);
+                    chart = {};
+
+                    if (arr[1]) {
+                        chart.type = arr[1];
+                    }
+                    $td.highcharts('SparkLine', {
+                        series: [{
+                            data: data,
+                            pointStart: 1
+                        }],
+                        tooltip: {
+                            headerFormat: '<span style="font-size: 10px">' + $td.parent().find('th').html() + ', Q{point.x}:</span><br/>',
+                            pointFormat: '<b>{point.y}.000</b> USD'
+                        },
+                        chart: chart
+                    });
+
+                    n += 1;
+
+                    // If the process takes too much time, run a timeout to allow interaction with the browser
+                    if (new Date() - time > 500) {
+                        $tds.splice(0, i + 1);
+                        setTimeout(doChunk, 0);
+                        break;
+                    }
+
+                    // Print a feedback on the performance
+                    if (n === fullLen) {
+                        $('#result').html('Generated ' + fullLen + ' sparklines in ' + (new Date() - start) + ' ms');
+                    }
+                }
+            }
+            doChunk();
+
         },
 
         _initVariables: function () {

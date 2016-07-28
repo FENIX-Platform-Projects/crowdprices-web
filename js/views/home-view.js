@@ -18,6 +18,9 @@ define([
     'fx-common/utils',
     'moment',
     'leaflet',
+    'leaflet.geosearch.google',
+    'leaflet.markercluster',
+    'leaflet.draw',
     'highstock',
     'highstock.no-data',
     'bootstrap-table',
@@ -33,8 +36,33 @@ define([
         TABLE_AGGREGATED_DATA: "#table-aggregated-data",
         CHART_DAILY_PRICES: "#chart-daily-prices",
         CHART_AVERAGE_PRICES: "#chart-average-prices",
-        TABLE_DOWNLOAD_BUTTONS: "[data-download]"
+        TABLE_DOWNLOAD_BUTTONS: "[data-download]",
+        NO_DATA_ALERT: "#no-data-alert"
     };
+
+    var desatIcon = L.icon({
+        iconUrl: 'img/marker-icon-none.png',
+        shadowUrl: 'img/marker-shadow.png',
+        iconSize: L.point(28, 28),
+        iconAnchor: L.point(28, 28),
+        popupAnchor: L.point(-14, -14)
+    });
+
+    var desatIconBig = L.icon({
+        iconUrl: 'img/marker-icon-none-big.png',
+        shadowUrl: 'img/marker-shadow.png',
+        iconSize: L.point(109, 109),
+        iconAnchor: L.point(109, 109),
+        popupAnchor: L.point(-54, -54)
+    });
+
+    var foundIcon = L.icon({
+        iconUrl: 'img/marker-icon.png',
+        shadowUrl: 'img/marker-shadow.png',
+        iconSize: L.point(109, 109),
+        iconAnchor: L.point(70, 70),
+        popupAnchor: L.point(-14, -14)
+    });
 
     var HomeView = View.extend({
 
@@ -61,6 +89,10 @@ define([
                 }),
                 commodities: this._compile({
                     source: Q.commodities,
+                    context: {country: country}
+                }),
+                map: this._compile({
+                    source: Q.mapInit,
                     context: {country: country}
                 })
             };
@@ -102,6 +134,8 @@ define([
 
             this.searchTimeout = false;
 
+            this.$noDataAlert = this.$el.find(s.NO_DATA_ALERT);
+
             log.info("Variables initialized successfully");
 
         },
@@ -114,14 +148,14 @@ define([
                 outputType: C.WDS_OUTPUT_TYPE
             });
 
+            //hide no data alert
+            this.$noDataAlert.hide();
+
         },
 
         _bindEventListeners: function () {
 
             this.$downloadBtn.on("click", _.bind(this._onDownloadClick, this))
-        },
-
-        _updateStatistics: function () {
         },
 
         // handlers
@@ -153,9 +187,32 @@ define([
                 url: C.downloadUrl,
                 contentType: "application/json",
                 data: JSON.stringify(body),
-                dataType: 'json'
+                dataType: 'json',
+                success: _.bind(this._onDownloadSuccess, this),
+                error: _.bind(this._onDownloadError, this)
             });
 
+        },
+
+        _onDownloadError: function (e) {
+            alert("Impossible to download CSV file");
+            log.error(e)
+        },
+
+        _onDownloadSuccess: function (csvContent) {
+
+            var self = this;
+
+            if (csvContent) {
+                var encodedUri = encodeURI(csvContent);
+                window.open(encodedUri);
+            } else {
+                this.$noDataAlert.show();
+
+                self.$noDataAlert.fadeOut(3000, function () {
+                    self.$noDataAlert.hide();
+                })
+            }
         },
 
         // start
@@ -176,8 +233,6 @@ define([
             this._bindEventListeners();
 
             this._buildUI(C.country);
-
-            this._updateStatistics();
 
         },
 
@@ -218,6 +273,8 @@ define([
             var self = this;
 
             this.filterConfig = addCommoditiesCountriesMarketsModelsToFilter();
+
+            this._initMap();
 
             this._preloadTimeRange();
 
@@ -374,22 +431,22 @@ define([
 
                 var timeSource = [];
 
-                timeSource.push({value : Utils.getNestedProperty("time.min", conf), parent : "from"});
-                timeSource.push({value : Utils.getNestedProperty("time.min", conf), parent : "to"});
+                timeSource.push({value: Utils.getNestedProperty("time.min", conf), parent: "from"});
+                timeSource.push({value: Utils.getNestedProperty("time.min", conf), parent: "to"});
 
                 Utils.assign(sources, "time", timeSource);
 
                 return sources;
             }
 
-            function buildFilterDefaultValues(){
+            function buildFilterDefaultValues() {
 
                 var values = {},
                     conf = self.filterConfig;
 
                 // markets
 
-                var c =  Utils.getNestedProperty("markets.source", conf),
+                var c = Utils.getNestedProperty("markets.source", conf),
                     array = _.map(c, function (m) {
                         return m.value;
                     });
@@ -441,11 +498,13 @@ define([
 
         _buildVisualizationObjects: function () {
 
+            log.info("Build visualization objects");
+
+            this._buildMap();
+
             this._buildCharts();
 
-            //this._buildMap();
-
-            this._buildTables();
+            //this._buildTables();
         },
 
         _rebuildUi: function (country) {
@@ -499,11 +558,17 @@ define([
             log.info("Update UI");
 
             this._updatedCharts();
+
+            this._updateMap();
         },
 
         // Map
 
-        _buildMap: function () {
+        _initMap: function () {
+
+            this.mapMarkets = _.rest(this.cachedResources["map"]);
+
+            log.info("map Markets", this.mapMarkets);
 
             var self = this,
                 tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
@@ -524,7 +589,7 @@ define([
 
             map.addControl(new L.Control.GeoSearch({
                 provider: new L.GeoSearch.Provider.Google(),
-                showMarker: false,
+                showMarker: false
             }));
 
 
@@ -580,6 +645,8 @@ define([
 
             this.map.addControl(drawControl);
 
+            log.info("Map initialized");
+
             this.map.on('draw:created', function (e) {
                 var type = e.layerType,
                     layer = e.layer;
@@ -588,7 +655,7 @@ define([
                     var origin = layer.getLatLng(); //center of drawn circle
                     var radius = layer.getRadius(); //radius of drawn circle
                     var projection = L.CRS.EPSG4326;
-                    var polys = createGeodesicPolygon(origin, radius, 10, 0, projection); //these are the points that make up the circle
+                    var polys = self._createGeodesicPolygon(origin, radius, 10, 0, projection); //these are the points that make up the circle
                     var coords = [];
                     for (var i = 0; i < polys.length; i++) {
                         var geometry = [
@@ -602,21 +669,28 @@ define([
 
                     self.filterPolygonWKT = self._toWKT(polyCircle);
                 }
-                else
+                else{
                     self.filterPolygonWKT = self._toWKT(layer);
+                }
 
                 drawnItems.clearLayers()
                     .addLayer(layer);
 
                 drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
-                updateValues();
+                self._updateUI();
+
             })
                 .on('draw:deleted', function (e) {
                     drawnItems.clearLayers();
-                    self.filterPolygonWKT = '';
-
+                    delete self.filterPolygonWKT;
+                    self._updateUI();
                 });
+        },
+
+        _buildMap: function () {
+
+            this._updateMap();
         },
 
         _toWKT: function (layer) {
@@ -646,22 +720,101 @@ define([
             }
         },
 
+        _destinationVincenty: function (lonlat, brng, dist) {
+            //rewritten to work with leaflet
+            var VincentyConstants = {
+                    a: 6378137,
+                    b: 6356752.3142,
+                    f: 1 / 298.257223563
+                },
+                a = VincentyConstants.a,
+                b = VincentyConstants.b,
+                f = VincentyConstants.f,
+                lon1 = lonlat.lng,
+                lat1 = lonlat.lat,
+                s = dist,
+                pi = Math.PI,
+                alpha1 = brng * pi / 180,
+                sinAlpha1 = Math.sin(alpha1),
+                cosAlpha1 = Math.cos(alpha1),
+                tanU1 = (1 - f) * Math.tan(lat1 * pi / 180),
+                cosU1 = 1 / Math.sqrt((1 + tanU1 * tanU1)), sinU1 = tanU1 * cosU1,
+                sigma1 = Math.atan2(tanU1, cosAlpha1),
+                sinAlpha = cosU1 * sinAlpha1,
+                cosSqAlpha = 1 - sinAlpha * sinAlpha,
+                uSq = cosSqAlpha * (a * a - b * b) / (b * b),
+                A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq))),
+                B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq))),
+                sigma = s / (b * A), sigmaP = 2 * Math.PI;
+
+            while (Math.abs(sigma - sigmaP) > 1e-12) {
+                var cos2SigmaM = Math.cos(2 * sigma1 + sigma),
+                    sinSigma = Math.sin(sigma),
+                    cosSigma = Math.cos(sigma),
+                    deltaSigma = B * sinSigma * (cos2SigmaM + B / 4 * (cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM) -
+                        B / 6 * cos2SigmaM * (-3 + 4 * sinSigma * sinSigma) * (-3 + 4 * cos2SigmaM * cos2SigmaM)));
+                sigmaP = sigma;
+                sigma = s / (b * A) + deltaSigma;
+            }
+            var tmp = sinU1 * sinSigma - cosU1 * cosSigma * cosAlpha1,
+                lat2 = Math.atan2(sinU1 * cosSigma + cosU1 * sinSigma * cosAlpha1,
+                    (1 - f) * Math.sqrt(sinAlpha * sinAlpha + tmp * tmp)),
+                lambda = Math.atan2(sinSigma * sinAlpha1, cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1),
+                C = f / 16 * cosSqAlpha * (4 + f * (4 - 3 * cosSqAlpha)),
+                lam = lambda - (1 - C) * f * sinAlpha *
+                    (sigma + C * sinSigma * (cos2SigmaM + C * cosSigma * (-1 + 2 * cos2SigmaM * cos2SigmaM))),
+                revAz = Math.atan2(sinAlpha, -tmp),
+                lamFunc = lon1 + (lam * 180 / pi),
+                lat2a = lat2 * 180 / pi;
+
+            return L.latLng(lamFunc, lat2a);
+
+        },
+
+        _createGeodesicPolygon: function (origin, radius, sides, rotation, projection) {
+
+            var latlon = origin; //leaflet equivalent
+            var angle;
+            var new_lonlat, geom_point;
+            var points = [];
+
+            for (var i = 0; i < sides; i++) {
+                angle = (i * 360 / sides) + rotation;
+                new_lonlat = this._destinationVincenty(latlon, angle, radius);
+                geom_point = L.latLng(new_lonlat.lng, new_lonlat.lat);
+
+                points.push(geom_point);
+            }
+
+            return points;
+        },
+
+        _zoomToCountry: function (code) {
+
+            var url = ZOOM_TO_BBOX + 'country/adm0_code/' + code;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (response) {
+                    map.fitBounds(response);
+                }
+            });
+        },
+
         _updateMap: function () {
+
+            log.info("update map")
 
             if (this.markers != null) {
                 this.markers.clearLayers();
             }
 
-            if (this.commodityMaps != "") {
-
-                this._retrieveResource({
-                    query: Q.map,
-                    success: _.bind(this._onUpdateMapSuccess, this),
-                    error: _.bind(this._onUpdateMapError, this)
-                });
-
-            }
-
+            this._retrieveResource({
+                query: Q.mapUpdate,
+                success: _.bind(this._onUpdateMapSuccess, this),
+                error: _.bind(this._onUpdateMapError, this)
+            });
         },
 
         _onUpdateMapError: function () {
@@ -670,29 +823,8 @@ define([
 
         _onUpdateMapSuccess: function (data) {
 
-            var desatIcon = L.icon({
-                iconUrl: 'img/marker-icon-none.png',
-                shadowUrl: 'img/marker-shadow.png',
-                iconSize: L.point(28, 28),
-                iconAnchor: L.point(28, 28),
-                popupAnchor: L.point(-14, -14)
-            });
-
-            var desatIconBig = L.icon({
-                iconUrl: 'img/marker-icon-none-big.png',
-                shadowUrl: 'img/marker-shadow.png',
-                iconSize: L.point(109, 109),
-                iconAnchor: L.point(109, 109),
-                popupAnchor: L.point(-54, -54)
-            });
-
-            var foundIcon = L.icon({
-                iconUrl: 'img/marker-icon.png',
-                shadowUrl: 'img/marker-shadow.png',
-                iconSize: L.point(109, 109),
-                iconAnchor: L.point(70, 70),
-                popupAnchor: L.point(-14, -14)
-            });
+            log.info("Map data: " + JSON.stringify(data));
+            log.info("Map data: " + JSON.stringify(data));
 
             var self = this,
                 addressPoints = [],
@@ -701,12 +833,11 @@ define([
                 address = 0,
                 response = _.rest(data);
 
-            var Cresponse = _.groupBy(response, 'marketcode'),
-                globalMarkets = Utils.getNestedProperty("values.markets", this.current.values);
+            var Cresponse = _.groupBy(response, 'marketcode');
 
-            $.each(globalMarkets, function (k, v) {
-
+            $.each(this.mapMarkets, function (k, v) {
                 if (!v[0]) {
+
                     L.marker([v.lat, v.lon], {
                         icon: desatIcon
                     })
@@ -714,7 +845,7 @@ define([
                         .on('mouseover', function (e) {
                             e.target.openPopup();
                         })
-                        .addTo(emptyMarketLayer);
+                        .addTo(self.emptyMarketLayer);
                 }
 
                 v = _.extend(v, Cresponse[v.code]);
@@ -742,44 +873,47 @@ define([
                 address++;
             });
 
-            refreshCluster(addressPoints);
+            this._refreshCluster(addressPoints);
+        },
 
-            function refreshCluster(addressPoints) {
+        _refreshCluster: function (addressPoints) {
 
-                var existingPoints = [],
-                    latlngs = [];
+            log.info("Refresh cluster", JSON.stringify(addressPoints));
+            var existingPoints = [],
+                latlngs = [];
 
-                for (var i = 0; i < addressPoints.length; i++) {
+            for (var i = 0; i < addressPoints.length; i++) {
 
-                    var point = addressPoints[i];
+                var point = addressPoints[i];
 
-                    var title = point[2],
-                        hasData = point[3],
-                        loc = new L.LatLng(point[0], point[1]);
+                var title = point[2],
+                    hasData = point[3],
+                    loc = new L.LatLng(point[0], point[1]);
 
-                    existingPoints.push([
-                        loc,
-                        title
-                    ]);
+                existingPoints.push([
+                    loc,
+                    title
+                ]);
 
-                    var marker = L.marker(loc, {
-                        icon: !!hasData ? foundIcon : desatIconBig
-                    })
-                        .bindPopup('<div class="' + (!hasData && 'notValued') + '">' + title + '</div>')
-                        .on('mouseover', function (e) {
-                            e.target.openPopup();
-                        });
+                var marker = L.marker(loc, {
+                    icon: !!hasData ? foundIcon : desatIconBig
+                })
+                    .bindPopup('<div class="' + (!hasData && 'notValued') + '">' + title + '</div>')
+                    .on('mouseover', function (e) {
+                        e.target.openPopup();
+                    });
 
-                    if (hasData) {
-                        self.markers.addLayer(marker);
-                        latlngs.push(loc);
-                    }
+                if (hasData) {
+                    this.markers.addLayer(marker);
+                    latlngs.push(loc);
                 }
-
-                if (latlngs.length > 0)
-                    self.map.fitBounds(L.latLngBounds(latlngs).pad(0.2));
             }
 
+            log.info("Lat and longs", latlngs);
+
+            if (latlngs.length > 0) {
+                this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2));
+            }
         },
 
         _disposeMap: function (data) {
@@ -1119,7 +1253,8 @@ define([
                         from: from,
                         to: to,
                         anyCommodities: "{" + anyCommodities.substring(1) + "}",
-                        anyMarkets: "{" + anyMarkets.substring(1) + "}"
+                        anyMarkets: "{" + anyMarkets.substring(1) + "}",
+                        wkt : this.filterPolygonWKT
                     }
                 });
 
