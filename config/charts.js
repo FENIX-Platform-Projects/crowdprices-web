@@ -13,8 +13,7 @@ define([
                 style: {
                     fontFamily: 'FrutigerLTW02-45Light',
 
-                },
-                backgroundColor:'rgba(255, 255, 255, 0)'
+                }
             },
 
             rangeSelector: {
@@ -77,8 +76,8 @@ define([
                 style: {
                     fontFamily: 'FrutigerLTW02-45Light',
                     fontSize: '1px'
-                },
-                backgroundColor:'rgba(255, 255, 255, 0)'
+                }
+
 
             },
 

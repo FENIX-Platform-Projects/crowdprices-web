@@ -5,7 +5,8 @@
 
         <div class="col-md-12 nation-tile">
             <div id="nation-selector" class="fx-home-content-grid-top">
-                <h2>Countries</h2>
+                <h2>Country</h2>
+
                 <div data-selector="countries"></div>
             </div>
 
@@ -13,19 +14,21 @@
 
     </div>
 
-    <div class="row" >
+    <div class="row">
 
         <div class="row-height">
 
             <div class="col-md-6 col-md-height home-tile">
                 <div id="market-selector" class="fx-home-content-grid-top">
                     <h2>Markets</h2>
+
                     <div data-selector="markets"></div>
                 </div>
             </div>
             <div class="col-md-6 col-md-height home-tile">
                 <div id="commodity-selector" class="fx-home-content-grid-top">
                     <h2>Commodities</h2>
+
                     <div data-selector="commodities"></div>
                 </div>
             </div>
@@ -38,16 +41,31 @@
     <div class="row">
         <div class="col-xs-12 data-range-holder">
             <h2>Date Range</h2>
+
             <div data-selector="time"></div>
         </div>
     </div>
 
 </div>
 
-<button data-protected disabled id="download-btn" class="btn btn-default" type="submit">Download</button>
-<div class="alert alert-success" id="no-data-alert">
-    <strong>Warning:</strong> No data for the current selection
+<div class="cw-ui-holder clearfix">
+
+    <button data-protected disabled id="download-btn" class="btn btn-default" type="submit">Download</button>
+
+    <!--Button Refresh-->
+    <a class="btn-floating cw-float pull-right btn-refresh"><i class="material-icons">refresh</i></a>
+
+    <!--Button Download-->
+    <a class="btn-floating cw-float pull-right btn-download"><i class="material-icons">file_download</i></a>
+
+    <div class="alert alert-success" id="no-data-alert">
+        <strong>Warning:</strong> No data for the current selection
+    </div>
+
 </div>
+
+
+
 
 <!-- Visualization -->
 <div class="container-fluid">
@@ -55,8 +73,24 @@
     <!-- Map -->
     <div class="row">
 
-        <div id='country-details' class="col-xs-12 country-details map">
-            <div id="map-cluster" class="content-item" style="height: 300px"></div>
+
+        <div class="col-xs-12 charts-holder first-chart">
+            <div class="content">
+
+                <div class="panel panel-default hoverable">
+
+                    <div class="panel-body">
+
+                        <h2>Map Cluster</h2>
+
+                        <div id="map-cluster" class="content-item" style="height: 300px"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
     </div>
 
@@ -65,12 +99,32 @@
         <div class="col-xs-12 charts-holder">
             <div class="content">
 
-                <h2>Daily Prices</h2>
 
-                <div id="chart-daily-prices" class="content-item"></div>
-                <h2>Average Prices</h2>
+                <div class="panel panel-default hoverable">
 
-                <div id="chart-average-prices" class="content-item"></div>
+                    <div class="panel-body">
+
+                        <h2>Daily Prices</h2>
+
+                        <div id="chart-daily-prices" class="content-item"></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel panel-default hoverable">
+
+                    <div class="panel-body">
+
+                        <h2>Average Prices</h2>
+
+                        <div id="chart-average-prices" class="content-item"></div>
+
+                    </div>
+
+                </div>
+
 
             </div>
 
@@ -80,20 +134,40 @@
     <!-- Tables -->
     <div class="row">
         <div class="col-xs-12 charts-holder">
-            <h2>Daily Data</h2>
-            <table id="table-daily-data"></table>
 
-            Export this table as
-            <a data-download="csv" data-table="daily">CSV</a>
-            <a data-download="json" data-table="daily">JSON</a>
-            <a data-download="xml" data-table="daily">XLS</a>
 
-            <h2>Aggregated Data</h2>
-            <table id="table-aggregated-data"></table>
-            Export this table as
-            <a data-download="csv" data-table="aggregated">CSV</a>
-            <a data-download="json" data-table="aggregated">JSON</a>
-            <a data-download="xml" data-table="aggregated">XLS</a>
+            <div class="panel panel-default hoverable">
+
+                <div class="panel-body">
+
+                    <h2>Daily Data</h2>
+                    <table id="table-daily-data"></table>
+
+                    Export this table as
+                    <a data-download="csv" data-table="daily">CSV</a>
+                    <a data-download="json" data-table="daily">JSON</a>
+                    <a data-download="xml" data-table="daily">XLS</a>
+
+                </div>
+
+            </div>
+
+            <div class="panel panel-default hoverable">
+
+                <div class="panel-body">
+
+                    <h2>Aggregated Data</h2>
+                    <table id="table-aggregated-data"></table>
+                    Export this table as
+                    <a data-download="csv" data-table="aggregated">CSV</a>
+                    <a data-download="json" data-table="aggregated">JSON</a>
+                    <a data-download="xml" data-table="aggregated">XLS</a>
+
+                </div>
+
+            </div>
+
+
 
         </div>
     </div>

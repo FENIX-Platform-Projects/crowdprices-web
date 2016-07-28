@@ -149,12 +149,55 @@ h2{
 
 
 
+// Material Override
+
+.panel.panel-default{
+  border: 0 !important;
+
+  h2{
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+
+}
+
+// Footer
+.cw-footer{
+  height: 80px;
+  background-color: white;
+  padding: 0 15px;
+
+
+  .cw-footer-text{
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    height: 38px;
+    padding: 0 15px;
+
+    p{
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+
+    p.pull-right{
+      position: relative;
+      top: -28px;
+      right: 26px;
+      img{
+        margin-left: 5px;
+      }
+
+    }
+
+  }
+
+}
+
+
 
 // Map Marker
-
-
-
-
 .country-details.map{
 
   .leaflet-container{
@@ -185,11 +228,13 @@ h2{
   background-color: $fx-cool-blue;
   @include fx-border-radius(50%);
 
+  border: 3px solid #f5f5f3;
+
   box-shadow: 0 0 0 0 rgba($fx-cool-blue, 0.7);
-  -webkit-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
-  -moz-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
-  -ms-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
-  animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+  -webkit-animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+  -moz-animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+  -ms-animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+  animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
 }
 
 
@@ -206,4 +251,13 @@ h2{
   height: 18px !important;
   
   -webkit-animation: none;-moz-animation: none;-ms-animation: none;animation: none;
+}
+
+.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus{
+  background-color: $fx-cool-blue;
+  border-color: $fx-cool-blue;
+}
+
+.pagination>li>a, .pagination>li>span{
+  color: $fx-cool-blue;
 }
