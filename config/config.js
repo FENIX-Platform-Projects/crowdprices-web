@@ -33,6 +33,7 @@ define(function () {
         um : "Kg",
 
         country : 1,
+        commodities : [0],
 
         refreshTimeoutInterval : 500
 

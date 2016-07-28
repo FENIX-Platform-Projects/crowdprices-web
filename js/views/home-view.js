@@ -352,6 +352,9 @@ define([
                     commodities.shift();
                 }
                 Utils.assign(items, "commodities.source", commodities);
+                Utils.assign(items, "commodities.default", _.map(C.commodities, function (c) {
+                    return c.toString();
+                }));
 
                 // countries
                 if (countries.length > 1) {
@@ -457,6 +460,7 @@ define([
                 //commodities
 
                 Utils.assign(items, "commodities.selector.source", Utils.getNestedProperty("commodities.source", conf));
+                Utils.assign(items, "commodities.selector.default", Utils.getNestedProperty("commodities.default", conf));
 
                 // countries
 
@@ -495,7 +499,7 @@ define([
                 var timeSource = [];
 
                 timeSource.push({value: Utils.getNestedProperty("time.min", conf), parent: "from"});
-                timeSource.push({value: Utils.getNestedProperty("time.min", conf), parent: "to"});
+                timeSource.push({value: Utils.getNestedProperty("time.max", conf), parent: "to"});
 
                 Utils.assign(sources, "time", timeSource);
 
@@ -1373,7 +1377,7 @@ define([
                 anyMarkets = _.reduce(markets, function (memo, num) {
                     return memo + "," + num;
                 }, ""),
-                commodities = Utils.getNestedProperty("values.commodities", values),
+                commodities = Utils.getNestedProperty("values.commodities", values) || [],
                 anyCommodities = _.reduce(commodities, function (memo, num) {
                     return memo + "," + num;
                 }, ""),
@@ -1388,7 +1392,9 @@ define([
                         table: Country2Table["country_" + country],
                         country: country,
                         markets: _.compact(markets).join("','"),
-                        commodities: _.compact(commodities).join("','"),
+                        commodities: _.compact(_.map(commodities, function (c) {
+                            return c.toString();
+                        })).join("','"),
                         from: from,
                         to: to,
                         anyCommodities: "{" + anyCommodities.substring(1) + "}",
@@ -1396,6 +1402,7 @@ define([
                         wkt: this.filterPolygonWKT
                     }
                 });
+
 
             //Check if resource is cached otherwise retrieve
             var stored = amplify.store.sessionStorage(query);

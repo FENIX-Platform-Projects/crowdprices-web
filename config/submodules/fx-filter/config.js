@@ -35,9 +35,8 @@ define(function () {
 
             selector: {
                 id: "dropdown",
-                default : ["0"],
                 config: {
-                    maxItems: 10,
+                    maxItems: 15,
                     plugins: ['remove_button'],
                     mode: 'multi'
                 }
