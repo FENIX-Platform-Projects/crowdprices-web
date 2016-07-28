@@ -13022,12 +13022,14 @@ input[type="radio"]:disabled + label {
 .cw-selectors .fx-selector {
   display: none; }
 
-.home-content .home-tile {
-  padding: 20px 15px;
-  position: relative;
-  background-color: #e0f1ee; }
-.home-content .nation-tile {
-  background-color: #e0f1ee; }
+.home-content {
+  background-color: whitesmoke; }
+  .home-content .home-tile {
+    padding: 20px 15px;
+    position: relative;
+    background-color: #e0f1ee; }
+  .home-content .nation-tile {
+    background-color: #e0f1ee; }
 
 .data-range-holder {
   background-color: #e0f1ee; }
