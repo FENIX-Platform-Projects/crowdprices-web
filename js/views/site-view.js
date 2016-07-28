@@ -66,8 +66,6 @@ define([
                 fullLen = $tds.length,
                 n = 0;
 
-            alert(fullLen)
-
             function doChunk() {
                 var time = +new Date(),
                     i,

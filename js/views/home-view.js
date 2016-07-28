@@ -504,7 +504,7 @@ define([
 
             this._buildCharts();
 
-            //this._buildTables();
+            this._buildTables();
         },
 
         _rebuildUi: function (country) {
