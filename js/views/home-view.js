@@ -26,7 +26,7 @@ define([
     'highstock.no-data',
     'highstock.exporting',
     'bootstrap-table',
-    'bootstrap-table.exoport',
+    'bootstrap-table.export',
     'amplify'
 ], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L, AuthManager) {
 
@@ -272,7 +272,7 @@ define([
 
         _onLogoutEvent: function () {
 
-            log.war("Logout");
+            log.warn("Logout");
 
             $(s.PROTECTED).hide();
         },
@@ -331,6 +331,11 @@ define([
         },
 
         _onResourcesReady: function () {
+
+            if (this.cachedResources["commodities"] || this.cachedResources["countries"] || this.cachedResources["markets"]){
+                $('body').attr("data-status", "error");
+                return;
+            }
 
             var self = this;
 
@@ -856,19 +861,6 @@ define([
             }
 
             return points;
-        },
-
-        _zoomToCountry: function (code) {
-
-            var url = ZOOM_TO_BBOX + 'country/adm0_code/' + code;
-
-            $.ajax({
-                type: "GET",
-                url: url,
-                success: function (response) {
-                    map.fitBounds(response);
-                }
-            });
         },
 
         _updateMap: function () {

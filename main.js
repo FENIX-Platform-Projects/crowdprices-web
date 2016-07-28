@@ -103,7 +103,7 @@ require([
                     'highstock.sparkline' : '{FENIX_CDN}/js/highstock/2.1.9/js/modules/sparkilne-charts',
 
                     'bootstrap-table' : '{FENIX_CDN}/js/bootstrap-table/1.10.1/docs/dist/bootstrap-table.min',
-                    'bootstrap-table.exoport' : '{FENIX_CDN}/js/bootstrap-table/1.10.1/dist/extensions/export/bootstrap-table-export.min',
+                    'bootstrap-table.export' : '{FENIX_CDN}/js/bootstrap-table/1.10.1/dist/extensions/export/bootstrap-table-export.min',
                     'tableExport' : '{FENIX_CDN}/js/tableExport.jquery.plugin/1.0/tableExport.min',
 
                 },
@@ -118,7 +118,7 @@ require([
                     'jquery-ui'             :['jquery'],
                     'bootstrap'             :['jquery'],
                     'bootstrap-table'       :['jquery','bootstrap'],
-                    'bootstrap-table.exoport'       :['bootstrap-table', 'tableExport' ],
+                    'bootstrap-table.export'       :['bootstrap-table', 'tableExport' ],
 
                     'highstock'             :['jquery'],
                     'highstock.exporting'   :['jquery','highstock'],
