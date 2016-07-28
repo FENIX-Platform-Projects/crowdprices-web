@@ -929,12 +929,12 @@ define([
                 marketcode.push(v.code);
 
                 if (Cresponse[v.code]) {
-
                     addressPoints.push([
                         v.lat,
                         v.lon,
                         v.name + avgS,
-                        hasData
+                        hasData,
+                        v.gaul0
                     ]);
                 }
 
@@ -942,6 +942,19 @@ define([
             });
 
             this._refreshCluster(addressPoints);
+        },
+
+        _zoomToCountry: function(code) {
+            
+            var self = this;
+            
+            $.ajax({
+                type: 'GET',
+                url: C.zoomtoUrl +'country/adm0_code/'+ code,
+                success: function (response) {
+                    self.map.fitBounds(response);
+                }
+            });
         },
 
         _refreshCluster: function (addressPoints) {
@@ -964,8 +977,8 @@ define([
                 ]);
 
                 var marker = L.marker(loc, {
-                    icon: !!hasData ? foundIcon : desatIconBig
-                })
+                        icon: !!hasData ? foundIcon : desatIconBig
+                    })
                     .bindPopup('<div class="' + (!hasData && 'notValued') + '">' + title + '</div>')
                     .on('mouseover', function (e) {
                         e.target.openPopup();
@@ -981,6 +994,10 @@ define([
 
             if (latlngs.length > 0) {
                 this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
+            }
+            else if(this.countryCode) {
+
+                this._zoomToCountry(this.countryCode);
             }
         },
 
@@ -1403,6 +1420,7 @@ define([
                     }
                 });
 
+            this.countryCode = country;
 
             //Check if resource is cached otherwise retrieve
             var stored = amplify.store.sessionStorage(query);

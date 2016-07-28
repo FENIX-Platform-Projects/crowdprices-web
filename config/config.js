@@ -27,6 +27,8 @@ define(function () {
         format : "LL",
 
         downloadUrl : "http://fenix.fao.org/crowd/export/csv",
+        zoomtoUrl   : "http://fenix.fao.org/geo/fenix/spatialquery/db/spatial/bbox/layer/",
+
         cache: false,
 
         currency: "USD",
