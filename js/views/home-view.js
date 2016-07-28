@@ -40,7 +40,7 @@ define([
         NO_DATA_ALERT: "#no-data-alert"
     };
 
-    var desatIcon = L.icon({
+/*    var desatIcon = L.icon({
         iconUrl: 'img/marker-icon-none.png',
         shadowUrl: 'img/marker-shadow.png',
         iconSize: L.point(28, 28),
@@ -62,6 +62,20 @@ define([
         iconSize: L.point(109, 109),
         iconAnchor: L.point(70, 70),
         popupAnchor: L.point(-14, -14)
+    });*/
+
+    var desatIcon = L.icon({
+        className: 'marker-desat-icon',
+        html: '<div><span><span></div>'
+    });
+
+    var desatIconBig = L.icon({
+        className: 'marker-desat-icon',
+        html: '<div><span><span></div>'
+    });
+    var foundIcon = L.divIcon({
+        className: 'marker-found-icon',
+        html: '<div><span><span></div>'
     });
 
     var HomeView = View.extend({
