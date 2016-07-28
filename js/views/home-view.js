@@ -18,6 +18,7 @@ define([
     'fx-common/utils',
     'moment',
     'leaflet',
+    'fx-common/AuthManager',
     'leaflet.geosearch.google',
     'leaflet.markercluster',
     'leaflet.draw',
@@ -27,7 +28,7 @@ define([
     'bootstrap-table',
     'bootstrap-table.exoport',
     'amplify'
-], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L) {
+], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L, AuthManager) {
 
     'use strict';
 
@@ -40,32 +41,32 @@ define([
         CHART_AVERAGE_PRICES: "#chart-average-prices",
         TABLE_DOWNLOAD_BUTTONS: "[data-download]",
         NO_DATA_ALERT: "#no-data-alert",
-        PROTECTED : "[data-protected]"
+        PROTECTED: "[data-protected]"
     };
 
-/*    var desatIcon = L.icon({
-        iconUrl: 'img/marker-icon-none.png',
-        shadowUrl: 'img/marker-shadow.png',
-        iconSize: L.point(28, 28),
-        iconAnchor: L.point(28, 28),
-        popupAnchor: L.point(-14, -14)
-    });
+    /*    var desatIcon = L.icon({
+     iconUrl: 'img/marker-icon-none.png',
+     shadowUrl: 'img/marker-shadow.png',
+     iconSize: L.point(28, 28),
+     iconAnchor: L.point(28, 28),
+     popupAnchor: L.point(-14, -14)
+     });
 
-    var desatIconBig = L.icon({
-        iconUrl: 'img/marker-icon-none-big.png',
-        shadowUrl: 'img/marker-shadow.png',
-        iconSize: L.point(109, 109),
-        iconAnchor: L.point(109, 109),
-        popupAnchor: L.point(-54, -54)
-    });
+     var desatIconBig = L.icon({
+     iconUrl: 'img/marker-icon-none-big.png',
+     shadowUrl: 'img/marker-shadow.png',
+     iconSize: L.point(109, 109),
+     iconAnchor: L.point(109, 109),
+     popupAnchor: L.point(-54, -54)
+     });
 
-    var foundIcon = L.icon({
-        iconUrl: 'img/marker-icon.png',
-        shadowUrl: 'img/marker-shadow.png',
-        iconSize: L.point(109, 109),
-        iconAnchor: L.point(70, 70),
-        popupAnchor: L.point(-14, -14)
-    });*/
+     var foundIcon = L.icon({
+     iconUrl: 'img/marker-icon.png',
+     shadowUrl: 'img/marker-shadow.png',
+     iconSize: L.point(109, 109),
+     iconAnchor: L.point(70, 70),
+     popupAnchor: L.point(-14, -14)
+     });*/
 
     var desatIcon = L.divIcon({
         className: 'marker-desat-icon',
@@ -168,8 +169,12 @@ define([
             //hide no data alert
             this.$noDataAlert.hide();
 
-            //hide protected elements
-            $(s.PROTECTED).hide();
+            if (new AuthManager().isLogged() === true) {
+                $(s.PROTECTED).show();
+            } else {
+                //hide protected elements
+                $(s.PROTECTED).hide();
+            }
 
         },
 
@@ -257,7 +262,7 @@ define([
 
         },
 
-        _onLoginEvent : function () {
+        _onLoginEvent: function () {
 
             log.warn("Login event");
 
@@ -265,7 +270,7 @@ define([
 
         },
 
-        _onLogoutEvent : function () {
+        _onLogoutEvent: function () {
 
             log.war("Logout");
 
@@ -628,7 +633,7 @@ define([
 
             this.mapMarkets = _.rest(this.cachedResources["map"]);
 
-            log.info("map Markets", this.mapMarkets);
+            log.info("Map markets", this.mapMarkets);
 
             var self = this,
                 tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
@@ -975,8 +980,8 @@ define([
             }
         },
 
-        _disposeMap: function (data) {
-
+        _disposeMap: function () {
+            this.map.remove();
         },
 
         // Charts
@@ -1063,7 +1068,7 @@ define([
                         if (m.length > 0) {
 
                             var commodity = Utils.getNestedProperty("labels.commodities", self.current.values)[comId],
-                                label = commodity +' @ ' + m[0][2];
+                                label = commodity + ' @ ' + m[0][2];
                             var data = m.map(function (i) {
                                 return [i[0], i[1]]
                             });
@@ -1297,7 +1302,7 @@ define([
 
             var self = this;
 
-            this.$tableDownloadButtons.on("click",function () {
+            this.$tableDownloadButtons.on("click", function () {
 
                 var $this = $(this),
                     table = $this.data('table'),
@@ -1327,11 +1332,15 @@ define([
         _unbindTableDownloadButtonsEvents: function () {
 
             this.$tableDownloadButtons.off();
+
         },
 
         _disposeTables: function () {
 
             this._unbindTableDownloadButtonsEvents();
+
+            //this.$tableDailyData.bootstrapTable('destroy');
+            //this.$tableAggregatedData.bootstrapTable('destroy');
 
         },
 
