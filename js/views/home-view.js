@@ -615,9 +615,9 @@ define([
 
             log.info("Update UI");
 
-            //this._updatedCharts();
+            this._updatedCharts();
 
-            //this._updateMap();
+            this._updateMap();
 
             this._updateTables();
         },
