@@ -1044,7 +1044,9 @@ define([
         },
 
         _disposeMap: function () {
-            this.map.remove();
+            //console.log('_disposeMap', this.map._mapPane)
+            if(this.map._mapPane.parentNode==this.map._container)
+                this.map.remove();
         },
 
         // Charts
@@ -1196,7 +1198,7 @@ define([
         },
 
         _buildChartsError: function (e) {
-            alert("Impossible to _updateChartsError()");
+            //alert("Impossible to _updateChartsError()");
             log.error(e);
         },
 
@@ -1243,7 +1245,7 @@ define([
         },
 
         _buildDailyDataTableError: function (e) {
-            alert("Impossible retrieve data for Table daily data.");
+            //alert("Impossible retrieve data for Table daily data.");
             log.error(e);
         },
 
@@ -1302,7 +1304,7 @@ define([
         },
 
         _buildAggregatedDataTableError: function (e) {
-            alert("Impossible retrieve data for Table aggregated data.");
+            //alert("Impossible retrieve data for Table aggregated data.");
             log.error(e);
         },
 
