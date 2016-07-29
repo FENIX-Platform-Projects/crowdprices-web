@@ -11,7 +11,7 @@ define(function () {
             selector: {
                 id: "dropdown",
                 config: {
-                    maxItems: 1
+                    maxItems: 1,
                 }
             }
         },

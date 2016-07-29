@@ -221,7 +221,7 @@ define([
                 contentType: "application/json",
                 data: JSON.stringify(body),
                 dataType: "text",
-                success: _.bind(this._onDownloadSuccess, this),
+                success: _.bind(this._onDownloadSuccess, this, body),
                 error: _.bind(this._onDownloadError, this)
             });
 
@@ -237,14 +237,15 @@ define([
             log.error(e)
         },
 
-        _onDownloadSuccess: function (csvContent) {
+        _onDownloadSuccess: function (body, csvContent) {
 
             var self = this;
 
             if (csvContent) {
 
                 downloadCSV({
-                    csv: csvContent
+                    csv: csvContent,
+                    filename: "export_" + body.country +"_" + new Date() + ".csv".replace(/[^a-z0-9]/gi, '_').toLowerCase()
                 });
 
                 log.info("CSV downloaded");
@@ -1464,12 +1465,15 @@ define([
                         anyMarkets: "{" + anyMarkets.substring(1) + "}",
                         wkt: this.filterPolygonWKT
                     }
-                });
+                }),
+                stored;
 
             this.countryCode = country;
 
             //Check if resource is cached otherwise retrieve
-            var stored = amplify.store.sessionStorage(query);
+            if (C.cache){
+                stored = amplify.store.sessionStorage(query);
+            }
 
             if (C.cache === true && stored) {
 
@@ -1478,12 +1482,15 @@ define([
             } else {
 
                 log.warn(query);
+                console.log(query);
 
                 this.WDSClient.retrieve({
                     payload: {query: query},
                     outputType: obj.outputType || "object",
                     success: function (response) {
-                        amplify.store.sessionStorage(query, response);
+                        if (C.cache){
+                            amplify.store.sessionStorage(query, response);
+                        }
                         obj.success(response)
                     },
                     error: obj.error
