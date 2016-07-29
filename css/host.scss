@@ -1,21 +1,41 @@
-/* Bootstrap */
-//@import 'bootstrap';
-
-/* Uneca Theme */
 $fx-ui-common: '../submodules/fenix-ui-common/css/';
+//TODO TO CHECK
+$summary-bg:#efefef;
 
 @import 'themes/variables';
 
 /* Fenix Utils*/
 @import '../submodules/fenix-ui-common/css/fenix-style-no-variables';
+@import '../submodules/fenix-ui-common/css/base/fx-typography';
+@import '../submodules/fenix-ui-common/css/utils/fx-mixins';
+@import '../submodules/fenix-ui-common/css/components/fx-icons';
+/* Boostrap Queries */
+@import '../submodules/fenix-ui-common/css/themes/fx-bootstrap-queries';
+
+@import '../submodules/fenix-ui-common/css/base/fx-fonts-import';
+
+
+@import '../submodules/fenix-ui-common/css/components/fx-color-reference';
+@import '../submodules/fenix-ui-common/css/components/fx-tabs';
+@import '../submodules/fenix-ui-common/css/components/fx-buttons';
+@import '../submodules/fenix-ui-common/css/components/fx-fixed-height';
+@import '../submodules/fenix-ui-common/css/components/fx-material-theme-light';
+@import '../submodules/fenix-ui-common/css/components/fx-metadata-viewer';
+@import '../submodules/fenix-ui-common/css/vendor/fx-jstree';
+@import '../submodules/fenix-ui-common/css/components/fx-radio-checkbox';
 
 /* Pages */
 @import 'pages/home';
 
-//
-///* Components */
-//@import "components/bootstrap-fixed-height";
-
 /* Theme */
 @import "themes/side-menu";
 @import 'themes/theme';
+@import 'themes/modals';
+
+
+@import '../submodules/fenix-ui-filter/src/css/filter';
+
+
+
+
+

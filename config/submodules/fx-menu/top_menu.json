@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "attrs": {
+        "id": "home",
+        "class": "home-menu-item"
+      },
+      "target": "#home",
+      "label": {
+        "EN": "Price Monitoring"
+      }
+    },
+    {
+      "attrs": {
+        "rel": "external"
+      },
+      "target": "http://fenixrepo.fao.org/apk/CrowdPricesLatest.apk",
+      "label": {
+        "EN": "Download App (APK)"
+      }
+    },
+    {
+      "attrs": {
+        "rel": "external"
+      },
+      "target": "http://fenixrepo.fao.org/apk/changelog.txt",
+      "label": {
+        "EN": "Latest updates"
+      }
+    },
+    {
+      "attrs": {
+        "id": "login"
+      },
+      "label": {
+        "EN": "Login"
+      }
+    },
+    {
+      "attrs": {
+        "id": "logout"
+      },
+      "label": {
+        "EN": "Logout"
+      }
+    }
+  ],
+  "type": "static-top"
+}

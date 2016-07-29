@@ -17,6 +17,18 @@
 #wrapper.toggled {
   padding-left: 300px;
 
+
+
+
+    /* Large devices (large desktops, 1200px and up) */
+  @media (max-width: $screen-xs) {
+    .brand-logo{
+      opacity: 0;
+    }
+  }
+
+
+
   .icon-bar {
     width: 22px;
     transition: all 0.2s;
@@ -130,7 +142,6 @@
       line-height: 50px;
       background-color: $afg-custom-color2;
       margin-bottom: 1px;
-      font-family: 'Roboto';
 
       font-size: 14px;
 
@@ -238,7 +249,7 @@
 
   .brand-logo{
 
-    background-color: white;
+    //background-color: white;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
