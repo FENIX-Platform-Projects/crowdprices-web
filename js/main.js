@@ -867,7 +867,7 @@ $( document ).ready(function() {
 				console.log(startDate,endDate);
 				//console.log(new Date(response[0]),new Date(response[1]));
 
-				if(response[1] && response[1][0] && response[1][1]) {
+				if(response[1]) {
 					var s1 = response[1][0],
 						s2 = response[1][1],
 						d1 = (s1.substring(0,10)),
