@@ -53,16 +53,12 @@ define([
 
             this._initSparkline();
 
-            // spark lines
-            //this.$el.find(s.SPARK_LINES).highcharts('SparkLine');
-            //console.log($.fn.highcharts)
-            //alert(this.$el.find(s.SPARK_LINES).length)
         },
 
         _initSparkline : function () {
 
             var start = +new Date(),
-                $tds = $(s.SPARK_LINES),
+                $tds = this.$el.find(s.SPARK_LINES),
                 fullLen = $tds.length,
                 n = 0;
 
