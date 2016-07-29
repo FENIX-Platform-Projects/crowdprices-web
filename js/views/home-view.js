@@ -1045,7 +1045,7 @@ define([
         },
 
         _disposeMap: function () {
-            //console.log('_disposeMap', this.map._mapPane)
+
             if(this.map._mapPane.parentNode==this.map._container)
                 this.map.remove();
         },
@@ -1482,7 +1482,6 @@ define([
             } else {
 
                 log.warn(query);
-                console.log(query);
 
                 this.WDSClient.retrieve({
                     payload: {query: query},
