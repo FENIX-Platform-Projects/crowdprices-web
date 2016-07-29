@@ -57,7 +57,10 @@
   .nation-tile{
     background-color: $light-green;
 
+      .selectize-control{
+        display: inline-block;
 
+      }
 
     .selectize-input{
       background-color: transparent;
@@ -66,7 +69,7 @@
       outline: none !important;
       @include fx-noshadow;
       padding-left: 0px;
-
+      overflow: visible;
 
       &:after{
         opacity: 0 !important;
