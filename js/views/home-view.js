@@ -35,6 +35,7 @@ define([
     var s = {
         FILTER: "#selectors-el",
         DOWNLOAD_BTN: "#download-btn",
+        REFRESH_BTN: "#refresh-btn",
         TABLE_DAILY_DATA: "#table-daily-data",
         TABLE_AGGREGATED_DATA: "#table-aggregated-data",
         CHART_DAILY_PRICES: "#chart-daily-prices",
@@ -137,6 +138,7 @@ define([
             //data download
 
             this.$downloadBtn = this.$el.find(s.DOWNLOAD_BTN);
+            this.$refreshBtn = this.$el.find(s.REFRESH_BTN);
 
             //charts
 
@@ -181,6 +183,8 @@ define([
         _bindEventListeners: function () {
 
             this.$downloadBtn.on("click", _.bind(this._onDownloadClick, this));
+            this.$refreshBtn.on("click", _.bind(this._onRefreshClick, this));
+
 
             amplify.subscribe("resize", this, this._onResizeEvent);
             amplify.subscribe("login", this, this._onLoginEvent);
@@ -216,11 +220,16 @@ define([
                 url: C.downloadUrl,
                 contentType: "application/json",
                 data: JSON.stringify(body),
-                dataType: 'json',
+                dataType: "text",
                 success: _.bind(this._onDownloadSuccess, this),
                 error: _.bind(this._onDownloadError, this)
             });
 
+        },
+
+        _onRefreshClick: function () {
+
+            this._updateUI();
         },
 
         _onDownloadError: function (e) {
@@ -233,14 +242,37 @@ define([
             var self = this;
 
             if (csvContent) {
-                var encodedUri = encodeURI(csvContent);
-                window.open(encodedUri);
+
+                downloadCSV({
+                    csv: csvContent
+                });
+
+                log.info("CSV downloaded");
+
             } else {
                 this.$noDataAlert.show();
 
                 self.$noDataAlert.fadeOut(3000, function () {
                     self.$noDataAlert.hide();
                 })
+            }
+
+            function downloadCSV(args) {
+                var data, filename, link;
+                var csv = args.csv;
+                if (csv == null) return;
+
+                filename = args.filename || 'export.csv';
+
+                if (!csv.match(/^data:text\/csv/i)) {
+                    csv = 'data:text/csv;charset=utf-8,' + csv;
+                }
+                data = encodeURI(csv);
+
+                link = document.createElement('a');
+                link.setAttribute('href', data);
+                link.setAttribute('download', filename);
+                link.click();
             }
         },
 
@@ -331,12 +363,13 @@ define([
         },
 
         _onResourcesReady: function () {
-/*
-            if (this.cachedResources["commodities"] || this.cachedResources["countries"] || this.cachedResources["markets"]){
+
+            if (!Array.isArray(this.cachedResources["countries"]) || this.cachedResources["countries"].length < 2) {
                 $('body').attr("data-status", "error");
+                log.error("Empty country list");
                 return;
-            }*/
-console.log(this.cachedResources)
+            }
+
             var self = this;
 
             this.filterConfig = addCommoditiesCountriesMarketsModelsToFilter();
@@ -348,7 +381,7 @@ console.log(this.cachedResources)
             function addCommoditiesCountriesMarketsModelsToFilter() {
 
                 var commodities = self.cachedResources["commodities"] || [],
-                    countries = self.cachedResources["countries"] || [],
+                    countries = self.cachedResources["countries"], // always > 1 because of previous validation
                     markets = self.cachedResources["markets"] || [],
                     items = {};
 
@@ -356,7 +389,9 @@ console.log(this.cachedResources)
                 if (commodities.length > 1) {
                     commodities.shift();
                 }
-                Utils.assign(items, "commodities.source", commodities);
+
+
+                Utils.assign(items, "commodities.source", commodities.sort(compare));
                 Utils.assign(items, "commodities.default", _.map(C.commodities, function (c) {
                     return c.toString();
                 }));
@@ -365,19 +400,34 @@ console.log(this.cachedResources)
                 if (countries.length > 1) {
                     countries.shift();
                 }
-                Utils.assign(items, "countries.source", countries);
+                //TODO remove this temporary override
+                var c = _.map(countries.sort(compare), function (i) {
+                    if (i.label && i.label.toLowerCase() === 'afghanistan') {
+                        i.label = "Demo";
+                    }
+                    return i;
+                });
+                Utils.assign(items, "countries.source", c);
                 Utils.assign(items, "countries.default", [C.country]);
 
                 // markets
                 if (markets.length > 1) {
                     markets.shift();
                 }
-                Utils.assign(items, "markets.source", markets);
+                Utils.assign(items, "markets.source", markets.sort(compare));
                 Utils.assign(items, "markets.default", _.map(markets, function (m) {
                     return m.value;
                 }));
 
                 return items;
+
+                function compare(a, b) {
+                    if (a.label < b.label)
+                        return -1;
+                    if (a.label > b.label)
+                        return 1;
+                    return 0;
+                }
             }
 
         },
@@ -936,13 +986,13 @@ console.log(this.cachedResources)
             this._refreshCluster(addressPoints);
         },
 
-        _zoomToCountry: function(code) {
-            
+        _zoomToCountry: function (code) {
+
             var self = this;
-            
+
             $.ajax({
                 type: 'GET',
-                url: C.zoomtoUrl +'country/adm0_code/'+ code,
+                url: C.zoomtoUrl + 'country/adm0_code/' + code,
                 success: function (response) {
                     self.map.fitBounds(response);
                 }
@@ -969,8 +1019,8 @@ console.log(this.cachedResources)
                 ]);
 
                 var marker = L.marker(loc, {
-                        icon: !!hasData ? foundIcon : desatIconBig
-                    })
+                    icon: !!hasData ? foundIcon : desatIconBig
+                })
                     .bindPopup('<div class="' + (!hasData && 'notValued') + '">' + title + '</div>')
                     .on('mouseover', function (e) {
                         e.target.openPopup();
@@ -987,7 +1037,7 @@ console.log(this.cachedResources)
             if (latlngs.length > 0) {
                 this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
             }
-            else if(this.countryCode) {
+            else if (this.countryCode) {
 
                 this._zoomToCountry(this.countryCode);
             }
@@ -1132,6 +1182,7 @@ console.log(this.cachedResources)
 
             this.$chartAveragePrices.highcharts($.extend(true, {}, ChartsConfig.averagePrices, {series: averagePricesSeries}));
 
+            log.info("Charts builts");
         },
 
         _retrieveChartsResources: function (obj) {
@@ -1144,8 +1195,9 @@ console.log(this.cachedResources)
             });
         },
 
-        _buildChartsError: function () {
-            alert("Impossible to _updateChartsError()")
+        _buildChartsError: function (e) {
+            alert("Impossible to _updateChartsError()");
+            log.error(e);
         },
 
         _disposeCharts: function () {
