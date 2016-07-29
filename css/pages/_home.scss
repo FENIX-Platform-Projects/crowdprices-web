@@ -44,6 +44,11 @@
 
 }
 
+.alert-container{
+  background-color: whitesmoke;
+  padding-top: 25px;
+}
+
 .home-content{
 
   background-color: $dark-green;
@@ -59,7 +64,8 @@
 
       .selectize-control{
         display: inline-block;
-
+        min-width: 100px;
+        border-bottom: 1px solid rgba($dark-green, 0.5);
       }
 
     .selectize-input{
