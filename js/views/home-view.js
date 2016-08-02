@@ -19,7 +19,10 @@ define([
     'moment',
     'leaflet',
     'fx-common/AuthManager',
-    'leaflet.geosearch.google',
+    //'leaflet.geosearch.google',
+    
+    'leaflet-search',
+
     'leaflet.markercluster',
     'leaflet.draw',
     'highstock',
@@ -712,11 +715,14 @@ define([
 
             window.map = this.map;
 
-            map.addControl(new L.Control.GeoSearch({
+/*            map.addControl(new L.Control.GeoSearch({
                 provider: new L.GeoSearch.Provider.Google(),
                 showMarker: false
             }));
+*/
+            L.control.search({
 
+            }).addTo(map);
 
             /*markers = L.markerClusterGroup({
              showCoverageOnHover: false

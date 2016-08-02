@@ -88,9 +88,9 @@ require([
                     'leaflet'                 :'{FENIX_CDN}/js/leaflet/0.7.7/leaflet-src',
                     'leaflet.markercluster'   :'{FENIX_CDN}/js/leaflet/plugins/leaflet.markecluster/1.1/leaflet.markercluster',
                     'leaflet.draw'            :'{FENIX_CDN}/js/leaflet/plugins/leaflet.draw/0.2.4/leaflet.draw',
-                    'leaflet.geosearch'       :'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.control.geosearch',
-                    'leaflet.geosearch.google':'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.geosearch.provider.google',
-
+                    //'leaflet.geosearch'       :'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.control.geosearch',
+                    //'leaflet.geosearch.google':'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.geosearch.provider.google',
+                    'leaflet-search'          :'{FENIX_CDN}/js/leaflet/plugins/leaflet-search/1.9.9/dist/leaflet-search.min',
 
                     //nls: "../i18n",
                     config: "../config",
@@ -127,8 +127,9 @@ require([
 
                     'leaflet.markercluster'    :['leaflet'],
                     'leaflet.draw'             :['leaflet'],
-                    'leaflet.geosearch'        :['leaflet'],
-                    'leaflet.geosearch.google' :['leaflet','leaflet.geosearch'],
+                    //'leaflet.geosearch'        :['leaflet'],
+                    //'leaflet.geosearch.google' :['leaflet','leaflet.geosearch'],
+                    'leaflet-search'           :['leaflet'],
 
                     handlebars: {
                         exports: 'Handlebars'
