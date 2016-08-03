@@ -249,3 +249,84 @@
   }
 
 }
+
+
+/* Map Search */
+
+.leaflet-control-search {
+
+
+  .search-input{
+    height: auto;
+    padding: 5px 25px 5px 10px;
+    margin: 4px 3px 3px 3px;
+  }
+
+  .search-cancel{
+    top: 6px;
+    right: 27px;
+  }
+
+  .search-button{
+    margin-top: 5px;
+    margin-bottom: 4px;
+  }
+
+
+  .search-tooltip{
+    background-color: white;
+  }
+
+
+}
+
+.leaflet-top.leaflet-left{
+  z-index: 2000;
+}
+
+
+
+.tooltip-market {
+  color: $fx-cool-blue !important;
+  font-weight: bold;
+
+
+}
+
+
+.tooltip-market + .tooltip-place{
+
+  margin-top: 20px;
+  position: relative;
+
+
+  &:before{
+    content: "";
+    width: 100%;
+    height: 1px;
+    background-color: $fenix-hr;
+    position: absolute;
+    top: -8px;
+    left: 0;
+
+  }
+
+
+}
+
+.tooltip-place{
+  font-style: italic;
+  background-color: transparent !important;
+
+
+
+  &:hover{
+    text-decoration: underline;
+    background-color: transparent !important;
+
+  }
+
+
+
+}
+
