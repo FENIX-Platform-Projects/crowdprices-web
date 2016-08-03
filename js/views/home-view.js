@@ -676,12 +676,13 @@ define([
             map.addControl( new L.Control.Search({
                 markerLocation: false,
                 autoType: false,
+                position: "topright",
                 //autoCollapse: true,
                 minLength: 2,
                 initial: false,
                 buildTip: function(text, val) {
                     var className = 'tooltip-'+(val.isMarket?'market':'place');
-                    return '<a class="'+className+'" href="#">'+text+'<span></span></a>';
+                    return '<a class="truncate '+className+'" href="#">'+text+'<span></span></a>';
                 },
                 sourceData: function(text, cb) {
                     self._geocoder.geocode({address: text}, function(args) {
