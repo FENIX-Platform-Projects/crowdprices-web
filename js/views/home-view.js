@@ -48,43 +48,18 @@ define([
         PROTECTED: "[data-protected]"
     };
 
-    /*    var desatIcon = L.icon({
-     iconUrl: 'img/marker-icon-none.png',
-     shadowUrl: 'img/marker-shadow.png',
-     iconSize: L.point(28, 28),
-     iconAnchor: L.point(28, 28),
-     popupAnchor: L.point(-14, -14)
-     });
-
-     var desatIconBig = L.icon({
-     iconUrl: 'img/marker-icon-none-big.png',
-     shadowUrl: 'img/marker-shadow.png',
-     iconSize: L.point(109, 109),
-     iconAnchor: L.point(109, 109),
-     popupAnchor: L.point(-54, -54)
-     });
-
-     var foundIcon = L.icon({
-     iconUrl: 'img/marker-icon.png',
-     shadowUrl: 'img/marker-shadow.png',
-     iconSize: L.point(109, 109),
-     iconAnchor: L.point(70, 70),
-     popupAnchor: L.point(-14, -14)
-     });*/
-
     var desatIcon = L.divIcon({
-        className: 'marker-desat-icon',
-        html: '<div><span><span></div>'
-    });
-
-    var desatIconBig = L.divIcon({
-        className: 'marker-desat-icon',
-        html: '<div><span><span></div>'
-    });
-    var foundIcon = L.divIcon({
-        className: 'marker-found-icon',
-        html: '<div><span><span></div>'
-    });
+            className: 'marker-desat-icon',
+            html: '<div><span><span></div>'
+        }),
+        desatIconBig = L.divIcon({
+            className: 'marker-desat-icon',
+            html: '<div><span><span></div>'
+        }),
+        foundIcon = L.divIcon({
+            className: 'marker-found-icon',
+            html: '<div><span><span></div>'
+        });
 
     var HomeView = View.extend({
 
@@ -692,19 +667,81 @@ define([
 
         // Map
 
+        _initMapSearch: function(map, layers) {
+            var self = this;
+
+            if(!self._geocoder)
+                self._geocoder = new google.maps.Geocoder();
+
+            map.addControl( new L.Control.Search({
+                markerLocation: false,
+                autoType: false,
+                autoCollapse: true,
+                minLength: 2,
+                initial: false,
+                buildTip: function(text, val) {
+                    var t = '<a href="#">'+text+'<em style="background:'+text+'; width:14px;height:14px;float:right"></em></a>';
+
+                    if(val.isMarket)
+                        t = '<b>'+t+'</b>';
+
+                    return t;
+                },
+                sourceData: function(text, cb) {
+                    self._geocoder.geocode({address: text}, function(args) {
+                        console.log(args)
+                        cb(args);
+                    });
+                },
+                formatData: function(raw) {
+                    
+                    var key, loc,
+                        json = {};
+
+                    for(var n in self.mapMarkets)   //markets
+                    {
+                        var mar = self.mapMarkets[n];
+
+                        key = mar.name;
+                        loc = L.latLng(mar.lat, mar.lon);
+                        
+                        loc.isMarket = true;
+
+                        json[ key ]= loc;   //key,value format
+                    }
+
+                    for(var i in raw)   //Geocoding
+                    {
+                        key = raw[i].formatted_address;
+                        loc = L.latLng( raw[i].geometry.location.lat(),
+                                        raw[i].geometry.location.lng() );
+                        
+                        loc.isMarket = false;
+
+                        json[ key ]= loc;   //key,value format
+                    }
+
+                    console.log(json);
+
+                    return json;
+                }
+            }) );
+        },
+
         _initMap: function () {
 
-            this.mapMarkets = _.rest(this.cachedResources["map"]);
+            var self = this;
 
-            log.info("Map markets", this.mapMarkets);
+            self.mapMarkets = _.rest(self.cachedResources["map"]);
 
-            var self = this,
-                tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            log.info("Map markets", self.mapMarkets);
+
+            var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
                     subdomains: 'abcd',
                     maxZoom: 19
                 });
 
-            this.map = L.map('map-cluster', {
+            self.map = L.map('map-cluster', {
                 attributionControl: false,
                 markerZoomAnimation: true,
                 layers: [tiles],
@@ -713,27 +750,27 @@ define([
                 scrollWheelZoom: false
             });
 
-            window.map = this.map;
+            window.map = self.map;
 
 /*            map.addControl(new L.Control.GeoSearch({
                 provider: new L.GeoSearch.Provider.Google(),
                 showMarker: false
             }));
 */
-            L.control.search({
-
-            }).addTo(map);
-
             /*markers = L.markerClusterGroup({
              showCoverageOnHover: false
              }).addTo(map);*/
-            this.markers = L.layerGroup().addTo(this.map);
-
-            this.emptyMarketLayer = L.layerGroup().addTo(this.map);
+            self.markers = L.layerGroup().addTo(self.map);
+            self.emptyMarketLayer = L.layerGroup().addTo(self.map);
             //emptyMarketLayer = L.featureGroup([]).addTo(map);
             //emptyMarketLayer = L.markerClusterGroup({
             //	showCoverageOnHover: false
             //});
+
+            self._initMapSearch(self.map, [
+                self.markers,
+                self.emptyMarketLayer
+            ]);
 
             // Initialise the FeatureGroup to store editable layers
             var drawnItems = new L.FeatureGroup();
@@ -774,11 +811,11 @@ define([
 
             var drawControl = new L.Control.Draw(drawOpts);
 
-            this.map.addControl(drawControl);
+            self.map.addControl(drawControl);
 
             log.info("Map initialized");
 
-            this.map.on('draw:created', function (e) {
+            self.map.on('draw:created', function (e) {
                 var type = e.layerType,
                     layer = e.layer;
 
@@ -810,13 +847,12 @@ define([
                 drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
                 self._updateUI();
-
             })
-                .on('draw:deleted', function (e) {
-                    drawnItems.clearLayers();
-                    delete self.filterPolygonWKT;
-                    self._updateUI();
-                });
+            .on('draw:deleted', function (e) {
+                drawnItems.clearLayers();
+                delete self.filterPolygonWKT;
+                self._updateUI();
+            });
         },
 
         _buildMap: function () {
