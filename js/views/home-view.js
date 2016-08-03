@@ -113,6 +113,8 @@ define([
 
             this.current = {};
 
+            this._zoomData = true;  //zoom to data loaded
+
             //data download
 
             this.$downloadBtn = this.$el.find(s.DOWNLOAD_BTN);
@@ -686,7 +688,7 @@ define([
                 },
                 sourceData: function(text, cb) {
                     self._geocoder.geocode({address: text}, function(args) {
-                        console.log(args)
+                        //console.log(args)
                         cb(args);
                     });
                 },
@@ -718,7 +720,7 @@ define([
                         json[ key ]= loc;   //key,value format
                     }
 
-                    console.log(json);
+                    //console.log(json);
 
                     return json;
                 }
@@ -743,7 +745,7 @@ define([
                 markerZoomAnimation: true,
                 layers: [tiles],
                 zoom: 9,
-                maxZoom: 9,
+                maxZoom: 10,
                 scrollWheelZoom: false
             });
 
@@ -843,11 +845,16 @@ define([
 
                 drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
+                self._zoomData = false;
+
                 self._updateUI();
             })
             .on('draw:deleted', function (e) {
                 drawnItems.clearLayers();
                 delete self.filterPolygonWKT;
+
+                self._zoomData = true;
+
                 self._updateUI();
             });
         },
@@ -1074,7 +1081,7 @@ define([
 
             log.info("Lat and longs", latlngs);
 
-            if (latlngs.length > 0) {
+            if (latlngs.length > 0 && this._zoomData) {
                 this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
             }
             else if (this.countryCode) {
