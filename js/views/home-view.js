@@ -680,12 +680,8 @@ define([
                 minLength: 2,
                 initial: false,
                 buildTip: function(text, val) {
-                    var t = '<a href="#">'+text+'<em style="background:'+text+'; width:14px;height:14px;float:right"></em></a>';
-
-                    if(val.isMarket)
-                        t = '<b>'+t+'</b>';
-
-                    return t;
+                    var className = 'tooltip-'+(val.isMarket?'market':'place');
+                    return '<a class="'+className+'" href="#">'+text+'<em style="background:'+text+'; width:14px;height:14px;float:right"></em></a>';
                 },
                 sourceData: function(text, cb) {
                     self._geocoder.geocode({address: text}, function(args) {
