@@ -18,20 +18,22 @@ define([
     'fx-common/utils',
     'moment',
     'leaflet',
+    'geojson-utils',
     'fx-common/AuthManager',
-    //'leaflet.geosearch.google',
     
     'leaflet-search',
-
     'leaflet.markercluster',
     'leaflet.draw',
+
     'highstock',
     'highstock.no-data',
     'highstock.exporting',
     'bootstrap-table',
     'bootstrap-table.export',
     'amplify'
-], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L, AuthManager) {
+], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment,
+    L, GeojsonUtils,
+    AuthManager) {
 
     'use strict';
 
@@ -786,20 +788,8 @@ define([
 
             window.map = self.map;
 
-/*            map.addControl(new L.Control.GeoSearch({
-                provider: new L.GeoSearch.Provider.Google(),
-                showMarker: false
-            }));
-*/
-            /*markers = L.markerClusterGroup({
-             showCoverageOnHover: false
-             }).addTo(map);*/
             self.markers = L.layerGroup().addTo(self.map);
             self.emptyMarketLayer = L.layerGroup().addTo(self.map);
-            //emptyMarketLayer = L.featureGroup([]).addTo(map);
-            //emptyMarketLayer = L.markerClusterGroup({
-            //	showCoverageOnHover: false
-            //});
 
             self._initMapSearch(self.map, self.mapMarkets);
 
@@ -832,11 +822,11 @@ define([
                         coords.push(geometry);
                     }
 
-                    var polyCircle = L.polygon(coords);
-
-                    self.filterPolygonWKT = self._toWKT(polyCircle);
+                    self.filterPolygon = L.polygon(coords);
+                    self.filterPolygonWKT = self._toWKT(self.filterPolygon);
                 }
                 else {
+                    self.filterPolygon = layer;
                     self.filterPolygonWKT = self._toWKT(layer);
                 }
 
@@ -846,12 +836,34 @@ define([
 
                 self._zoomData = false;
 
+                if(self.filterPolygon) {
+
+                    self.emptyMarketLayer.eachLayer(function(m) {
+
+                        var p = m.toGeoJSON(),
+                            poly = self.filterPolygon.toGeoJSON();
+
+log.info('###pointInPolygon', m, poly, self.filterPolygonWKT);
+
+/*var point = {"type":  "Point", "coordinates": [ 705, 261 ]};
+var pol = {"type": "Polygon", "coordinates": [ [702.5,344.50000000000006], [801.890625,
+    245.109375], [749.7351485148515,234.28465346534657] ]};
+log.info('###TEST',   GeojsonUtils.pointInPolygon(point, pol) )*/
+
+                        if( !GeojsonUtils.pointInPolygon(p, poly) ) {
+
+                            log.info('###pointInPolygon',m);
+                        }
+                    });
+                }
+
                 self._updateUI();
             })
             .on('draw:deleted', function (e) {
                 
                 self.drawnItems.clearLayers();
 
+                delete self.filterPolygon;
                 delete self.filterPolygonWKT;
 
                 self._zoomData = true;
@@ -965,14 +977,12 @@ define([
 
             log.info("update map");
 
-            if (this.markers != null) {
-                this.markers.clearLayers();
-            }
+            var self = this;
 
-            this._retrieveResource({
+            self._retrieveResource({
                 query: Q.mapUpdate,
-                success: _.bind(this._onUpdateMapSuccess, this),
-                error: _.bind(this._onUpdateMapError, this)
+                success: _.bind(self._onUpdateMapSuccess, self),
+                error: _.bind(self._onUpdateMapError, self)
             });
         },
 
@@ -981,8 +991,6 @@ define([
         },
 
         _onUpdateMapSuccess: function (data) {
-
-            log.info("Map data: " + JSON.stringify(data));
 
             var self = this,
                 addressPoints = [],
@@ -993,10 +1001,15 @@ define([
 
             var Cresponse = _.groupBy(response, 'marketcode');
 
+            if (self.markers != null) {
+                self.markers.clearLayers();
+            }
+
             $.each(this.mapMarkets, function (k, v) {
                 if (!v[0]) {
 
                     L.marker([v.lat, v.lon], {
+                        title: v.name,
                         icon: desatIcon
                     })
                     .bindPopup('<div class="notValued">' + v.name + ' </div>')
@@ -1049,7 +1062,6 @@ define([
 
         _refreshCluster: function (addressPoints) {
 
-            log.info("Refresh cluster", JSON.stringify(addressPoints));
             var existingPoints = [],
                 latlngs = [];
 
@@ -1528,7 +1540,7 @@ define([
 
             } else {
 
-                log.warn(query);
+                //log.warn(query);
 
                 this.WDSClient.retrieve({
                     payload: {query: query},

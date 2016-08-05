@@ -27,6 +27,7 @@ return {
 		//'leaflet.geosearch'       :FXCDN+'leaflet/plugins/leaflet.geosearch/1.1.0/js/l.control.geosearch',
 		//'leaflet.geosearch.google':FXCDN+'leaflet/plugins/leaflet.geosearch/1.1.0/js/l.geosearch.provider.google',
 		'leaflet-search'          :FXCDN+'leaflet/plugins/leaflet-search/1.9.9/dist/leaflet-search.min',
+		'geojson-utils'           :FXCDN+'geojson-utils/1.1.0/geojson-utils',
 
 		'jquery.nouislider'       :'js/slider/jquery.nouislider.all.min',
 		'jQAllRangeSliders-min'   :'js/slider/jQAllRangeSliders-min',
@@ -48,15 +49,12 @@ return {
 		'jquery.nouislider'     :['jquery'],
 		'jQAllRangeSliders-min' :['jquery'],
 
-		'leaflet.markercluster'    :['leaflet'],
-		'leaflet.draw'             :['leaflet'],
-		'leaflet-search'           :['leaflet'],
+		'leaflet.markercluster' :['leaflet'],
+		'leaflet.draw'          :['leaflet'],
+		'leaflet-search'        :['leaflet'],
 
-		//'leaflet.geosearch'        :['leaflet'],
-		//'leaflet.geosearch.google' :['leaflet','leaflet.geosearch'],
-
-		//'sparkilne-charts' ...
-		//'export-table'     ...
+        'geojson-utils'         :{exports:'gju'},
+        'handlebars'            :{exports:'Handlebars'}
 	}
 };
 });

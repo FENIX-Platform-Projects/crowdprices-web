@@ -91,6 +91,7 @@ require([
                     //'leaflet.geosearch'       :'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.control.geosearch',
                     //'leaflet.geosearch.google':'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.geosearch.provider.google',
                     'leaflet-search'          :'{FENIX_CDN}/js/leaflet/plugins/leaflet-search/1.9.9/dist/leaflet-search.min',
+                    'geojson-utils'           :'{FENIX_CDN}/js/geojson-utils/1.1.0/geojson-utils',
 
                     //nls: "../i18n",
                     config: "../config",
@@ -122,19 +123,15 @@ require([
 
                     'highstock'             :['jquery'],
                     'highstock.exporting'   :['jquery','highstock'],
-                    'highstock.no-data'   :['jquery','highstock'],
+                    'highstock.no-data'     :['jquery','highstock'],
                     'highstock.sparkline'   :['jquery','highstock'],
 
-                    'leaflet.markercluster'    :['leaflet'],
-                    'leaflet.draw'             :['leaflet'],
-                    //'leaflet.geosearch'        :['leaflet'],
-                    //'leaflet.geosearch.google' :['leaflet','leaflet.geosearch'],
-                    'leaflet-search'           :['leaflet'],
+                    'leaflet.markercluster' :['leaflet'],
+                    'leaflet.draw'          :['leaflet'],
+                    'leaflet-search'        :['leaflet'],
 
-                    handlebars: {
-                        exports: 'Handlebars'
-                    }
-
+                    'geojson-utils'         :{exports:'gju'},
+                    'handlebars'            :{exports:'Handlebars'}
                 },
                 waitSeconds: 15
                 // For easier development, disable browser caching
