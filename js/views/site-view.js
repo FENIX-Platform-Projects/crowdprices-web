@@ -5,22 +5,28 @@ define([
     'underscore',
     'config/config',
     'config/events',
+    'config/queries',
     'views/base/view',
     'fx-menu/start',
     'globals/AuthManager',
     'globals/State',
     'i18n!nls/labels',
     'text!templates/site.hbs',
+    'fx-common/WDSClient',
+    'countup',
     'highstock.sparkline',
-], function ($, Chaplin, _, C, E, View, Menu, AuthManager, State, i18nLabels, template) {
+], function ($, Chaplin, _, C, E, Q, View, Menu, AuthManager, State, i18nLabels, template, WDSClient, CountUp) {
 
     'use strict';
 
     var s = {
         LATERAL_MENU_CONTAINER: '#lateral-menu',
-        MENU_TOGGLE_BTN : "#menu-toggle",
+        MENU_TOGGLE_BTN: "#menu-toggle",
         WRAPPER: "#wrapper",
-        SPARK_LINES: "[data-sparkline]"
+        SPARK_LINES: "[data-sparkline]",
+        STATS_MARKETS : "stats-markets",
+        STATS_COMMODITIES : "stats-commodities",
+        STATS_ENTRIES : "stats-entries",
     };
 
     var SiteView = View.extend({
@@ -55,7 +61,7 @@ define([
 
         },
 
-        _initSparkline : function () {
+        _initSparkline: function () {
 
             var start = +new Date(),
                 $tds = this.$el.find(s.SPARK_LINES),
@@ -116,9 +122,15 @@ define([
 
         _initVariables: function () {
 
-           this.$toggleMenuBtn = this.$el.find(s.MENU_TOGGLE_BTN);
+            this.$toggleMenuBtn = this.$el.find(s.MENU_TOGGLE_BTN);
 
-           this.$wrapper = this.$el.find(s.WRAPPER);
+            this.$wrapper = this.$el.find(s.WRAPPER);
+
+            this.WDSClient = new WDSClient({
+                serviceUrl: C.WDS_URL,
+                datasource: C.DB_NAME,
+                outputType: C.WDS_OUTPUT_TYPE
+            });
         },
 
         _bindEventListeners: function () {
@@ -180,7 +192,32 @@ define([
             this.topMenu = new Menu(this.authManager.isLogged() ? menuConfAuth : menuConfPub);
         },
 
+        _onInitQuickStatsError : function () {
+            alert("Error on _onInitQuickStats()");
+        },
+
         _initQuickStats: function () {
+
+            this.WDSClient.retrieve({
+                payload: {query: Q.stats},
+                outputType: "object",
+                success: _.bind(this._onInitQuickStatsSuccess, this),
+                error: _.bind(this._onInitQuickStatsError, this)
+            })
+
+        },
+
+        _onInitQuickStatsSuccess: function ( response ) {
+
+            var entries = _.findWhere(response, {name : "entries"}),
+                markets = _.findWhere(response, {name : "markets"}),
+                commodities = _.findWhere(response, {name : "commodities"});
+
+            var entriesCount = new CountUp(s.STATS_ENTRIES, 0, parseInt(entries.value), 0, 2.5, C.stats);
+            entriesCount.start();
+
+            var marketsCount = new CountUp(s.STATS_MARKETS, 0, parseInt(markets.value), 0, 2.5, C.stats);
+            marketsCount.start();
 
         },
 

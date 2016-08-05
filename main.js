@@ -106,6 +106,7 @@ require([
                     'bootstrap-table.export' : '{FENIX_CDN}/js/bootstrap-table/1.10.1/dist/extensions/export/bootstrap-table-export.min',
                     'tableExport' : '{FENIX_CDN}/js/tableExport.jquery.plugin/1.0/tableExport.min',
 
+                    countup  : '{FENIX_CDN}/js/countUp/1.7.1/countUp.min',
                 },
 
                 // Underscore and Backbone are not AMD-capable per default,

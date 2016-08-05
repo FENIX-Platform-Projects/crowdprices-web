@@ -37,7 +37,16 @@ define(function () {
         country : 1,
         commodities : [0],
 
-        refreshTimeoutInterval : 500
+        refreshTimeoutInterval : 500,
+
+        statsAnimation :{
+            useEasing : true,
+            useGrouping : true,
+            separator : ',',
+            decimal : '.',
+            prefix : '',
+            suffix : ''
+        }
 
     };
 });
