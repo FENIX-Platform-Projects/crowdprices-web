@@ -13047,7 +13047,6 @@ input[type="radio"]:disabled + label {
 .home-content {
   background-color: #2b686a; }
   .home-content .home-tile {
-    padding: 20px 15px;
     position: relative;
     background-color: #e0f1ee; }
   .home-content .nation-tile {

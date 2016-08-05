@@ -51,7 +51,7 @@ define([
 
             this._initQuickStats();
 
-            this._initSparkline();
+            //his._initSparkline();
 
         },
 
