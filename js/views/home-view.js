@@ -1298,7 +1298,7 @@ define([
         _updateAggregatedDataTable: function () {
 
             this._retrieveResource({
-                query: Q.tableDailyData,
+                query: Q.tableAggregatedData,
                 success: _.bind(this._updateAggregatedDataTableSuccess, this),
                 error: _.bind(this._buildAggregatedDataTableError, this)
             });
