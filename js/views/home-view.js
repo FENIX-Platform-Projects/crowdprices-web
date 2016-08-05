@@ -1100,153 +1100,85 @@ define([
 
         _buildCharts: function () {
 
-            this._retrieveChartsResources({
-                success: _.bind(this._buildChartsSuccess, this),
-                error: _.bind(this._buildChartsError, this)
+            this._buildDailyPricesCharts();
+
+            this._buildAveragePricesCharts();
+
+        },
+
+        _buildDailyPricesChartsError : function (e) {
+            alert("Impossible to _buildDailyPricesChartsError()");
+            log.error(e);
+        },
+
+        _buildDailyPricesCharts : function () {
+
+            this._retrieveResource({
+                query: Q.chartsDailyPricesByCommodity,
+                success: _.bind(this._buildDailyPricesChartsSuccess, this),
+                error: _.bind(this._buildDailyPricesChartsError, this)
             });
+
+        },
+
+        _buildDailyPricesChartsSuccess: function (response) {
+
+            var series = {},
+                final = [],
+                data = _.rest(response);
+
+            _.each(data, function (d){
+
+                if (!series[d.label]){
+                    series[d.label] = {
+                        name : d.label,
+                        data : []
+                    };
+                }
+
+                series[d.label].data.push([ new Date(d.fulldate).getTime(), d.price]);
+            });
+
+            _.each(series, function(s){
+                final.push(s);
+            });
+
+            this.$chartDailyPrices.highcharts('StockChart', $.extend(true, {}, ChartsConfig.dailyPrices, {series: final}));
+
+        },
+
+        _buildAveragePricesCharts : function () {
+
+            this._retrieveResource({
+                query: Q.chartsAveragePricesByCommodity,
+                success: _.bind(this._buildAveragePricesChartsSuccess, this),
+                error: _.bind(this._buildDailyPricesChartsError, this)
+            });
+
+        },
+
+        _buildAveragePricesChartsSuccess : function (response) {
+
+            var series = [],
+                data = _.rest(response);
+
+            _.each(data, function (d){
+
+                series.push({
+                    name: d.label,
+                    data: [d.price]
+                })
+            });
+
+            this.$chartAveragePrices.highcharts($.extend(true, {}, ChartsConfig.averagePrices, {series: series}));
+
         },
 
         _updatedCharts: function () {
 
             this._disposeCharts();
 
-            this._retrieveChartsResources({
-                success: _.bind(this._buildChartsSuccess, this),
-                error: _.bind(this._buildChartsError, this)
-            });
-        },
-
-        _buildChartsSeries: function (response) {
-
-            var self = this,
-                data = _.rest(response),
-                averagedata = [],
-                resultdata = [],
-                aggregated = 0,
-                seriesOptions1 = [],
-                seriesOptions2 = [],
-                j = 0;
-
-            if (data.length !== 0) {
-
-                _.each(data, function (d) {
-                    var tmpArray = new Array(2);
-                    //tmpArray[0] = new Date(this.fulldate).getTime();
-                    var str = d[11];
-                    str = str.substring(0, str.length - 2);
-                    str = str.replace(/-/g, "/");
-                    var dateObject = new Date(str);
-                    tmpArray[0] = dateObject.getTime();
-                    tmpArray[1] = parseFloat(d[8]) / parseFloat(d[9]);
-                    tmpArray[2] = d[14];
-                    tmpArray[3] = d[19];
-
-                    resultdata.push(tmpArray);
-                    j++;
-                    aggregated = aggregated + parseFloat(d[8]);
-                });
-
-                //TODO
-                //startDate = data[0][11];
-                //endDate = data[j - 1][11];
-
-                var temArray = new Array(1);
-
-                temArray[1] = ( aggregated / j );
-
-                if (temArray[1] > 1)
-                    averagedata.push(temArray);
-
-                var resultdataGmark = _.groupBy(resultdata, function (v) {
-                    return v[2];//market name
-                });
-
-                var resultdataGComm = _.groupBy(resultdata, function (v) {
-                    return v[3];//commodity name
-                });
-
-                var markets = _.keys(resultdataGmark),
-                    comodities = _.keys(resultdataGComm);
-
-                _.each(comodities, function (comId) {
-
-                    _.each(markets, function (marketName) {
-
-                        var m = _.filter(resultdata, function (v) {
-                            return v[2] === marketName && v[3] === parseInt(comId);
-
-                        });//resultdataGmark[marketname];
-
-                        if (m.length > 0) {
-
-                            var commodity = Utils.getNestedProperty("labels.commodities", self.current.values)[comId],
-                                label = commodity + ' @ ' + m[0][2];
-                            var data = m.map(function (i) {
-                                return [i[0], i[1]]
-                            });
-
-                            seriesOptions1.push({
-                                name: label,
-                                data: data
-                            });
-
-                            var sum = 0,
-                                avgs = [];
-
-                            _.map(data, function (val) {
-                                sum += val[1]
-                            });
-
-                            avgs.push(sum / data.length);
-
-                            seriesOptions2.push({	//highchart
-                                name: "Avg: " + label,
-                                data: avgs,
-                                type: 'column'
-                            });
-                        }
-
-                    });
-                });
-
-            }
-            else {
-                log.warn("Chart data is empty");
-            }
-
-            return {
-                dailyPrices: seriesOptions1,
-                averagePrices: seriesOptions2
-            }
-
-        },
-
-        _buildChartsSuccess: function (response) {
-
-            var series = this._buildChartsSeries(response),
-                dailyPricesSeries = series.dailyPrices,
-                averagePricesSeries = series.averagePrices;
-
-            this.$chartDailyPrices.highcharts('StockChart', $.extend(true, {}, ChartsConfig.dailyPrices, {series: dailyPricesSeries}));
-
-            this.$chartAveragePrices.highcharts($.extend(true, {}, ChartsConfig.averagePrices, {series: averagePricesSeries}));
-
-            log.info("Charts builts");
-        },
-
-        _retrieveChartsResources: function (obj) {
-
-            this._retrieveResource({
-                query: Q.charts,
-                success: obj.success,
-                error: obj.error,
-                outputType: 'array'
-            });
-        },
-
-        _buildChartsError: function (e) {
-            //alert("Impossible to _updateChartsError()");
-            log.error(e);
+            this._buildCharts();
         },
 
         _disposeCharts: function () {

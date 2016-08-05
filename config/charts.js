@@ -52,9 +52,6 @@ define([
             },
             xAxis: {
                 labels: {
-
-
-
                 }
             },
 
@@ -65,6 +62,7 @@ define([
             },
 
             tooltip: {
+                headerFormat: '',
                 pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} ' + C.currency + '/' + C.um + '</b> ({point.change}%) <br/>',
                 valueDecimals: 2
             }
@@ -107,8 +105,6 @@ define([
             },
 
 
-
-
             credits: false,
 
             yAxis: {
@@ -124,12 +120,14 @@ define([
                     },
 
                 },
+
                 plotLines: [{
                     value: 0,
                     width: 2,
                     color: 'silver'
                 }]
             },
+
             legend: {
 
                 itemMarginTop: 5,
@@ -137,7 +135,8 @@ define([
 
             },
             tooltip: {
-                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} ' + C.currency + '/' + C.um + '</b> <br/>',
+                headerFormat: '',
+                pointFormat: '<span style="color:{series.color}"> {series.name}</span>: <b>{point.y} ' + C.currency + '/' + C.um + '</b> <br/>',
                 valueDecimals: 2
             },
             plotOptions: {
