@@ -10,9 +10,9 @@ define(function () {
         markets: "SELECT code as value, name as label FROM market WHERE gaul0={{{country}}} ORDER BY code",
         time: "SELECT min(fulldate) as from, max(fulldate) as to FROM {{{table}}} WHERE marketcode IN ('{{{markets}}}') AND commoditycode IN ('{{{commodities}}}') AND gaul0code = {{{country}}}",
         mapInit: "SELECT parentcode, code, name, lang, shown, lat, lon, gaul0 FROM market WHERE gaul0={{{country}}} ORDER BY code",
-        mapUpdate: "SELECT AVG(price), COUNT(price), marketcode FROM {{{table}}} WHERE marketcode IN ('{{{markets}}}') AND date>='{{{from}}}' AND date<= '{{{to}}}' {{#if wkt}} AND ST_contains(ST_GeomFromText('{{{wkt}}}',4326),geo) {{/if}} GROUP BY marketcode ORDER BY marketcode",
 
-        mapUpdate2:
+        mapUpdate_BACKUP: "SELECT AVG(price), COUNT(price), marketcode FROM {{{table}}} WHERE marketcode IN ('{{{markets}}}') AND date>='{{{from}}}' AND date<= '{{{to}}}' {{#if wkt}} AND ST_contains(ST_GeomFromText('{{{wkt}}}',4326),geo) {{/if}} GROUP BY marketcode ORDER BY marketcode",
+        mapUpdate:
             "SELECT avg, count, marketcode, munitcode, commoditycode, commodity.name as commodityname "+
             " FROM("+
                 "SELECT AVG(price), COUNT(price), marketcode, munitcode, commoditycode "+

@@ -994,7 +994,7 @@ try{
             var self = this;
 
             self._retrieveResource({
-                query: Q.mapUpdate2,
+                query: Q.mapUpdate,
                 success: _.bind(self._onUpdateMapSuccess, self),
                 error: _.bind(self._onUpdateMapError, self)
             });
@@ -1053,15 +1053,8 @@ try{
 
                 address++;
             });
-
-            this._refreshCluster(addressPoints);
-        },
-        
-        _refreshCluster: function (addressPoints) {
-
-            var existingPoints = [],
-                latlngs = [];
-
+            
+            var latlngs = [];
             for (var i = 0; i < addressPoints.length; i++) {
 
                 var point = addressPoints[i];
@@ -1069,11 +1062,6 @@ try{
                 var title = point[2],
                     hasData = point[3],
                     loc = new L.LatLng(point[0], point[1]);
-
-                existingPoints.push([
-                    loc,
-                    title
-                ]);
 
                 var marker = L.marker(loc, {
                     icon: !!hasData ? foundIcon : desatIconBig
@@ -1089,13 +1077,10 @@ try{
                 }
             }
 
-            log.info("Lat and longs", latlngs);
-
             if (latlngs.length > 0 && this._zoomData) {
                 this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
             }
             else if (this.countryCode) {
-
                 this._zoomToCountry(this.countryCode);
             }
         },
