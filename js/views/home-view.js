@@ -1017,6 +1017,8 @@ try{
                 self.markers.clearLayers();
             }
 
+            self.emptyMarketLayer.clearLayers();
+
             $.each(this.mapMarkets, function (k, v) {
                 
                 if (!v[0]) {
@@ -1049,7 +1051,11 @@ try{
                         hasData,
                         v.gaul0
                     ]);
+
+                    console.log('CODE',v.code)
                 }
+                else
+                    console.log('NOCODE',v.code)
 
                 address++;
             });
