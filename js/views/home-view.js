@@ -974,6 +974,19 @@ try{
             return points;
         },
 
+        _zoomToCountry: function (code) {
+
+            var self = this;
+
+            $.ajax({
+                type: 'GET',
+                url: C.zoomtoUrl + 'country/adm0_code/' + code,
+                success: function (response) {
+                    self.map.fitBounds(response);
+                }
+            });
+        },
+
         _updateMap: function () {
 
             log.info("update map");
@@ -995,8 +1008,6 @@ try{
 
             var self = this,
                 addressPoints = [],
-                marketcode = [],
-                vendors = [],
                 address = 0,
                 response = _.rest(data);
 
@@ -1007,6 +1018,7 @@ try{
             }
 
             $.each(this.mapMarkets, function (k, v) {
+                
                 if (!v[0]) {
 
                     L.marker([v.lat, v.lon], {
@@ -1029,9 +1041,6 @@ try{
                     avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + C.currency + "\/" + C.um;
                 }
 
-                vendors.push(v.name);
-                marketcode.push(v.code);
-
                 if (Cresponse[v.code]) {
                     addressPoints.push([
                         v.lat,
@@ -1047,20 +1056,7 @@ try{
 
             this._refreshCluster(addressPoints);
         },
-
-        _zoomToCountry: function (code) {
-
-            var self = this;
-
-            $.ajax({
-                type: 'GET',
-                url: C.zoomtoUrl + 'country/adm0_code/' + code,
-                success: function (response) {
-                    self.map.fitBounds(response);
-                }
-            });
-        },
-
+        
         _refreshCluster: function (addressPoints) {
 
             var existingPoints = [],
