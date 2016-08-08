@@ -18,20 +18,22 @@ define([
     'fx-common/utils',
     'moment',
     'leaflet',
+    'geojson-utils',
     'fx-common/AuthManager',
-    //'leaflet.geosearch.google',
     
     'leaflet-search',
-
     'leaflet.markercluster',
     'leaflet.draw',
+
     'highstock',
     'highstock.no-data',
     'highstock.exporting',
     'bootstrap-table',
     'bootstrap-table.export',
     'amplify'
-], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment, L, AuthManager) {
+], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment,
+    L, GeojsonUtils,
+    AuthManager) {
 
     'use strict';
 
@@ -49,17 +51,52 @@ define([
     };
 
     var desatIcon = L.divIcon({
+            iconSize: L.point(20,20),
             className: 'marker-desat-icon',
             html: '<div><span><span></div>'
         }),
         desatIconBig = L.divIcon({
+            iconSize: L.point(20,20),
             className: 'marker-desat-icon',
             html: '<div><span><span></div>'
         }),
         foundIcon = L.divIcon({
+            iconSize: L.point(20,20),
             className: 'marker-found-icon',
             html: '<div><span><span></div>'
         });
+
+    var drawOpts = {
+            position: 'bottomleft',
+            draw: {
+                marker: false,
+                polyline: false,
+                polygon: {
+                    allowIntersection: false,
+                    drawError: {
+                        color: '#399BCC',
+                        timeout: 1000
+                    },
+                    shapeOptions: {
+                        color: '#3FAAA9',
+                        fillColor: '#3FAAA9',
+                        fillOpacity: 0.1
+                    },
+                    showArea: true
+                },
+                circle: {
+                    shapeOptions: {
+                        color: '#3FAAA9',
+                        fillColor: '#3FAAA9',
+                        fillOpacity: 0.1
+                    }
+                }
+            },
+            edit: {
+                featureGroup: null,
+                edit: false
+            }
+        };
 
     var HomeView = View.extend({
 
@@ -669,7 +706,7 @@ define([
 
         // Map
 
-        _initMapSearch: function(map, layers) {
+        _initMapSearch: function(map, layer) {
             var self = this;
 
             if(!self._geocoder)
@@ -697,9 +734,9 @@ define([
                     var key, loc,
                         json = {};
 
-                    for(var n in self.mapMarkets)   //markets
+                    for(var n in layer)   //markets
                     {
-                        var mar = self.mapMarkets[n];
+                        var mar = layer[n];
 
                         key = mar.name;
                         loc = L.latLng(mar.lat, mar.lon);
@@ -751,66 +788,19 @@ define([
 
             window.map = self.map;
 
-/*            map.addControl(new L.Control.GeoSearch({
-                provider: new L.GeoSearch.Provider.Google(),
-                showMarker: false
-            }));
-*/
-            /*markers = L.markerClusterGroup({
-             showCoverageOnHover: false
-             }).addTo(map);*/
             self.markers = L.layerGroup().addTo(self.map);
             self.emptyMarketLayer = L.layerGroup().addTo(self.map);
-            //emptyMarketLayer = L.featureGroup([]).addTo(map);
-            //emptyMarketLayer = L.markerClusterGroup({
-            //	showCoverageOnHover: false
-            //});
 
-            self._initMapSearch(self.map, [
-                self.markers,
-                self.emptyMarketLayer
-            ]);
+            self._initMapSearch(self.map, self.mapMarkets);
 
             // Initialise the FeatureGroup to store editable layers
-            var drawnItems = new L.FeatureGroup();
+            self.drawnItems = new L.FeatureGroup();
 
-            map.addLayer(drawnItems);
+            map.addLayer(self.drawnItems);
 
-            var drawOpts = {
-                position: 'bottomleft',
-                draw: {
-                    marker: false,
-                    polyline: false,
-                    polygon: {
-                        allowIntersection: false,
-                        drawError: {
-                            color: '#399BCC',
-                            timeout: 1000
-                        },
-                        shapeOptions: {
-                            color: '#3FAAA9',
-                            fillColor: '#3FAAA9',
-                            fillOpacity: 0.1
-                        },
-                        showArea: true
-                    },
-                    circle: {
-                        shapeOptions: {
-                            color: '#3FAAA9',
-                            fillColor: '#3FAAA9',
-                            fillOpacity: 0.1
-                        }
-                    }
-                },
-                edit: {
-                    featureGroup: drawnItems,
-                    edit: false
-                }
-            };
+            drawOpts.edit.featureGroup = self.drawnItems;
 
-            var drawControl = new L.Control.Draw(drawOpts);
-
-            self.map.addControl(drawControl);
+            self.map.addControl( new L.Control.Draw(drawOpts) );
 
             log.info("Map initialized");
 
@@ -832,25 +822,49 @@ define([
                         coords.push(geometry);
                     }
 
-                    var polyCircle = L.polygon(coords);
-
-                    self.filterPolygonWKT = self._toWKT(polyCircle);
+                    self.filterPolygon = L.polygon(coords);
+                    self.filterPolygonWKT = self._toWKT(self.filterPolygon);
                 }
                 else {
+                    self.filterPolygon = layer;
                     self.filterPolygonWKT = self._toWKT(layer);
                 }
 
-                drawnItems.clearLayers()
-                    .addLayer(layer);
+                self.drawnItems.clearLayers().addLayer(layer);
 
-                drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
+                self.drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
 
                 self._zoomData = false;
+
+                if(self.filterPolygon) {
+
+                    self.emptyMarketLayer.eachLayer(function(m) {
+
+                        var p = m.toGeoJSON(),
+                            poly = self.filterPolygon.toGeoJSON();
+
+console.log('###pointInPolygon', p, poly, self.filterPolygonWKT);
+
+/*var point = {"type":  "Point", "coordinates": [ 705, 261 ]};
+var pol = {"type": "Polygon", "coordinates": [ [702.5,344.50000000000006], [801.890625,
+    245.109375], [749.7351485148515,234.28465346534657] ]};
+log.info('###TEST',   GeojsonUtils.pointInPolygon(point, pol) )*/
+try{
+                        if( !GeojsonUtils.pointInPolygon(p, poly) )
+                            log.info('###pointInPolygon',m);
+                        }catch(e) {
+                            console.log(e)
+                        }
+                    });
+                }
 
                 self._updateUI();
             })
             .on('draw:deleted', function (e) {
-                drawnItems.clearLayers();
+                
+                self.drawnItems.clearLayers();
+
+                delete self.filterPolygon;
                 delete self.filterPolygonWKT;
 
                 self._zoomData = true;
@@ -964,14 +978,12 @@ define([
 
             log.info("update map");
 
-            if (this.markers != null) {
-                this.markers.clearLayers();
-            }
+            var self = this;
 
-            this._retrieveResource({
+            self._retrieveResource({
                 query: Q.mapUpdate,
-                success: _.bind(this._onUpdateMapSuccess, this),
-                error: _.bind(this._onUpdateMapError, this)
+                success: _.bind(self._onUpdateMapSuccess, self),
+                error: _.bind(self._onUpdateMapError, self)
             });
         },
 
@@ -980,8 +992,6 @@ define([
         },
 
         _onUpdateMapSuccess: function (data) {
-
-            log.info("Map data: " + JSON.stringify(data));
 
             var self = this,
                 addressPoints = [],
@@ -992,17 +1002,22 @@ define([
 
             var Cresponse = _.groupBy(response, 'marketcode');
 
+            if (self.markers != null) {
+                self.markers.clearLayers();
+            }
+
             $.each(this.mapMarkets, function (k, v) {
                 if (!v[0]) {
 
                     L.marker([v.lat, v.lon], {
+                        title: v.name,
                         icon: desatIcon
                     })
-                        .bindPopup('<div class="notValued">' + v.name + ' </div>')
-                        .on('mouseover', function (e) {
-                            e.target.openPopup();
-                        })
-                        .addTo(self.emptyMarketLayer);
+                    .bindPopup('<div class="notValued">' + v.name + ' </div>')
+                    .on('mouseover', function (e) {
+                        e.target.openPopup();
+                    })
+                    .addTo(self.emptyMarketLayer);
                 }
 
                 v = _.extend(v, Cresponse[v.code]);
@@ -1048,7 +1063,6 @@ define([
 
         _refreshCluster: function (addressPoints) {
 
-            log.info("Refresh cluster", JSON.stringify(addressPoints));
             var existingPoints = [],
                 latlngs = [];
 
@@ -1459,7 +1473,7 @@ define([
 
             } else {
 
-                log.warn(query);
+                //log.warn(query);
 
                 this.WDSClient.retrieve({
                     payload: {query: query},
