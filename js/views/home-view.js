@@ -842,7 +842,7 @@ define([
 
                         var p = m.toGeoJSON(),
                             poly = self.filterPolygon.toGeoJSON();
-
+//TODO
 console.log('###pointInPolygon', p, poly, self.filterPolygonWKT);
 
 /*var point = {"type":  "Point", "coordinates": [ 705, 261 ]};
@@ -981,7 +981,7 @@ try{
             var self = this;
 
             self._retrieveResource({
-                query: Q.mapUpdate,
+                query: Q.mapUpdate2,
                 success: _.bind(self._onUpdateMapSuccess, self),
                 error: _.bind(self._onUpdateMapError, self)
             });
