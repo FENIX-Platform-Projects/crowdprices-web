@@ -150,7 +150,7 @@ require([
     ], function (log, Application, routes, C) {
 
         //trace, debug, info, warn, error, silent
-        log.setLevel('trace');
+        log.setLevel('silent');
 
         var app = new Application({
             routes: routes,

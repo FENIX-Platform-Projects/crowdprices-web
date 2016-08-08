@@ -843,16 +843,17 @@ define([
                         var p = m.toGeoJSON(),
                             poly = self.filterPolygon.toGeoJSON();
 
-log.info('###pointInPolygon', m, poly, self.filterPolygonWKT);
+console.log('###pointInPolygon', p, poly, self.filterPolygonWKT);
 
 /*var point = {"type":  "Point", "coordinates": [ 705, 261 ]};
 var pol = {"type": "Polygon", "coordinates": [ [702.5,344.50000000000006], [801.890625,
     245.109375], [749.7351485148515,234.28465346534657] ]};
 log.info('###TEST',   GeojsonUtils.pointInPolygon(point, pol) )*/
-
-                        if( !GeojsonUtils.pointInPolygon(p, poly) ) {
-
+try{
+                        if( !GeojsonUtils.pointInPolygon(p, poly) )
                             log.info('###pointInPolygon',m);
+                        }catch(e) {
+                            console.log(e)
                         }
                     });
                 }
