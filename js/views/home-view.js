@@ -838,24 +838,20 @@ define([
 
                     self.emptyMarketLayer.clearLayers();
 
-                    self.emptyMarketLayer.eachLayer(function(m) {
+                    /*self.emptyMarketLayer.eachLayer(function(m) {
 
                         var p = m.toGeoJSON(),
                             poly = self.filterPolygon.toGeoJSON();
 //TODO
 //console.log('###pointInPolygon', p, poly);
 
-/*var point = {"type":  "Point", "coordinates": [ 705, 261 ]};
-var pol = {"type": "Polygon", "coordinates": [ [702.5,344.50000000000006], [801.890625,
-    245.109375], [749.7351485148515,234.28465346534657] ]};
-log.info('###TEST',   GeojsonUtils.pointInPolygon(point, pol) )*/
                         try{
                             if( !GeojsonUtils.pointInPolygon(p, poly) )
                                 console.log('###pointInPolygon',m);
                         }catch(e) {
                             console.log(e)
                         }
-                    });
+                    });*/
                 }
 
                 self._updateUI();
@@ -987,6 +983,21 @@ log.info('###TEST',   GeojsonUtils.pointInPolygon(point, pol) )*/
             });
         },
 
+        _zoomToData: function() {
+            
+            var latlngs = [];
+
+            this.markers.eachLayer(function (m) {
+                latlngs.push(m.getLatLng());
+            });
+            if (latlngs.length > 0 && this._zoomData) {
+                this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
+            }
+            else if (this.countryCode) {
+                this._zoomToCountry(this.countryCode);
+            }
+        },
+
         _updateMap: function () {
 
             log.info("update map");
@@ -1007,7 +1018,6 @@ log.info('###TEST',   GeojsonUtils.pointInPolygon(point, pol) )*/
         _onUpdateMapSuccess: function (data) {
 
             var self = this,
-                latlngs = [],
                 resp = _.rest(data),
                 respByMarket = _.groupBy(resp, 'marketcode');
 
@@ -1015,60 +1025,40 @@ log.info('###TEST',   GeojsonUtils.pointInPolygon(point, pol) )*/
                 self.markers.clearLayers();
             }
 
-            $.each(this.mapMarkets, function (k, v) {
+            $.each(self.mapMarkets, function (k, market) {
                 
-                if (!v[0]) {
+                if (respByMarket[market.code]) {
 
-                    L.marker([v.lat, v.lon], {
-                        title: v.name,
-                        icon: desatIcon
-                    })
-                    .bindPopup('<div class="notValued">' + v.name + ' </div>')
-                    .on('mouseover', function (e) {
-                        e.target.openPopup();
-                    })
-                    .addTo(self.emptyMarketLayer);
-                }
-
-                v = _.extend(v, respByMarket[v.code]);
-
-                var popS = "",
-                    avgS = "",
-                    loc = new L.LatLng(v.lat, v.lon),
-                    hasData = v[0] && _.has(v[0], 'avg');
-
-                if (hasData)
-                    avgS = parseFloat(v[0].avg).toFixed(2) + C.currency + "\/" + C.um;
-
-                popS = '<div class="' + (!hasData && 'notValued') + '">'+
-                        v.name + "<br>" +
-                        avgS +
-                       '</div>';
-
-
-                if (respByMarket[v.code]) {
-
-                    var marker = L.marker(loc, {
-                        icon: !!hasData ? foundIcon : desatIconBig
-                    })
-                    .bindPopup(popS)
-                    .on('mouseover', function (e) {
-                        e.target.openPopup();
+                    market.commodities = [];
+                    _.each(respByMarket[market.code], function(marketcom) {
+                        market.commodities.push(marketcom);
                     });
 
-                    if (hasData) {
-                        self.markers.addLayer(marker);
-                        latlngs.push(loc);
-                    }
+                    var avgs = "";
+                    _.each(market.commodities, function(com) {
+                        if (_.has(com,'avg'))
+                            avgs += "<li><b>"+com.commodityname+"</b>: "+
+                                    parseFloat(com.avg).toFixed(2)+
+                                    " <i>"+C.currency+"&sol;"+C.um+'</i>'
+                                    "</li>";
+                    });
+
+                    L.marker(L.latLng(market.lat, market.lon), {
+                        icon: market.commodities.length>0 ? foundIcon : desatIconBig
+                    })
+                    .bindPopup(
+                        '<div class="popmarket '+(market.commodities.length===0 && 'notValued')+'">'+
+                            '<h4>'+market.name+'</h4>'+
+                            '<ul>'+ avgs +'</ul>'+
+                        '</div>')
+                    .on('mouseover', function (e) {
+                        e.target.openPopup();
+                    })
+                    .addTo(self.markers);
                 }
             });
 
-            if (latlngs.length > 0 && self._zoomData) {
-                self.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
-            }
-            else if (self.countryCode) {
-                self._zoomToCountry(self.countryCode);
-            }
+            self._zoomToData();
         },
 
         _disposeMap: function () {

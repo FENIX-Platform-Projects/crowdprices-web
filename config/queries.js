@@ -17,7 +17,9 @@ define(function () {
             " FROM("+
                 "SELECT AVG(price), COUNT(price), marketcode, munitcode, commoditycode "+
                 "FROM {{{table}}} "+
-                "WHERE marketcode IN ('{{{markets}}}') "+
+                "WHERE "+
+                    "marketcode IN ('{{{markets}}}') "+
+                    "AND commoditycode IN ('{{{commodities}}}') "+
                     "AND date>='{{{from}}}' AND date<= '{{{to}}}' "+
                     "{{#if wkt}} AND ST_contains(ST_GeomFromText('{{{wkt}}}',4326),geo) {{/if}} "+
                 "GROUP BY marketcode, munitcode, commoditycode "+
