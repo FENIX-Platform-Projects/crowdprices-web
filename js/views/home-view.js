@@ -725,7 +725,6 @@ define([
                 },
                 sourceData: function(text, cb) {
                     self._geocoder.geocode({address: text}, function(args) {
-                        //console.log(args)
                         cb(args);
                     });
                 },
@@ -756,8 +755,6 @@ define([
 
                         json[ key ]= loc;   //key,value format
                     }
-
-                    //console.log(json);
 
                     return json;
                 }
@@ -836,22 +833,25 @@ define([
 
                 self._zoomData = false;
 
+                
                 if(self.filterPolygon) {
+
+                    self.emptyMarketLayer.clearLayers();
 
                     self.emptyMarketLayer.eachLayer(function(m) {
 
                         var p = m.toGeoJSON(),
                             poly = self.filterPolygon.toGeoJSON();
 //TODO
-console.log('###pointInPolygon', p, poly, self.filterPolygonWKT);
+//console.log('###pointInPolygon', p, poly);
 
 /*var point = {"type":  "Point", "coordinates": [ 705, 261 ]};
 var pol = {"type": "Polygon", "coordinates": [ [702.5,344.50000000000006], [801.890625,
     245.109375], [749.7351485148515,234.28465346534657] ]};
 log.info('###TEST',   GeojsonUtils.pointInPolygon(point, pol) )*/
-try{
-                        if( !GeojsonUtils.pointInPolygon(p, poly) )
-                            log.info('###pointInPolygon',m);
+                        try{
+                            if( !GeojsonUtils.pointInPolygon(p, poly) )
+                                console.log('###pointInPolygon',m);
                         }catch(e) {
                             console.log(e)
                         }
@@ -1007,17 +1007,13 @@ try{
         _onUpdateMapSuccess: function (data) {
 
             var self = this,
-                addressPoints = [],
-                address = 0,
-                response = _.rest(data);
-
-            var Cresponse = _.groupBy(response, 'marketcode');
+                latlngs = [],
+                resp = _.rest(data),
+                respByMarket = _.groupBy(resp, 'marketcode');
 
             if (self.markers != null) {
                 self.markers.clearLayers();
             }
-
-            self.emptyMarketLayer.clearLayers();
 
             $.each(this.mapMarkets, function (k, v) {
                 
@@ -1034,60 +1030,44 @@ try{
                     .addTo(self.emptyMarketLayer);
                 }
 
-                v = _.extend(v, Cresponse[v.code]);
+                v = _.extend(v, respByMarket[v.code]);
 
-                var avgS = "",
+                var popS = "",
+                    avgS = "",
+                    loc = new L.LatLng(v.lat, v.lon),
                     hasData = v[0] && _.has(v[0], 'avg');
 
-                if (hasData) {
-                    avgS = "<br>" + parseFloat(v[0].avg).toFixed(2) + C.currency + "\/" + C.um;
-                }
+                if (hasData)
+                    avgS = parseFloat(v[0].avg).toFixed(2) + C.currency + "\/" + C.um;
 
-                if (Cresponse[v.code]) {
-                    addressPoints.push([
-                        v.lat,
-                        v.lon,
-                        v.name + avgS,
-                        hasData,
-                        v.gaul0
-                    ]);
+                popS = '<div class="' + (!hasData && 'notValued') + '">'+
+                        v.name + "<br>" +
+                        avgS +
+                       '</div>';
 
-                    console.log('CODE',v.code)
-                }
-                else
-                    console.log('NOCODE',v.code)
 
-                address++;
-            });
-            
-            var latlngs = [];
-            for (var i = 0; i < addressPoints.length; i++) {
+                if (respByMarket[v.code]) {
 
-                var point = addressPoints[i];
-
-                var title = point[2],
-                    hasData = point[3],
-                    loc = new L.LatLng(point[0], point[1]);
-
-                var marker = L.marker(loc, {
-                    icon: !!hasData ? foundIcon : desatIconBig
-                })
-                    .bindPopup('<div class="' + (!hasData && 'notValued') + '">' + title + '</div>')
+                    var marker = L.marker(loc, {
+                        icon: !!hasData ? foundIcon : desatIconBig
+                    })
+                    .bindPopup(popS)
                     .on('mouseover', function (e) {
                         e.target.openPopup();
                     });
 
-                if (hasData) {
-                    this.markers.addLayer(marker);
-                    latlngs.push(loc);
+                    if (hasData) {
+                        self.markers.addLayer(marker);
+                        latlngs.push(loc);
+                    }
                 }
-            }
+            });
 
-            if (latlngs.length > 0 && this._zoomData) {
-                this.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
+            if (latlngs.length > 0 && self._zoomData) {
+                self.map.fitBounds(L.latLngBounds(latlngs).pad(0.2), 6);
             }
-            else if (this.countryCode) {
-                this._zoomToCountry(this.countryCode);
+            else if (self.countryCode) {
+                self._zoomToCountry(self.countryCode);
             }
         },
 
