@@ -381,6 +381,55 @@ define([
             }
         },
 
+        _getFilterConfig: function() {
+
+            var commodities = this.cachedResources["commodities"] || [],
+                countries = this.cachedResources["countries"], // always > 1 because of previous validation
+                markets = this.cachedResources["markets"] || [],
+                items = {};
+            
+            function compare(a, b) {
+                if (a.label < b.label)
+                    return -1;
+                if (a.label > b.label)
+                    return 1;
+                return 0;
+            }
+
+            // countries
+            if (countries.length > 1) {
+                countries.shift();
+            }
+            //TODO remove this temporary override
+            var c = _.map(countries.sort(compare), function (i) {
+                if (i.label && i.label.toLowerCase() === 'afghanistan') {
+                    i.label = "Demo";
+                }
+                return i;
+            });
+            Utils.assign(items, "countries.source", c);
+            Utils.assign(items, "countries.default", [C.country]);
+
+            // commodities
+            if (commodities.length > 1) {
+                commodities.shift();
+            }
+
+            Utils.assign(items, "commodities.source", commodities.sort(compare));
+            Utils.assign(items, "commodities.default", commodities.length>0 ? [commodities[0].value] : [] );
+
+            // markets
+            if (markets.length > 1) {
+                markets.shift();
+            }
+            Utils.assign(items, "markets.source", markets.sort(compare));
+            Utils.assign(items, "markets.default", _.map(markets, function (m) {
+                return m.value;
+            }));
+
+            return items;
+        },
+
         _onResourcesReady: function () {
 
             if (!Array.isArray(this.cachedResources["countries"]) || this.cachedResources["countries"].length < 2) {
@@ -389,65 +438,11 @@ define([
                 return;
             }
 
-            var self = this;
-
-            this.filterConfig = addCommoditiesCountriesMarketsModelsToFilter();
+            this.filterConfig = this._getFilterConfig();
 
             this._initMap();
 
             this._preloadTimeRange();
-
-            function addCommoditiesCountriesMarketsModelsToFilter() {
-
-                var commodities = self.cachedResources["commodities"] || [],
-                    countries = self.cachedResources["countries"], // always > 1 because of previous validation
-                    markets = self.cachedResources["markets"] || [],
-                    items = {};
-
-                // countries
-                if (countries.length > 1) {
-                    countries.shift();
-                }
-                //TODO remove this temporary override
-                var c = _.map(countries.sort(compare), function (i) {
-                    if (i.label && i.label.toLowerCase() === 'afghanistan') {
-                        i.label = "Demo";
-                    }
-                    return i;
-                });
-                Utils.assign(items, "countries.source", c);
-                Utils.assign(items, "countries.default", [C.country]);
-
-                // commodities
-                if (commodities.length > 1) {
-                    commodities.shift();
-                }
-
-                Utils.assign(items, "commodities.source", commodities.sort(compare));
-                Utils.assign(items, "commodities.default", _.map(C.commodities, function (c) {
-                    return c.toString();
-                }));
-
-                // markets
-                if (markets.length > 1) {
-                    markets.shift();
-                }
-                Utils.assign(items, "markets.source", markets.sort(compare));
-                Utils.assign(items, "markets.default", _.map(markets, function (m) {
-                    return m.value;
-                }));
-
-                return items;
-
-                function compare(a, b) {
-                    if (a.label < b.label)
-                        return -1;
-                    if (a.label > b.label)
-                        return 1;
-                    return 0;
-                }
-            }
-
         },
 
         _preloadTimeRangeError: function (e) {
@@ -529,18 +524,11 @@ define([
                 Utils.assign(items, "countries.selector.source", Utils.getNestedProperty("countries.source", conf));
                 Utils.assign(items, "countries.selector.default", Utils.getNestedProperty("countries.default", conf));
 
-
-                //commodities
-
                 Utils.assign(items, "commodities.selector.source", Utils.getNestedProperty("commodities.source", conf));
                 Utils.assign(items, "commodities.selector.default", Utils.getNestedProperty("commodities.default", conf));
 
-                // markets
-
                 Utils.assign(items, "markets.selector.source", Utils.getNestedProperty("markets.source", conf));
                 Utils.assign(items, "markets.selector.default", Utils.getNestedProperty("markets.default", conf));
-
-                // time
 
                 Utils.assign(items, "time.selector.config.min", Utils.getNestedProperty("time.min", conf));
                 Utils.assign(items, "time.selector.config.max", Utils.getNestedProperty("time.max", conf));

@@ -4,14 +4,18 @@ define(function () {
     'use strict';
 
     return {
-
-        //commodities_BACK: "SELECT code as value, name as label FROM commodity", // WHERE gaul0={{{country}}}
-        commodities:
-            "SELECT distinct {{{table}}}.commoditycode as value, commodity.name as label "+
-            "FROM {{{table}}} "+
-            "JOIN commodity ON {{{table}}}.commoditycode = commodity.code::VARCHAR "+
-            "WHERE gaul0code = {{{country}}} ",
-        
+        commodities: "SELECT distinct {{{table}}}.commoditycode as value, commodity.name as label "+
+                     "FROM {{{table}}}, commodity "+
+                     "WHERE gaul0code = {{{country}}} "+
+                        "AND {{{table}}}.commoditycode = commodity.code::VARCHAR",
+/*
+//TODO implement MEASURE UNIT FOR EACH COMMODITY
+SELECT distinct quantity, munit.name, commodity.name, currency.name 
+FROM data_gambia 
+JOIN munit ON munitcode = munit.code::VARCHAR 
+JOIN currency ON currencycode = currency.code::VARCHAR 
+JOIN commodity ON commoditycode = commodity.code::VARCHAR 
+*/
         countries: "SELECT code as value, name as label FROM gaul0",
         markets: "SELECT code as value, name as label FROM market "+
                  "WHERE gaul0 = {{{country}}} ORDER BY code",
