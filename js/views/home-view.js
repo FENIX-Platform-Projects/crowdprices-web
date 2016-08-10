@@ -767,8 +767,6 @@ define([
 
             self.mapMarkets = _.rest(self.cachedResources["map"]);
 
-            log.info("Map markets", self.mapMarkets);
-
             var tiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
                     subdomains: 'abcd',
                     maxZoom: 19
@@ -785,8 +783,8 @@ define([
 
             window.map = self.map;
 
-            self.markers = L.layerGroup().addTo(self.map);
-            self.emptyMarketLayer = L.layerGroup().addTo(self.map);
+            self.marketLayer = L.layerGroup().addTo(self.map);
+            self.marketLayerNull = L.layerGroup().addTo(self.map);
 
             self._initMapSearch(self.map, self.mapMarkets);
 
@@ -827,18 +825,19 @@ define([
                     self.filterPolygonWKT = self._toWKT(layer);
                 }
 
-                self.drawnItems.clearLayers().addLayer(layer);
-
-                self.drawnItems.setStyle(drawOpts.draw.polygon.shapeOptions);
+                self.drawnItems
+                    .clearLayers()
+                    .addLayer(layer)
+                    .setStyle(drawOpts.draw.polygon.shapeOptions);
 
                 self._zoomData = false;
 
                 
                 if(self.filterPolygon) {
 
-                    self.emptyMarketLayer.clearLayers();
+                    self.map.removeLayer(self.marketLayerNull);
 
-                    /*self.emptyMarketLayer.eachLayer(function(m) {
+                    /*self.marketLayerNull.eachLayer(function(m) {
 
                         var p = m.toGeoJSON(),
                             poly = self.filterPolygon.toGeoJSON();
@@ -854,11 +853,14 @@ define([
                     });*/
                 }
 
+
                 self._updateUI();
             })
             .on('draw:deleted', function (e) {
                 
                 self.drawnItems.clearLayers();
+
+                self.map.addLayer(self.marketLayerNull);
 
                 delete self.filterPolygon;
                 delete self.filterPolygonWKT;
@@ -987,7 +989,7 @@ define([
             
             var latlngs = [];
 
-            this.markers.eachLayer(function (m) {
+            this.marketLayer.eachLayer(function (m) {
                 latlngs.push(m.getLatLng());
             });
             if (latlngs.length > 0 && this._zoomData) {
@@ -1021,12 +1023,23 @@ define([
                 resp = _.rest(data),
                 respByMarket = _.groupBy(resp, 'marketcode');
 
-            if (self.markers != null) {
-                self.markers.clearLayers();
+            if (self.marketLayer != null) {
+                self.marketLayer.clearLayers();
+                self.marketLayerNull.clearLayers();
             }
 
             $.each(self.mapMarkets, function (k, market) {
-                
+
+                L.marker(L.latLng(market.lat, market.lon), { icon: desatIcon })
+                .bindPopup(
+                    '<div class="popmarket notValued">'+
+                        '<h4>'+market.name+'</h4>'+
+                    '</div>')
+                .on('mouseover', function (e) {
+                    e.target.openPopup();
+                })
+                .addTo(self.marketLayerNull);
+
                 if (respByMarket[market.code]) {
 
                     market.commodities = [];
@@ -1043,9 +1056,7 @@ define([
                                     "</li>";
                     });
 
-                    L.marker(L.latLng(market.lat, market.lon), {
-                        icon: market.commodities.length>0 ? foundIcon : desatIconBig
-                    })
+                    L.marker(L.latLng(market.lat, market.lon), { icon: foundIcon })
                     .bindPopup(
                         '<div class="popmarket '+(market.commodities.length===0 && 'notValued')+'">'+
                             '<h4>'+market.name+'</h4>'+
@@ -1054,8 +1065,8 @@ define([
                     .on('mouseover', function (e) {
                         e.target.openPopup();
                     })
-                    .addTo(self.markers);
-                }
+                    .addTo(self.marketLayer);
+                }//*/
             });
 
             self._zoomToData();
