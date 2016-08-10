@@ -13,6 +13,8 @@ define({
 
     //Dashboard filter's selector titles
     "filter_IndicatorCode" : "Indicator",
+
+    "empty_commodities": "No commodity prices available at the moment",
     
     //Lateral menu labels
     "menu_demographic" : "Demographic and social statistics",

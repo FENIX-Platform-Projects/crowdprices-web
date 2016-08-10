@@ -31,7 +31,8 @@ define([
     'bootstrap-table',
     'bootstrap-table.export',
     'amplify'
-], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, Utils, Moment,
+], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, 
+    Utils, Moment,
     L, GeojsonUtils,
     AuthManager) {
 
@@ -123,7 +124,7 @@ define([
                 }),
                 commodities: this._compile({
                     source: Q.commodities,
-                    context: {country: country}
+                    context: {country: country, table: Country2Table["country_" + country] }
                 }),
                 map: this._compile({
                     source: Q.mapInit,
@@ -344,7 +345,7 @@ define([
 
             this._bindEventListeners();
 
-            this._buildUI(C.country);
+            this._buildUI( C.country );
 
         },
 
@@ -403,17 +404,6 @@ define([
                     markets = self.cachedResources["markets"] || [],
                     items = {};
 
-                // commodities
-                if (commodities.length > 1) {
-                    commodities.shift();
-                }
-
-
-                Utils.assign(items, "commodities.source", commodities.sort(compare));
-                Utils.assign(items, "commodities.default", _.map(C.commodities, function (c) {
-                    return c.toString();
-                }));
-
                 // countries
                 if (countries.length > 1) {
                     countries.shift();
@@ -427,6 +417,16 @@ define([
                 });
                 Utils.assign(items, "countries.source", c);
                 Utils.assign(items, "countries.default", [C.country]);
+
+                // commodities
+                if (commodities.length > 1) {
+                    commodities.shift();
+                }
+
+                Utils.assign(items, "commodities.source", commodities.sort(compare));
+                Utils.assign(items, "commodities.default", _.map(C.commodities, function (c) {
+                    return c.toString();
+                }));
 
                 // markets
                 if (markets.length > 1) {
@@ -456,11 +456,10 @@ define([
         },
 
         _preloadTimeRange: function () {
-
             var country = Utils.getNestedProperty("countries.default", this.filterConfig)[0],
                 commodities = Utils.getNestedProperty("commodities.default", this.filterConfig),
-                markets = Utils.getNestedProperty("markets.default", this.filterConfig),
-                query = this._compile({
+                markets = Utils.getNestedProperty("markets.default", this.filterConfig);
+            var query = this._compile({
                     source: Q.time,
                     context: {
                         table: Country2Table["country_" + country],
@@ -475,13 +474,10 @@ define([
                 success: _.bind(this._preloadTimeRangeSuccess, this),
                 error: _.bind(this._preloadTimeRangeError, this)
             });
-
         },
 
         _preloadTimeRangeSuccess: function (response) {
-
             response.shift();
-
             var range = response[0] || {},
                 from = range.from || C.from,
                 to = range.to || new Date();
@@ -491,9 +487,7 @@ define([
             Utils.assign(this.filterConfig, "time.prettify", function (num) {
                 return Moment(num, "X").format(C.format);
             });
-
             this._initFilter();
-
         },
 
         _initFilter: function () {
@@ -518,8 +512,8 @@ define([
                     el: s.FILTER,
                     items: items
                 })
-                    .on("ready", _.bind(this._onFilterReady, this))
-                    .on("change", _.bind(this._onFilterChange, this))
+                .on("ready", _.bind(this._onFilterReady, this))
+                .on("change", _.bind(this._onFilterChange, this))
 
             }
 
@@ -529,16 +523,17 @@ define([
 
                 var items = $.extend(true, {}, Items),
                     conf = self.filterConfig;
+                
+                // countries
+
+                Utils.assign(items, "countries.selector.source", Utils.getNestedProperty("countries.source", conf));
+                Utils.assign(items, "countries.selector.default", Utils.getNestedProperty("countries.default", conf));
+
 
                 //commodities
 
                 Utils.assign(items, "commodities.selector.source", Utils.getNestedProperty("commodities.source", conf));
                 Utils.assign(items, "commodities.selector.default", Utils.getNestedProperty("commodities.default", conf));
-
-                // countries
-
-                Utils.assign(items, "countries.selector.source", Utils.getNestedProperty("countries.source", conf));
-                Utils.assign(items, "countries.selector.default", Utils.getNestedProperty("countries.default", conf));
 
                 // markets
 
