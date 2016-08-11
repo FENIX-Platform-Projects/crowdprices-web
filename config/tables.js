@@ -40,6 +40,10 @@ define([
                 field: 'max',
                 title: 'Maximum',
                 sortable: true
+            }, {
+                field: 'currencyname',
+                title: 'Currency',
+                sortable: true
             }],
             pagination: true,
             search: true,
@@ -74,6 +78,14 @@ define([
             }, {
                 field: 'quantity',
                 title: 'Quantity',
+                sortable: true
+            }, {
+                field: 'munitname',
+                title: 'Unit',
+                sortable: true
+            }, {
+                field: 'currencyname',
+                title: 'Currency',
                 sortable: true
             }, {
                 field: 'fulldate',

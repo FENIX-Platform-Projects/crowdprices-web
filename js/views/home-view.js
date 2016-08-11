@@ -1229,6 +1229,8 @@ define([
                     commoditycode: element["commoditycode"],
                     marketname: element["marketname"],
                     marketcode: element["marketcode"],
+                    currencyname: element["currencyname"],
+                    munitname: element["munitname"],
                     quantity: parseFloat(element["quantity"]),
                     userid: element["userid"]
                 });
@@ -1301,7 +1303,8 @@ define([
                     userid: element["userid"],
                     min: element["min"],
                     max: element["max"],
-                    avg: element["avg"]
+                    avg: element["avg"],
+                    currencyname: element["currencyname"]
                 });
             });
 
