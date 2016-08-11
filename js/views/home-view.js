@@ -38,14 +38,13 @@ define([
 
     'use strict';
 
-console.log('Country2Table',Country2Table(1));
-
     var s = {
         FILTER: "#selectors-el",
         DOWNLOAD_BTN: "#download-btn",
         REFRESH_BTN: "#refresh-btn",
         TABLE_DAILY_DATA: "#table-daily-data",
         TABLE_AGGREGATED_DATA: "#table-aggregated-data",
+        TABLE_AGGREGATED_DATERANGE: "#table-aggregated-daterange",
         CHART_DAILY_PRICES: "#chart-daily-prices",
         CHART_AVERAGE_PRICES: "#chart-average-prices",
         TABLE_DOWNLOAD_BUTTONS: "[data-download]",
@@ -478,6 +477,8 @@ console.log('Country2Table',Country2Table(1));
             var range = response[0] || {},
                 from = range.from || C.from,
                 to = range.to || new Date();
+            
+            this.daterange = [Moment(from).format(C.format), Moment(to).format(C.format)];
 
             Utils.assign(this.filterConfig, "time.min", Moment(from).format("X"));
             Utils.assign(this.filterConfig, "time.max", Moment(to).format("X"));
@@ -1110,7 +1111,11 @@ console.log('Country2Table',Country2Table(1));
                 final.push(s);
             });
 
-            this.$chartDailyPrices.highcharts('StockChart', $.extend(true, {}, ChartsConfig.dailyPrices, {series: final}));
+            this.$chartDailyPrices.highcharts('StockChart', 
+                $.extend(true, {}, ChartsConfig.dailyPrices, {
+                    series: final
+                })
+            );
 
         },
 
@@ -1261,7 +1266,7 @@ console.log('Country2Table',Country2Table(1));
             var data = this._buildAggregatedDataTableData(d);
 
             this.$tableAggregatedData.bootstrapTable($.extend(true, {}, TablesConfig.aggregatedData, {data: data}));
-
+            this.$el.find(s.TABLE_AGGREGATED_DATERANGE).html(this.daterange.join(' - '));
         },
 
         _updateAggregatedDataTable: function () {
@@ -1280,7 +1285,7 @@ console.log('Country2Table',Country2Table(1));
 
             this.$tableAggregatedData.bootstrapTable('removeAll');
             this.$tableAggregatedData.bootstrapTable('append', data);
-
+            this.$el.find(s.TABLE_AGGREGATED_DATERANGE).html(this.daterange.join(' - '));
         },
 
         _buildAggregatedDataTableData: function (d) {
@@ -1415,6 +1420,8 @@ console.log('Country2Table',Country2Table(1));
                     }
                 }),
                 stored;
+
+            this.daterange = [Moment.unix(fromValue).format(C.format), Moment.unix(toValue).format(C.format)];
 
             this.countryCode = country;
 
