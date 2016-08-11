@@ -1225,7 +1225,7 @@ console.log('Country2Table',Country2Table(1));
                     citycode: element["citycode"],
                     code: parseInt(element["code"]),
                     price: parseFloat(element["price"]),
-                    fulldate: element["fulldate"],
+                    fulldate: element["fulldate"].substring(0,10),
                     cityname: element["cityname"],
                     commodityname: element["commodityname"],
                     commoditycode: element["commoditycode"],
