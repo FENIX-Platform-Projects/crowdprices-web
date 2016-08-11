@@ -36,6 +36,10 @@ define([
 
             credits: false,
 
+            legend: {
+                enabled: true
+            },
+
             yAxis: {
                 labels: {
                     formatter: function () {
@@ -129,10 +133,7 @@ define([
             },
 
             legend: {
-
-                itemMarginTop: 5,
-                itemMarginBottom: 5
-
+                enabled: true
             },
             tooltip: {
                 headerFormat: '',
