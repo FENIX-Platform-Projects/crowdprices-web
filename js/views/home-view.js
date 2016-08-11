@@ -38,6 +38,8 @@ define([
 
     'use strict';
 
+console.log('Country2Table',Country2Table(1));
+
     var s = {
         FILTER: "#selectors-el",
         DOWNLOAD_BTN: "#download-btn",
@@ -124,7 +126,7 @@ define([
                 }),
                 commodities: this._compile({
                     source: Q.commodities,
-                    context: {country: country, table: Country2Table["country_" + country] }
+                    context: {country: country, table: Country2Table(country) }
                 }),
                 map: this._compile({
                     source: Q.mapInit,
@@ -457,7 +459,7 @@ define([
             var query = this._compile({
                     source: Q.time,
                     context: {
-                        table: Country2Table["country_" + country],
+                        table: Country2Table(country),
                         country: country,
                         commodities: _.compact(commodities).join("','"),
                         markets: _.compact(markets).join("','")
@@ -1399,7 +1401,7 @@ define([
                 query = this._compile({
                     source: obj.query,
                     context: {
-                        table: Country2Table["country_" + country],
+                        table: Country2Table(country),
                         country: country,
                         markets: _.compact(markets).join("','"),
                         commodities: _.compact(_.map(commodities, function (c) {
