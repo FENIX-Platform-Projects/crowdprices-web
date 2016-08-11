@@ -30,15 +30,15 @@ define([
                 searchable: true
             }, {
                 field: 'avg',
-                title: 'Average (' + C.currency + ')',
+                title: 'Average',
                 sortable: true
             }, {
                 field: 'min',
-                title: 'Minimum (' + C.currency + ')',
+                title: 'Minimum',
                 sortable: true
             }, {
                 field: 'max',
-                title: 'Maximum (' + C.currency + ')',
+                title: 'Maximum',
                 sortable: true
             }],
             pagination: true,
@@ -69,11 +69,11 @@ define([
                 searchable: true
             }, {
                 field: 'price',
-                title: 'Price (' + C.currency + ')',
+                title: 'Price',
                 sortable: true
             }, {
                 field: 'quantity',
-                title: 'Quantity (' + C.um + ')',
+                title: 'Quantity',
                 sortable: true
             }, {
                 field: 'fulldate',

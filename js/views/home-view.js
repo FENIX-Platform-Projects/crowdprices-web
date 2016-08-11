@@ -1035,7 +1035,7 @@ define([
                         if (_.has(com,'avg'))
                             avgs += "<li><b>"+com.commodityname+"</b>: "+
                                     parseFloat(com.avg).toFixed(2)+
-                                    " <i>"+C.currency+"&sol;"+C.um+'</i>'
+                                    " <big>"+com.currencyname+"<b> &sol; </b>"+com.munitname+'</big>'
                                     "</li>";
                     });
 
