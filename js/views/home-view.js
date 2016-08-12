@@ -7,6 +7,7 @@ define([
     'config/config',
     'config/events',
     'config/country2table',
+    'lib/CountryCodes',
     'config/charts',
     'config/tables',
     'config/submodules/fx-filter/config',
@@ -31,7 +32,7 @@ define([
     'bootstrap-table',
     'bootstrap-table.export',
     'amplify'
-], function (log, $, View, Filter, C, EVT, Country2Table, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, 
+], function (log, $, View, Filter, C, EVT, Country2Table, CountryCodes, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, 
     Utils, Moment,
     L, GeojsonUtils,
     AuthManager) {
@@ -54,16 +55,20 @@ define([
 
     var desatIcon = L.divIcon({
             iconSize: L.point(20,20),
+            iconAnchor: L.point(10,10),
             className: 'marker-desat-icon',
             html: '<div><span><span></div>'
         }),
         desatIconBig = L.divIcon({
             iconSize: L.point(20,20),
+            iconAnchor: L.point(10,10),
             className: 'marker-desat-icon',
             html: '<div><span><span></div>'
         }),
         foundIcon = L.divIcon({
             iconSize: L.point(20,20),
+            iconAnchor: L.point(10,10),
+            //popupAnchor: [-3, -76],
             className: 'marker-found-icon',
             html: '<div><span><span></div>'
         });
@@ -698,8 +703,9 @@ define([
             if(!self._geocoder)
                 self._geocoder = new google.maps.Geocoder();
 
-            map.addControl( new L.Control.Search({
+            self._searchControl = new L.Control.Search({
                 markerLocation: false,
+                hideMarkerOnCollapse: true,
                 autoType: false,
                 position: "topright",
                 //autoCollapse: true,
@@ -710,7 +716,15 @@ define([
                     return '<a class="truncate '+className+'" href="#">'+text+'<span></span></a>';
                 },
                 sourceData: function(text, cb) {
-                    self._geocoder.geocode({address: text}, function(args) {
+                    
+                    var countryIso2 = CountryCodes(self.countryCode).from('gaul').to('iso2');
+
+                    self._geocoder.geocode({
+                            componentRestrictions: {
+                                country: countryIso2,
+                            },
+                            address: text
+                        }, function(args) {
                         cb(args);
                     });
                 },
@@ -744,7 +758,13 @@ define([
 
                     return json;
                 }
-            }) );
+            }).on('search_locationfound', function(e) {
+                console.log('search_locationfound', this._markerLoc);
+                if(this._markerLoc._circleLoc)
+                    this._markerLoc._circleLoc.options.radius=40;
+            });
+
+            self.map.addControl(self._searchControl)
         },
 
         _initMap: function () {
@@ -1036,9 +1056,9 @@ define([
                     var avgs = "";
                     _.each(market.commodities, function(com) {
                         if (_.has(com,'avg'))
-                            avgs += "<li><b>"+com.commodityname+"</b>: "+
+                            avgs += "<li>"+com.commodityname+": "+
                                     parseFloat(com.avg).toFixed(2)+
-                                    " <big>"+com.currencyname+"<b> &sol; </b>"+com.munitname+'</big>'
+                                    " "+com.currencyname+" &sol; "+com.munitname+
                                     "</li>";
                     });
 
@@ -1236,7 +1256,7 @@ define([
                     commoditycode: element["commoditycode"],
                     marketname: element["marketname"],
                     marketcode: element["marketcode"],
-                    currencyname: element["currencyname"],
+                    currencyname: element["currencyname"] || '&curren;',
                     munitname: element["munitname"],
                     quantity: parseFloat(element["quantity"]),
                     userid: element["userid"]

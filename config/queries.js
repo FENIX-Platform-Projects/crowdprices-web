@@ -25,7 +25,7 @@ return {
     
     mapUpdate:
         "SELECT avg, count, marketcode "+
-                ",munit.name AS munitname ,currency.name AS currencyname "+
+                ",munit.name AS munitname ,currency.symbol AS currencyname "+
                 ",commodity.name AS commodityname "+
         "FROM("+
             "SELECT AVG(price), COUNT(price), marketcode, commoditycode "+
