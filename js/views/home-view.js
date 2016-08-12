@@ -708,7 +708,7 @@ define([
                 hideMarkerOnCollapse: true,
                 autoType: false,
                 position: "topright",
-                //autoCollapse: true,
+                firstTipSubmit: true,
                 minLength: 2,
                 initial: false,
                 buildTip: function(text, val) {

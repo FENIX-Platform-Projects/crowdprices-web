@@ -90,7 +90,7 @@ require([
                     'leaflet.draw'            :'{FENIX_CDN}/js/leaflet/plugins/leaflet.draw/0.2.4/leaflet.draw',
                     //'leaflet.geosearch'       :'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.control.geosearch',
                     //'leaflet.geosearch.google':'{FENIX_CDN}/js/leaflet/plugins/leaflet.geosearch/1.1.0/js/l.geosearch.provider.google',
-                    'leaflet-search'          :'{FENIX_CDN}/js/leaflet/plugins/leaflet-search/1.9.9/dist/leaflet-search.min',
+                    'leaflet-search'          :'{FENIX_CDN}/js/leaflet/plugins/leaflet-search/2.0.0/dist/leaflet-search.min',
                     //'leaflet-search'          :'/maps/leaflet-search/src/leaflet-search',
                     'geojson-utils'           :'{FENIX_CDN}/js/geojson-utils/1.1.0/geojson-utils',
 
