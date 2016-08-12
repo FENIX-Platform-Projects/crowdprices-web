@@ -1115,16 +1115,22 @@ define([
                 final = [],
                 data = _.rest(response);
 
-            _.each(data, function (d){
+            _.each(data, function (d) {
 
                 if (!series[d.label]){
                     series[d.label] = {
-                        name : d.label,
-                        data : []
+                        name:     d.label,
+                        data:     []
                     };
                 }
 
-                series[d.label].data.push([ new Date(d.fulldate).getTime(), d.price]);
+                series[d.label].data.push([
+                    new Date(d.fulldate).getTime(),
+                    d.price
+                ]);
+                
+                console.log(d.label, series[d.label].data);
+
             });
 
             _.each(series, function(s){

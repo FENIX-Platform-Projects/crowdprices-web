@@ -25,7 +25,7 @@ return {
     
     mapUpdate:
         "SELECT avg, count, marketcode "+
-                ",munit.name AS munitname ,currency.symbol AS currencyname "+
+                ",munit.name AS munitname, currency.symbol AS currencyname "+
                 ",commodity.name AS commodityname "+
         "FROM("+
             "SELECT AVG(price), COUNT(price), marketcode, commoditycode "+
@@ -37,7 +37,7 @@ return {
                 "AND date>='{{{from}}}' AND date<= '{{{to}}}' "+
                 "{{#if wkt}} AND ST_contains(ST_GeomFromText('{{{wkt}}}',4326),geo) {{/if}} "+
             "GROUP BY marketcode, commoditycode "+
-            ",munitcode, currencycode "+
+                ",munitcode, currencycode "+
             ") tmp "+
         "JOIN munit ON munitcode = munit.code::VARCHAR "+
         "JOIN currency ON currencycode = currency.code::VARCHAR "+
@@ -51,8 +51,47 @@ JOIN currency ON currencycode = currency.code::VARCHAR
 JOIN commodity ON commoditycode = commodity.code::VARCHAR 
 */
     chartsAveragePricesByCommodity: "SELECT commoditycode as commodity, commodity.name as label, price FROM ( SELECT commoditycode, AVG(price) as price FROM {{{table}}} WHERE date>='{{{from}}}' AND date<= '{{{to}}}' AND marketcode IN ('{{{markets}}}') AND commoditycode IN ('{{{commodities}}}') GROUP BY commoditycode ) data JOIN commodity ON (commoditycode::int = commodity.code ) ORDER BY commodity.name",
-    chartsDailyPricesByCommodity: "SELECT commoditycode as commodity, commodity.name as label, fulldate, price FROM ( SELECT commoditycode, fulldate, AVG(price) as price FROM {{{table}}} WHERE fulldate>='{{{from}}}' AND fulldate<= '{{{to}}}' AND marketcode IN ('{{{markets}}}') AND commoditycode IN ('{{{commodities}}}') GROUP BY commoditycode, fulldate ) data JOIN commodity ON (commoditycode::int = commodity.code ) ORDER BY fulldate, commodity.name",
     
+    chartsDailyPricesByCommodity:
+        "SELECT commoditycode as commodity, commodity.name as label, fulldate, price "+
+               //",munit.name AS munitname, currency.symbol AS currencyname "+
+        "FROM ( "+
+            "SELECT commoditycode, fulldate, AVG(price) as price "+
+                    //",munitcode, currencycode "+
+            "FROM {{{table}}} "+
+            "WHERE fulldate>='{{{from}}}' "+
+                "AND fulldate<= '{{{to}}}' "+
+                "AND marketcode IN ('{{{markets}}}') "+
+                "AND commoditycode IN ('{{{commodities}}}') "+
+            "GROUP BY commoditycode, fulldate "+
+                //",munitcode, currencycode "+
+            ") data "+
+        //"JOIN munit ON munitcode = munit.code::VARCHAR "+
+        //"JOIN currency ON currencycode = currency.code::VARCHAR "+
+
+        "JOIN commodity ON (commoditycode::int = commodity.code ) "+
+        "ORDER BY fulldate, commodity.name",
+    
+    chartsDailyPricesByCommodity_NEW:
+        "SELECT commoditycode as commodity, commodity.name as label, fulldate, price "+
+               ",munit.name AS munitname, currency.symbol AS currencyname "+
+        "FROM ( "+
+            "SELECT commoditycode, fulldate, AVG(price) as price "+
+                    ",munitcode, currencycode "+
+            "FROM {{{table}}} "+
+            "WHERE fulldate>='{{{from}}}' "+
+                "AND fulldate<= '{{{to}}}' "+
+                "AND marketcode IN ('{{{markets}}}') "+
+                "AND commoditycode IN ('{{{commodities}}}') "+
+            "GROUP BY commoditycode, fulldate "+
+                ",munitcode, currencycode "+
+            ") data "+
+        "JOIN munit ON munitcode = munit.code::VARCHAR "+
+        "JOIN currency ON currencycode = currency.code::VARCHAR "+
+
+        "JOIN commodity ON (commoditycode::int = commodity.code ) "+
+        "ORDER BY fulldate, commodity.name",
+
     tableDailyData: 
     "SELECT {{{table}}}.gaul0code, {{{table}}}.vendorname as vendorname, {{{table}}}.citycode, city.code, {{{table}}}.price, {{{table}}}.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, {{{table}}}.commoditycode, market.code, market.name as marketname, {{{table}}}.marketcode, {{{table}}}.quantity, {{{table}}}.userid "+
             ",munit.name AS munitname, currency.name AS currencyname "+

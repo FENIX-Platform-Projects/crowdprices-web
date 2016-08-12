@@ -13,6 +13,9 @@ define([
                 style: {
                     fontFamily: 'FrutigerLTW02-45Light',
 
+                },
+                labels: {
+                    align: "left"
                 }
             },
 
@@ -39,14 +42,12 @@ define([
             legend: {
                 enabled: true
             },
-
             yAxis: {
                 labels: {
+                    align: "left",
                     formatter: function () {
-                        return (this.value > 0 ? ' + ' : '') + this.value + '%'
+                        return this.value 
                     }
-
-
                 },
                 plotLines: [{
                     value: 0,
@@ -58,16 +59,9 @@ define([
                 labels: {
                 }
             },
-
-            plotOptions: {
-                series: {
-                    compare: 'percent'
-                }
-            },
-
             tooltip: {
                 headerFormat: '',
-                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} ' + C.currency + '/' + C.um + '</b> ({point.change}%) <br/>',
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y} ' + C.currency + '/' + C.um + '</b> <br/>',
                 valueDecimals: 2
             }
         },
