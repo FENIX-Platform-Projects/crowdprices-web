@@ -47,6 +47,7 @@ define([
         FILTER: "#selectors-el",
         DOWNLOAD_BTN: "#download-btn",
         REFRESH_BTN: "#refresh-btn",
+        TABLE_RAW_DATA: "#table-raw-data",
         TABLE_DAILY_DATA: "#table-daily-data",
         TABLE_AGGREGATED_DATA: "#table-aggregated-data",
         TABLE_AGGREGATED_DATERANGE: "#table-aggregated-daterange",
@@ -177,6 +178,7 @@ define([
 
             //tables
 
+            this.$tableRawData = this.$el.find(s.TABLE_RAW_DATA);
             this.$tableDailyData = this.$el.find(s.TABLE_DAILY_DATA);
             this.$tableAggregatedData = this.$el.find(s.TABLE_AGGREGATED_DATA);
 
@@ -1211,13 +1213,82 @@ define([
 
         _buildTables: function () {
 
+            this._buildRawDataTable();
+
             this._buildDailyDataTable();
 
             this._buildAggregatedDataTable();
 
             this._bindTableDownloadButtonsEvents();
         },
+//RAW
+        _buildRawDataTable: function () {
 
+            this._retrieveResource({
+                query: Q.tableRawData,
+                success: _.bind(this._buildRawDataTableSuccess, this),
+                error: _.bind(this._buildRawDataTableError, this)
+            });
+        },
+
+        _buildRawDataTableSuccess: function (response) {
+
+            var data = this._buildRawDataTableData(response);
+
+            this.$tableRawData.bootstrapTable($.extend(true, {}, TablesConfig.rawData, {data: data}));
+        },
+
+        _buildRawDataTableError: function (e) {
+            //alert("Impossible retrieve data for Table Raw data.");
+            log.error(e);
+        },
+
+        _updateRawDataTable: function () {
+
+            this._retrieveResource({
+                query: Q.tableRawData,
+                success: _.bind(this._updateRawDataTableSuccess, this),
+                error: _.bind(this._buildRawDataTableError, this)
+            });
+        },
+
+        _updateRawDataTableSuccess: function (response) {
+
+            var data = this._buildRawDataTableData(response);
+
+            this.$tableRawData.bootstrapTable('removeAll');
+            this.$tableRawData.bootstrapTable('append', data);
+        },
+
+        _buildRawDataTableData: function (d) {
+
+            var response = _.rest(d);
+            var data = [];
+
+            _.each(response, function (element) {
+
+                data.push({
+                    gaul0code: element["gaul0code"],
+                    vendorname: element["vendorname"],
+                    citycode: element["citycode"],
+                    code: parseInt(element["code"]),
+                    price: parseFloat(element["price"]),
+                    fulldate: element["fulldate"].substring(0,10),
+                    cityname: element["cityname"],
+                    commodityname: element["commodityname"],
+                    commoditycode: element["commoditycode"],
+                    marketname: element["marketname"],
+                    marketcode: element["marketcode"],
+                    currencyname: element["currencyname"] || '&curren;',
+                    munitname: element["munitname"],
+                    quantity: parseFloat(element["quantity"]),
+                    userid: element["userid"]
+                });
+            });
+
+            return data;
+        },
+//DAILY
         _buildDailyDataTable: function () {
 
             this._retrieveResource({
@@ -1283,9 +1354,9 @@ define([
             });
 
             return data;
-
         },
 
+//AGGREGATED
         _buildAggregatedDataTable: function () {
 
             this._retrieveResource({

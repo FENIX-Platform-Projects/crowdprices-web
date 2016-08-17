@@ -92,6 +92,20 @@ JOIN commodity ON commoditycode = commodity.code::VARCHAR
         "JOIN commodity ON (commoditycode::int = commodity.code ) "+
         "ORDER BY fulldate, commodity.name",
 
+    tableRawData: 
+    "SELECT {{{table}}}.gaul0code, {{{table}}}.vendorname as vendorname, {{{table}}}.citycode, city.code, {{{table}}}.price, {{{table}}}.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, {{{table}}}.commoditycode, market.code, market.name as marketname, {{{table}}}.marketcode, {{{table}}}.quantity, {{{table}}}.userid "+
+            ",munit.name AS munitname, currency.name AS currencyname "+
+
+    "FROM {{{table}}}, city, commodity, market, munit, currency "+
+    "WHERE {{{table}}}.citycode = city.code "+
+        "AND CAST ({{{table}}}.commoditycode as INT) = commodity.code "+
+        "AND {{{table}}}.gaul0code = '{{{country}}}' "+
+        "AND commodity.code = ANY('{{{anyCommodities}}}') "+
+        "AND {{{table}}}.marketcode = ANY('{{{anyMarkets}}}') "+
+        "AND CAST({{{table}}}.marketcode AS INT) = market.code "+
+        "AND munit.code = {{{table}}}.munitcode "+
+        "AND currency.code = {{{table}}}.currencycode ",
+
     tableDailyData: 
     "SELECT {{{table}}}.gaul0code, {{{table}}}.vendorname as vendorname, {{{table}}}.citycode, city.code, {{{table}}}.price, {{{table}}}.fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, {{{table}}}.commoditycode, market.code, market.name as marketname, {{{table}}}.marketcode, {{{table}}}.quantity, {{{table}}}.userid "+
             ",munit.name AS munitname, currency.name AS currencyname "+
