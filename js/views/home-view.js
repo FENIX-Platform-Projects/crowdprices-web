@@ -31,6 +31,7 @@ define([
     'highstock',
     'highstock.no-data',
     'highstock.exporting',
+    'bootstrap',
     'bootstrap-table',
     'bootstrap-table.export',
     'amplify'
@@ -216,7 +217,6 @@ define([
 
             this.$downloadBtn.on("click", _.bind(this._onDownloadClick, this));
             this.$refreshBtn.on("click", _.bind(this._onRefreshClick, this));
-
 
             amplify.subscribe("resize", this, this._onResizeEvent);
             amplify.subscribe("login", this, this._onLoginEvent);
@@ -1143,8 +1143,6 @@ define([
                     new Date(d.fulldate).getTime(),
                     d.price
                 ]);
-                
-                console.log(d.label, series[d.label].data);
 
             });
 

@@ -105,7 +105,14 @@ define([
         },
 
         dailyData : {
-            columns: [{
+            columns: [
+            {
+                field: 'fulldate',
+                title: 'Day',
+                sortable: true,
+                searchable: true
+            },
+            {
                 field: 'cityname',
                 title: 'City',
                 sortable: true,
@@ -141,11 +148,6 @@ define([
                 field: 'currencyname',
                 title: 'Currency',
                 sortable: true
-            }, {
-                field: 'fulldate',
-                title: 'Date',
-                sortable: true,
-                searchable: true
             }, {
                 field: 'userid',
                 title: 'User',
