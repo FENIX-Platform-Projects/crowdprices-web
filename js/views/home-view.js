@@ -704,7 +704,15 @@ define([
                 self._geocoder = new google.maps.Geocoder();
 
             self._searchControl = new L.Control.Search({
-                markerLocation: false,
+                marker: {
+                    icon:false,
+                    circle: {
+                        radius:13,
+                        weight:4,
+                        opacity:.9,
+                        color: '#aa66cc'
+                    }
+                },
                 hideMarkerOnCollapse: true,
                 autoType: false,
                 position: "topright",
@@ -758,12 +766,7 @@ define([
 
                     return json;
                 }
-            }).on('search_locationfound', function(e) {
-                console.log('search_locationfound', this._markerLoc);
-                if(this._markerLoc._circleLoc)
-                    this._markerLoc._circleLoc.options.radius=40;
             });
-
             self.map.addControl(self._searchControl)
         },
 

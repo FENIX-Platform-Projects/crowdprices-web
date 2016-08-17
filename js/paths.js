@@ -26,7 +26,7 @@ return {
 		'leaflet.draw'            :FXCDN+'leaflet/plugins/leaflet.draw/0.2.4/leaflet.draw',
 		//'leaflet.geosearch'       :FXCDN+'leaflet/plugins/leaflet.geosearch/1.1.0/js/l.control.geosearch',
 		//'leaflet.geosearch.google':FXCDN+'leaflet/plugins/leaflet.geosearch/1.1.0/js/l.geosearch.provider.google',
-		'leaflet-search'          :FXCDN+'leaflet/plugins/leaflet-search/1.9.9/dist/leaflet-search.min',
+		'leaflet-search'          :FXCDN+'leaflet/plugins/leaflet-search/2.6.0/dist/leaflet-search.min',
 		'geojson-utils'           :FXCDN+'geojson-utils/1.1.0/geojson-utils',
 
 		'jquery.nouislider'       :'js/slider/jquery.nouislider.all.min',
