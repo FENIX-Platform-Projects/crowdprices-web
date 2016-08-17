@@ -1205,6 +1205,8 @@ define([
 
         _updateTables: function () {
 
+            this._updateRawDataTable();
+
             this._updateDailyDataTable();
 
             this._updateAggregatedDataTable();
