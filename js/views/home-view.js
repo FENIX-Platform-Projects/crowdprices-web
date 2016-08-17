@@ -20,7 +20,9 @@ define([
     'moment',
     'leaflet',
     'geojson-utils',
+    'text!fx-common/html/table.html',
     'fx-common/AuthManager',
+
     
     'leaflet-search',
     'leaflet.markercluster',
@@ -32,9 +34,11 @@ define([
     'bootstrap-table',
     'bootstrap-table.export',
     'amplify'
-], function (log, $, View, Filter, C, EVT, Country2Table, CountryCodes, ChartsConfig, TablesConfig, Items, template, i18nLabels, WDSClient, Q, Handlebars, 
+], function (log, $, View, Filter, C, EVT, Country2Table, CountryCodes, ChartsConfig, TablesConfig, Items, 
+    template, i18nLabels, WDSClient, Q, Handlebars, 
     Utils, Moment,
     L, GeojsonUtils,
+    tableTemplate,
     AuthManager) {
 
     'use strict';
@@ -52,6 +56,8 @@ define([
         NO_DATA_ALERT: "#no-data-alert",
         PROTECTED: "[data-protected]"
     };
+
+    var tableTmpl = Handlebars.compile(tableTemplate);
 
     var desatIcon = L.divIcon({
             iconSize: L.point(20,20),
@@ -1056,20 +1062,24 @@ define([
                         market.commodities.push(marketcom);
                     });
 
-                    var avgs = "";
-                    _.each(market.commodities, function(com) {
-                        if (_.has(com,'avg'))
-                            avgs += "<li>"+com.commodityname+": "+
-                                    parseFloat(com.avg).toFixed(2)+
-                                    " "+com.currencyname+" &sol; "+com.munitname+
-                                    "</li>";
-                    });
-
                     L.marker(L.latLng(market.lat, market.lon), { icon: foundIcon })
                     .bindPopup(
                         '<div class="popmarket '+(market.commodities.length===0 && 'notValued')+'">'+
                             '<h4>'+market.name+'</h4>'+
-                            '<ul>'+ avgs +'</ul>'+
+                            tableTmpl({
+                                headers: [
+                                    'Commodity',
+                                    'Average',
+                                    'Currency/Unit'
+                                ],
+                                rows: _.map(market.commodities, function(com) {
+                                    return [
+                                        com.commodityname,
+                                        parseFloat(com.avg).toFixed(2),
+                                        com.currencyname +' / '+ com.munitname
+                                    ];
+                                })
+                            })+
                         '</div>')
                     .on('mouseover', function (e) {
                         e.target.openPopup();
