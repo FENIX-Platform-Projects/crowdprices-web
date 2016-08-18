@@ -107,7 +107,7 @@ JOIN commodity ON commoditycode = commodity.code::VARCHAR
         "AND currency.code = {{{table}}}.currencycode ",
 
     tableDailyData: 
-    "SELECT t.fulldate, t.vendorname, t.marketname, t.cityname, t.commodityname, t.price, t.quantity, t.munitname, t.userid "+
+    "SELECT t.fulldate, t.vendorname, t.marketname, t.cityname, t.commodityname, t.price, t.quantity, t.munitname, t.userid, t.currencyname "+
     "FROM ("+
         "SELECT {{{table}}}.gaul0code, {{{table}}}.vendorname as vendorname, {{{table}}}.citycode, city.code, {{{table}}}.price, CAST ({{{table}}}.date as timestamp without time zone) as fulldate, city.name as cityname, commodity.code, commodity.name as commodityname, {{{table}}}.commoditycode, market.code, market.name as marketname, {{{table}}}.marketcode, {{{table}}}.quantity, {{{table}}}.userid "+
                 ",munit.name AS munitname, currency.name AS currencyname "+
@@ -121,7 +121,7 @@ JOIN commodity ON commoditycode = commodity.code::VARCHAR
             "AND CAST({{{table}}}.marketcode AS INT) = market.code "+
             "AND munit.code = {{{table}}}.munitcode "+
             "AND currency.code = {{{table}}}.currencycode ) t "+
-    "GROUP BY t.fulldate, t.vendorname, t.marketname, t.cityname, t.commodityname, t.price, t.quantity, t.munitname, t.userid ",   
+    "GROUP BY t.fulldate, t.vendorname, t.marketname, t.cityname, t.commodityname, t.price, t.quantity, t.munitname, t.userid, t.currencyname ",   
 
     tableAggregatedData: 
     "SELECT t.cityname,t.marketname,t.vendorname,t.commodityname, min(t.price)min,max(t.price)max, round(avg(t.price)::numeric,2)avg, t.currencyname "+
