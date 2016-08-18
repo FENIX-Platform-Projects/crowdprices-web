@@ -215,8 +215,15 @@ define([
 
         _bindEventListeners: function () {
 
+            var self = this;
+
             this.$downloadBtn.on("click", _.bind(this._onDownloadClick, this));
             this.$refreshBtn.on("click", _.bind(this._onRefreshClick, this));
+
+            this.$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+              //self.$chartAveragePrices.highcharts().reflow();
+              self._onResizeEvent();
+            });
 
             amplify.subscribe("resize", this, this._onResizeEvent);
             amplify.subscribe("login", this, this._onLoginEvent);
